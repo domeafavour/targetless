@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@radix-ui/react-slot': ^1.1.2
   '@tailwindcss/vite': ^4.0.6
   '@tanstack/ai': ^0.0.1
   '@tanstack/ai-anthropic': ^0.0.1
@@ -44,6 +45,7 @@ specifiers:
   zod: ^4.1.11
 
 dependencies:
+  '@radix-ui/react-slot': 1.2.4_by7g7f67gtldri3swjzb52k6hu
   '@tailwindcss/vite': 4.1.18_vite@7.3.0
   '@tanstack/ai': 0.0.1_zod@4.3.5
   '@tanstack/ai-anthropic': 0.0.1_7oac4goin75nrnmxghoh7uluze
@@ -688,6 +690,33 @@ packages:
   /@oozcitak/util/10.0.0:
     resolution: {integrity: sha512-hAX0pT/73190NLqBPPWSdBVGtbY6VOhWYK3qqHqtXQ1gK7kS2yz4+ivsN07hpJ6I3aeMtKP6J6npsEKOAzuTLA==}
     engines: {node: '>=20.0'}
+    dev: false
+
+  /@radix-ui/react-compose-refs/1.1.2_by7g7f67gtldri3swjzb52k6hu:
+    resolution: {integrity: sha512-z4eqJvfiNnFMHIIvXP3CY57y2WJs5g2v3X0zm9mEJkrkNv4rDxu+sg9Jh8EkXyeqBkB7SOcboo9dMVqhyrACIg==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 19.2.7
+      react: 19.2.3
+    dev: false
+
+  /@radix-ui/react-slot/1.2.4_by7g7f67gtldri3swjzb52k6hu:
+    resolution: {integrity: sha512-Jl+bCv8HxKnlTLVrcDE8zTMJ09R9/ukw4qBs/oZClOfoQk/cOTbDn+NceXfV7j09YPVQUryJPHurafcSg6EVKA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.2_by7g7f67gtldri3swjzb52k6hu
+      '@types/react': 19.2.7
+      react: 19.2.3
     dev: false
 
   /@rolldown/pluginutils/1.0.0-beta.40:
