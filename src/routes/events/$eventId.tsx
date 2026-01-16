@@ -13,6 +13,17 @@ import EventStatusPill from '@/components/EventStatusPill'
 import { eventsApi } from '@/lib/api/events'
 import { formatTimestamp } from '@/lib/date-utils'
 import { Button } from '@/components/ui/Button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 
 export const Route = createFileRoute('/events/$eventId')({
   component: EventRecordsPage,
@@ -41,12 +52,6 @@ function EventRecordsPage() {
 
   const handleDelete = () => {
     if (!event) return
-    const confirmed = window.confirm(
-      `Delete "${event.title}" and all of its records? This cannot be undone.`,
-    )
-    if (!confirmed) {
-      return
-    }
     deleteMutation.mutate(event.id)
   }
 
@@ -109,19 +114,53 @@ function EventRecordsPage() {
                     ])
                   }}
                 />
-                <Button
-                  type="button"
-                  variant="danger"
-                  onClick={handleDelete}
-                  disabled={deleteMutation.isPending}
-                >
-                  {deleteMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
-                  )}
-                  Delete
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      disabled={deleteMutation.isPending}
+                    >
+                      {deleteMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
+                        Delete Event
+                      </p>
+                      <AlertDialogTitle>
+                        Remove "{event.title}"?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete the event and every record in its
+                        timeline. You cannot undo this action.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={deleteMutation.isPending}>
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        variant="danger"
+                        onClick={handleDelete}
+                        disabled={deleteMutation.isPending}
+                      >
+                        {deleteMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                        Delete Event
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </section>
 

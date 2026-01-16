@@ -12,6 +12,17 @@ import {
 import CompleteEventButton from '@/components/CompleteEventButton'
 import EventStatusPill from '@/components/EventStatusPill'
 import { Button } from '@/components/ui/Button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { eventsApi } from '@/lib/api/events'
 import { type EventWithCurrentRecord } from '@/lib/event-store'
 import { formatTimestamp } from '@/lib/date-utils'
@@ -30,16 +41,6 @@ function EventDashboard() {
   const events = eventsQuery.data ?? []
   const activeEvents = events.filter((event) => !event.completed).length
   const completedEvents = events.filter((event) => event.completed).length
-
-  const handleDelete = (event: EventWithCurrentRecord) => {
-    const confirmed = window.confirm(
-      `Delete "${event.title}" and all of its records? This cannot be undone.`,
-    )
-    if (!confirmed) {
-      return
-    }
-    deleteMutation.mutate(event.id)
-  }
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white">
@@ -139,19 +140,53 @@ function EventDashboard() {
                         })
                       }
                     />
-                    <Button
-                      type="button"
-                      variant="danger"
-                      onClick={() => handleDelete(event)}
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                      Delete
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="danger"
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
+                            Delete Event
+                          </p>
+                          <AlertDialogTitle>
+                            Remove "{event.title}"?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete the event and all of its records.
+                            You cannot undo this action.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel disabled={isDeleting}>
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            variant="danger"
+                            onClick={() => deleteMutation.mutate(event.id)}
+                            disabled={isDeleting}
+                          >
+                            {isDeleting ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                            Delete Event
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </article>
               )
