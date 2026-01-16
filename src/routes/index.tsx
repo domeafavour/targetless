@@ -1,9 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   BookOpen,
   Loader2,
@@ -15,25 +11,19 @@ import {
 
 import CompleteEventButton from '@/components/CompleteEventButton'
 import EventStatusPill from '@/components/EventStatusPill'
-import {
-  deleteEvent,
-  listEvents,
-  type EventWithCurrentRecord,
-} from '@/lib/event-store'
+import { eventsApi } from '@/lib/api/events'
+import { type EventWithCurrentRecord } from '@/lib/event-store'
 import { formatTimestamp } from '@/lib/date-utils'
 
 export const Route = createFileRoute('/')({ component: EventDashboard })
 
 function EventDashboard() {
   const queryClient = useQueryClient()
-  const eventsQuery = useQuery({
-    queryKey: ['events'],
-    queryFn: listEvents,
-  })
+  const eventsQuery = eventsApi.list.useQuery()
 
-  const deleteMutation = useMutation<void, Error, string>({
-    mutationFn: (eventId) => deleteEvent(eventId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
+  const deleteMutation = eventsApi.delete.useMutation({
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: eventsApi.list.getKey() }),
   })
 
   const events = eventsQuery.data ?? []
@@ -73,7 +63,9 @@ function EventDashboard() {
             </Link>
             <button
               type="button"
-              onClick={() => queryClient.invalidateQueries({ queryKey: ['events'] })}
+              onClick={() =>
+                queryClient.invalidateQueries({ queryKey: eventsApi.list.getKey() })
+              }
               className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white hover:border-white/60"
             >
               <RefreshCw className="w-4 h-4" /> Refresh
@@ -144,7 +136,9 @@ function EventDashboard() {
                       event={event}
                       disabled={!event.currentRecord || event.completed}
                       onSuccess={() =>
-                        queryClient.invalidateQueries({ queryKey: ['events'] })
+                        queryClient.invalidateQueries({
+                          queryKey: eventsApi.list.getKey(),
+                        })
                       }
                     />
                     <button

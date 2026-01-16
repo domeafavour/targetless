@@ -1,9 +1,5 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeft,
   BookOpen,
@@ -14,8 +10,8 @@ import {
 
 import CompleteEventButton from '@/components/CompleteEventButton'
 import EventStatusPill from '@/components/EventStatusPill'
+import { eventsApi } from '@/lib/api/events'
 import { formatTimestamp } from '@/lib/date-utils'
-import { deleteEvent, getEvent } from '@/lib/event-store'
 
 export const Route = createFileRoute('/events/$eventId')({
   component: EventRecordsPage,
@@ -26,16 +22,16 @@ function EventRecordsPage() {
   const navigate = useNavigate({ from: '/events/$eventId' })
   const queryClient = useQueryClient()
 
-  const eventQuery = useQuery({
-    queryKey: ['event', eventId],
-    queryFn: () => getEvent(eventId),
+  const eventQuery = eventsApi.detail.useQuery({
+    variables: { eventId },
   })
 
-  const deleteMutation = useMutation<void, Error, string>({
-    mutationFn: (id) => deleteEvent(id),
+  const deleteMutation = eventsApi.delete.useMutation({
     onSuccess: async (_, deletedId) => {
-      await queryClient.invalidateQueries({ queryKey: ['events'] })
-      queryClient.removeQueries({ queryKey: ['event', deletedId] })
+      await queryClient.invalidateQueries({ queryKey: eventsApi.list.getKey() })
+      queryClient.removeQueries({
+        queryKey: eventsApi.detail.getKey({ eventId: deletedId }),
+      })
       navigate({ to: '/' })
     },
   })
@@ -102,9 +98,13 @@ function EventRecordsPage() {
                   onSuccess={async (_, variables) => {
                     await Promise.all([
                       queryClient.invalidateQueries({
-                        queryKey: ['event', variables.eventId],
+                        queryKey: eventsApi.detail.getKey({
+                          eventId: variables.eventId,
+                        }),
                       }),
-                      queryClient.invalidateQueries({ queryKey: ['events'] }),
+                      queryClient.invalidateQueries({
+                        queryKey: eventsApi.list.getKey(),
+                      }),
                     ])
                   }}
                 />

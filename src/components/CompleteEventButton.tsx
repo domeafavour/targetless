@@ -1,9 +1,9 @@
 import type { ButtonHTMLAttributes } from 'react'
 import { Loader2, CheckCircle2 } from 'lucide-react'
-import { useMutation } from '@tanstack/react-query'
 
+import { eventsApi } from '@/lib/api/events'
 import {
-  completeEvent,
+  type CompleteEventInput,
   type EventDetail,
   type EventWithCurrentRecord,
 } from '@/lib/event-store'
@@ -17,8 +17,8 @@ type CompleteEventButtonProps = {
   className?: string
   buttonProps?: ButtonHTMLAttributes<HTMLButtonElement>
   onSuccess?: (
-    data: Awaited<ReturnType<typeof completeEvent>>,
-    variables: Parameters<typeof completeEvent>[0],
+    data: EventWithCurrentRecord,
+    variables: CompleteEventInput,
   ) => void | Promise<void>
 }
 
@@ -29,8 +29,7 @@ export default function CompleteEventButton({
   buttonProps,
   onSuccess,
 }: CompleteEventButtonProps) {
-  const mutation = useMutation({
-    mutationFn: completeEvent,
+  const mutation = eventsApi.complete.useMutation({
     onSuccess: async (data, variables) => {
       if (onSuccess) {
         await onSuccess(data, variables)

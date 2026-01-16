@@ -1,9 +1,9 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { Loader2, PlusCircle, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 
-import { createEvent } from '@/lib/event-store'
+import { eventsApi } from '@/lib/api/events'
 
 export const Route = createFileRoute('/events/new')({
   component: CreateEventPage,
@@ -16,10 +16,9 @@ function CreateEventPage() {
   const [count, setCount] = useState('0')
   const [error, setError] = useState<string | null>(null)
 
-  const mutation = useMutation({
-    mutationFn: createEvent,
+  const mutation = eventsApi.create.useMutation({
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['events'] })
+      await queryClient.invalidateQueries({ queryKey: eventsApi.list.getKey() })
       navigate({ to: '/' })
     },
     onError: (err: Error) => setError(err.message),
