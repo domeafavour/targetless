@@ -7,19 +7,15 @@ import {
 import {
   ArrowLeft,
   BookOpen,
-  CheckCircle2,
   History,
   Loader2,
   Trash2,
 } from 'lucide-react'
 
+import CompleteEventButton from '@/components/CompleteEventButton'
 import EventStatusPill from '@/components/EventStatusPill'
 import { formatTimestamp } from '@/lib/date-utils'
-import {
-  completeEvent,
-  deleteEvent,
-  getEvent,
-} from '@/lib/event-store'
+import { deleteEvent, getEvent } from '@/lib/event-store'
 
 export const Route = createFileRoute('/events/$eventId')({
   component: EventRecordsPage,
@@ -35,20 +31,6 @@ function EventRecordsPage() {
     queryFn: () => getEvent(eventId),
   })
 
-  const completeMutation = useMutation<
-    Awaited<ReturnType<typeof completeEvent>>,
-    Error,
-    Parameters<typeof completeEvent>[0]
-  >({
-    mutationFn: (input) => completeEvent(input),
-    onSuccess: async (_, variables) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['event', variables.eventId] }),
-        queryClient.invalidateQueries({ queryKey: ['events'] }),
-      ])
-    },
-  })
-
   const deleteMutation = useMutation<void, Error, string>({
     mutationFn: (id) => deleteEvent(id),
     onSuccess: async (_, deletedId) => {
@@ -59,42 +41,6 @@ function EventRecordsPage() {
   })
 
   const event = eventQuery.data
-
-  const handleComplete = () => {
-    if (!event) return
-    const shouldComplete = window.confirm(`Mark "${event.title}" as completed?`)
-    if (!shouldComplete) {
-      return
-    }
-
-    let createNext = false
-    let nextCount: number | undefined
-    if (
-      event.currentRecord &&
-      window.confirm('Create a new record for the next cycle?')
-    ) {
-      createNext = true
-      const response = window.prompt(
-        'Starting count for the new record',
-        String(event.currentRecord.count),
-      )
-      if (response === null) {
-        return
-      }
-      const parsed = Number(response)
-      if (!Number.isFinite(parsed) || parsed < 0) {
-        window.alert('Count must be a non-negative number')
-        return
-      }
-      nextCount = parsed
-    }
-
-    completeMutation.mutate({
-      eventId: event.id,
-      createNext,
-      nextCount,
-    })
-  }
 
   const handleDelete = () => {
     if (!event) return
@@ -150,23 +96,18 @@ function EventRecordsPage() {
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={handleComplete}
-                  disabled={
-                    completeMutation.isPending ||
-                    !event.currentRecord ||
-                    event.completed
-                  }
-                  className="inline-flex items-center gap-2 rounded-full bg-emerald-500/90 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white disabled:cursor-not-allowed disabled:bg-white/10"
-                >
-                  {completeMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <CheckCircle2 className="h-4 w-4" />
-                  )}
-                  Complete
-                </button>
+                <CompleteEventButton
+                  event={event}
+                  disabled={!event.currentRecord || event.completed}
+                  onSuccess={async (_, variables) => {
+                    await Promise.all([
+                      queryClient.invalidateQueries({
+                        queryKey: ['event', variables.eventId],
+                      }),
+                      queryClient.invalidateQueries({ queryKey: ['events'] }),
+                    ])
+                  }}
+                />
                 <button
                   type="button"
                   onClick={handleDelete}

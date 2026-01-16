@@ -6,7 +6,6 @@ import {
 } from '@tanstack/react-query'
 import {
   BookOpen,
-  CheckCircle2,
   Loader2,
   Plus,
   RefreshCw,
@@ -14,9 +13,9 @@ import {
   Trash2,
 } from 'lucide-react'
 
+import CompleteEventButton from '@/components/CompleteEventButton'
 import EventStatusPill from '@/components/EventStatusPill'
 import {
-  completeEvent,
   deleteEvent,
   listEvents,
   type EventWithCurrentRecord,
@@ -32,15 +31,6 @@ function EventDashboard() {
     queryFn: listEvents,
   })
 
-  const completeMutation = useMutation<
-    Awaited<ReturnType<typeof completeEvent>>,
-    Error,
-    Parameters<typeof completeEvent>[0]
-  >({
-    mutationFn: (input) => completeEvent(input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
-  })
-
   const deleteMutation = useMutation<void, Error, string>({
     mutationFn: (eventId) => deleteEvent(eventId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
@@ -49,44 +39,6 @@ function EventDashboard() {
   const events = eventsQuery.data ?? []
   const activeEvents = events.filter((event) => !event.completed).length
   const completedEvents = events.filter((event) => event.completed).length
-
-  const handleComplete = (event: EventWithCurrentRecord) => {
-    const shouldComplete = window.confirm(
-      `Mark "${event.title}" as completed?`,
-    )
-    if (!shouldComplete) {
-      return
-    }
-
-    let createNext = false
-    let nextCount: number | undefined
-    if (
-      event.currentRecord &&
-      window.confirm('Create a new record for the next cycle?')
-    ) {
-      createNext = true
-      const defaultValue = String(event.currentRecord.count)
-      const response = window.prompt(
-        'Starting count for the new record',
-        defaultValue,
-      )
-      if (response === null) {
-        return
-      }
-      const parsed = Number(response)
-      if (!Number.isFinite(parsed) || parsed < 0) {
-        window.alert('Count must be a non-negative number')
-        return
-      }
-      nextCount = parsed
-    }
-
-    completeMutation.mutate({
-      eventId: event.id,
-      createNext,
-      nextCount,
-    })
-  }
 
   const handleDelete = (event: EventWithCurrentRecord) => {
     const confirmed = window.confirm(
@@ -151,17 +103,9 @@ function EventDashboard() {
         ) : (
           <div className="space-y-4">
             {events.map((event) => {
-              const isCompleting =
-                completeMutation.isPending &&
-                completeMutation.variables?.eventId === event.id
               const isDeleting =
                 deleteMutation.isPending &&
                 deleteMutation.variables === event.id
-              const canComplete = Boolean(
-                event.currentRecord &&
-                  !event.completed &&
-                  !isCompleting,
-              )
 
               return (
                 <article
@@ -196,19 +140,13 @@ function EventDashboard() {
                     >
                       <BookOpen className="h-4 w-4" /> View Records
                     </Link>
-                    <button
-                      type="button"
-                      disabled={!canComplete}
-                      onClick={() => handleComplete(event)}
-                      className="inline-flex items-center gap-2 rounded-full bg-emerald-500/90 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white disabled:cursor-not-allowed disabled:bg-white/10"
-                    >
-                      {isCompleting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <CheckCircle2 className="h-4 w-4" />
-                      )}
-                      Complete
-                    </button>
+                    <CompleteEventButton
+                      event={event}
+                      disabled={!event.currentRecord || event.completed}
+                      onSuccess={() =>
+                        queryClient.invalidateQueries({ queryKey: ['events'] })
+                      }
+                    />
                     <button
                       type="button"
                       onClick={() => handleDelete(event)}
