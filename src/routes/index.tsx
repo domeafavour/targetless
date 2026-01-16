@@ -11,6 +11,7 @@ import {
 
 import CompleteEventButton from '@/components/CompleteEventButton'
 import EventStatusPill from '@/components/EventStatusPill'
+import { Button } from '@/components/ui/Button'
 import { eventsApi } from '@/lib/api/events'
 import { type EventWithCurrentRecord } from '@/lib/event-store'
 import { formatTimestamp } from '@/lib/date-utils'
@@ -55,21 +56,20 @@ function EventDashboard() {
             complete and instantly spin up the next one when you are ready.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link
-              to="/events/new"
-              className="inline-flex items-center gap-2 rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white hover:bg-cyan-400"
-            >
-              <Plus className="w-4 h-4" /> Create Event
-            </Link>
-            <button
+            <Button asChild>
+              <Link to="/events/new">
+                <Plus className="w-4 h-4" /> Create Event
+              </Link>
+            </Button>
+            <Button
               type="button"
+              variant="outline"
               onClick={() =>
                 queryClient.invalidateQueries({ queryKey: eventsApi.list.getKey() })
               }
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white hover:border-white/60"
             >
               <RefreshCw className="w-4 h-4" /> Refresh
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -125,13 +125,11 @@ function EventDashboard() {
                   </div>
 
                   <div className="mt-6 flex flex-wrap gap-3">
-                    <Link
-                      to="/events/$eventId"
-                      params={{ eventId: event.id }}
-                      className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white hover:border-white/60"
-                    >
-                      <BookOpen className="h-4 w-4" /> View Records
-                    </Link>
+                    <Button asChild variant="outline">
+                      <Link to="/events/$eventId" params={{ eventId: event.id }}>
+                        <BookOpen className="h-4 w-4" /> View Records
+                      </Link>
+                    </Button>
                     <CompleteEventButton
                       event={event}
                       disabled={!event.currentRecord || event.completed}
@@ -141,11 +139,11 @@ function EventDashboard() {
                         })
                       }
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="danger"
                       onClick={() => handleDelete(event)}
                       disabled={isDeleting}
-                      className="inline-flex items-center gap-2 rounded-full border border-red-400/50 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-red-200 hover:border-red-300 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isDeleting ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -153,7 +151,7 @@ function EventDashboard() {
                         <Trash2 className="h-4 w-4" />
                       )}
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </article>
               )
@@ -183,12 +181,11 @@ function EmptyState() {
       <p className="text-sm text-slate-400">
         Create your first event to start tracking progress over time.
       </p>
-      <Link
-        to="/events/new"
-        className="inline-flex items-center gap-2 rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white"
-      >
-        <Plus className="h-4 w-4" /> Create Event
-      </Link>
+      <Button asChild>
+        <Link to="/events/new">
+          <Plus className="h-4 w-4" /> Create Event
+        </Link>
+      </Button>
     </div>
   )
 }

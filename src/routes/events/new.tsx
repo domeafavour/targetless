@@ -4,6 +4,7 @@ import { Loader2, PlusCircle, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 
 import { eventsApi } from '@/lib/api/events'
+import { Button } from '@/components/ui/Button'
 
 export const Route = createFileRoute('/events/new')({
   component: CreateEventPage,
@@ -100,10 +101,12 @@ function CreateEventPage() {
               </p>
             )}
 
-            <button
+            <Button
               type="submit"
+              shape="soft"
+              size="lg"
               disabled={mutation.isPending}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3 text-sm font-semibold uppercase tracking-wide text-white hover:bg-cyan-400 disabled:cursor-not-allowed disabled:bg-white/20"
+              fullWidth
             >
               {mutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -111,7 +114,7 @@ function CreateEventPage() {
                 <PlusCircle className="h-4 w-4" />
               )}
               Create Event
-            </button>
+            </Button>
           </div>
         </form>
       </div>
