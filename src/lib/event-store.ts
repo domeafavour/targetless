@@ -52,7 +52,6 @@ const stateRef: { current: State } = {
 };
 
 export async function listEvents(): Promise<EventWithCurrentRecord[]> {
-  await simulateLatency();
   const snapshot = cloneState(stateRef.current);
   return snapshot.events
     .sort(
@@ -63,7 +62,6 @@ export async function listEvents(): Promise<EventWithCurrentRecord[]> {
 }
 
 export async function getEvent(eventId: string): Promise<EventDetail> {
-  await simulateLatency();
   const snapshot = cloneState(stateRef.current);
   const event = snapshot.events.find((item) => item.id === eventId);
   if (!event) {
@@ -86,7 +84,6 @@ export async function getEvent(eventId: string): Promise<EventDetail> {
 export async function createEvent(
   input: CreateEventInput
 ): Promise<EventWithCurrentRecord> {
-  await simulateLatency();
   const title = input.title.trim();
   if (!title) {
     throw new Error("Title is required");
@@ -130,7 +127,6 @@ export async function createEvent(
 export async function completeEvent(
   input: CompleteEventInput
 ): Promise<EventWithCurrentRecord> {
-  await simulateLatency();
   const draft = cloneState(stateRef.current);
   const event = draft.events.find((evt) => evt.id === input.eventId);
 
@@ -193,7 +189,6 @@ export async function completeEvent(
 }
 
 export async function deleteEvent(eventId: string): Promise<void> {
-  await simulateLatency();
   const draft = cloneState(stateRef.current);
   if (!draft.events.some((event) => event.id === eventId)) {
     throw new Error("Event not found");
@@ -267,10 +262,4 @@ function loadInitialState(): State {
   } catch {
     return DEFAULT_STATE;
   }
-}
-
-function simulateLatency(duration = 250) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, duration);
-  });
 }
