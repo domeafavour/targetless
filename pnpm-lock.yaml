@@ -25,6 +25,7 @@ specifiers:
   '@types/react': ^19.2.0
   '@types/react-dom': ^19.2.0
   '@vitejs/plugin-react': ^5.0.4
+  class-variance-authority: ^0.7.0
   clsx: ^2.1.1
   highlight.js: ^11.11.1
   jsdom: ^27.0.0
@@ -59,6 +60,7 @@ dependencies:
   '@tanstack/react-store': 0.7.7_lyaf5xrb6vrc2axgtpensqbuh4
   '@tanstack/router-plugin': 1.145.7_needmqrcmwvgah3yva4mi35nqa
   '@tanstack/store': 0.7.7
+  class-variance-authority: 0.7.1
   clsx: 2.1.1
   highlight.js: 11.11.1
   lucide-react: 0.544.0_react@19.2.3
@@ -2389,6 +2391,12 @@ packages:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+    dev: false
+
+  /class-variance-authority/0.7.1:
+    resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
+    dependencies:
+      clsx: 2.1.1
     dev: false
 
   /clsx/2.1.1:

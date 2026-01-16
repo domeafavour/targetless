@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes } from 'react'
 import { Loader2, CheckCircle2 } from 'lucide-react'
+import { cva, type VariantProps } from 'class-variance-authority'
 
 import { eventsApi } from '@/lib/api/events'
 import {
@@ -7,9 +8,28 @@ import {
   type EventDetail,
   type EventWithCurrentRecord,
 } from '@/lib/event-store'
+import { cn } from '@/lib/utils'
 
-const baseClassName =
-  'inline-flex items-center gap-2 rounded-full bg-emerald-500/90 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white disabled:cursor-not-allowed disabled:bg-white/10'
+const completeEventButtonStyles = cva(
+  'inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold uppercase tracking-wide disabled:cursor-not-allowed disabled:bg-white/10 transition-colors',
+  {
+    variants: {
+      tone: {
+        primary: 'bg-emerald-500/90 text-white hover:bg-emerald-400/90',
+        subtle:
+          'bg-emerald-500/10 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-500/20',
+      },
+      fullWidth: {
+        true: 'w-full justify-center',
+        false: '',
+      },
+    },
+    defaultVariants: {
+      tone: 'primary',
+      fullWidth: false,
+    },
+  },
+)
 
 type CompleteEventButtonProps = {
   event: EventWithCurrentRecord | EventDetail
@@ -20,7 +40,7 @@ type CompleteEventButtonProps = {
     data: EventWithCurrentRecord,
     variables: CompleteEventInput,
   ) => void | Promise<void>
-}
+} & VariantProps<typeof completeEventButtonStyles>
 
 export default function CompleteEventButton({
   event,
@@ -28,6 +48,8 @@ export default function CompleteEventButton({
   className,
   buttonProps,
   onSuccess,
+  tone,
+  fullWidth,
 }: CompleteEventButtonProps) {
   const mutation = eventsApi.complete.useMutation({
     onSuccess: async (data, variables) => {
@@ -43,9 +65,10 @@ export default function CompleteEventButton({
   const computedDisabled =
     disabled || !event.currentRecord || event.completed || isActiveMutation
 
-  const finalClassName = className
-    ? `${baseClassName} ${className}`
-    : baseClassName
+  const finalClassName = cn(
+    completeEventButtonStyles({ tone, fullWidth }),
+    className,
+  )
 
   const handleClick = () => {
     if (computedDisabled || !event.currentRecord) {
