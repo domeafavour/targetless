@@ -1,5 +1,5 @@
-import type { ComponentProps } from 'react'
-import { Loader2, CheckCircle2 } from 'lucide-react'
+import { useState, type ComponentProps } from 'react'
+import { Loader2, CheckCircle2, X } from 'lucide-react'
 
 import { eventsApi } from '@/lib/api/events'
 import {
@@ -9,6 +9,12 @@ import {
 } from '@/lib/event-store'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/Dialog'
 
 type CompleteEventButtonProps = {
   event: EventWithCurrentRecord | EventDetail
@@ -28,8 +34,14 @@ export default function CompleteEventButton({
   buttonProps,
   onSuccess,
 }: CompleteEventButtonProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [createNext, setCreateNext] = useState(false)
+  const [nextCount, setNextCount] = useState('0')
+  const [error, setError] = useState<string | null>(null)
+
   const mutation = eventsApi.complete.useMutation({
     onSuccess: async (data, variables) => {
+      setIsDialogOpen(false)
       if (onSuccess) {
         await onSuccess(data, variables)
       }
@@ -47,61 +59,144 @@ export default function CompleteEventButton({
 
   const finalClassName = cn(buttonClassName, className)
 
-  const handleClick = () => {
+  const openDialog = () => {
     if (computedDisabled || !event.currentRecord) {
       return
     }
+    setCreateNext(Boolean(event.currentRecord))
+    setNextCount(String(event.currentRecord?.count ?? 0))
+    setError(null)
+    setIsDialogOpen(true)
+  }
 
-    const shouldComplete = window.confirm(`Mark "${event.title}" as completed?`)
-    if (!shouldComplete) {
+  const closeDialog = () => {
+    if (mutation.isPending) {
       return
     }
+    setIsDialogOpen(false)
+  }
 
-    let createNext = false
-    let nextCount: number | undefined
-
-    if (
-      event.currentRecord &&
-      window.confirm('Create a new record for the next cycle?')
-    ) {
-      createNext = true
-      const response = window.prompt(
-        'Starting count for the new record',
-        String(event.currentRecord.count),
-      )
-      if (response === null) {
-        return
-      }
-      const parsed = Number(response)
-      if (!Number.isFinite(parsed) || parsed < 0) {
-        window.alert('Count must be a non-negative number')
-        return
-      }
-      nextCount = parsed
+  const handleComplete = () => {
+    if (!event.currentRecord) {
+      return
     }
-
+    let parsedCount: number | undefined
+    if (createNext) {
+      parsedCount = Number(nextCount)
+      if (!Number.isFinite(parsedCount) || parsedCount < 0) {
+        setError('Count must be a non-negative number')
+        return
+      }
+    }
+    setError(null)
     mutation.mutate({
       eventId: event.id,
       createNext,
-      nextCount,
+      nextCount: parsedCount,
     })
   }
 
+  const handleDialogChange = (open: boolean) => {
+    if (!open) {
+      closeDialog()
+    }
+  }
+
   return (
-    <Button
-      type="button"
-      variant={variant ?? 'success'}
-      {...restButtonProps}
-      disabled={computedDisabled}
-      onClick={handleClick}
-      className={finalClassName}
-    >
-      {isActiveMutation ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <CheckCircle2 className="h-4 w-4" />
-      )}
-      Complete
-    </Button>
+    <>
+      <Button
+        type="button"
+        variant={variant ?? 'success'}
+        {...restButtonProps}
+        disabled={computedDisabled}
+        onClick={openDialog}
+        className={finalClassName}
+      >
+        {isActiveMutation ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <CheckCircle2 className="h-4 w-4" />
+        )}
+        Complete
+      </Button>
+
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
+        <DialogContent className="space-y-0">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
+                Complete Event
+              </p>
+              <DialogTitle>{event.title}</DialogTitle>
+              <DialogDescription>
+                Confirm the completion and optionally set up the next record.
+              </DialogDescription>
+            </div>
+            <Button type="button" variant="ghost" size="sm" onClick={closeDialog}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <label className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+              <input
+                type="checkbox"
+                checked={createNext}
+                onChange={(e) => setCreateNext(e.target.checked)}
+                className="h-4 w-4 rounded border border-white/30 bg-transparent text-cyan-400"
+                disabled={mutation.isPending}
+              />
+              Create next record
+            </label>
+
+            {createNext ? (
+              <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+                Starting Count
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
+                  value={nextCount}
+                  onChange={(e) => setNextCount(e.target.value)}
+                  disabled={mutation.isPending}
+                  className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-base text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+                />
+              </label>
+            ) : null}
+
+            {error ? (
+              <p className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                {error}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeDialog}
+              disabled={mutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="success"
+              onClick={handleComplete}
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" />
+              )}
+              Confirm Completion
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
