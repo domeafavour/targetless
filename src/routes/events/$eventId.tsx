@@ -1,0 +1,231 @@
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+import {
+  ArrowLeft,
+  BookOpen,
+  CheckCircle2,
+  History,
+  Loader2,
+  Trash2,
+} from 'lucide-react'
+
+import EventStatusPill from '@/components/EventStatusPill'
+import { formatTimestamp } from '@/lib/date-utils'
+import {
+  completeEvent,
+  deleteEvent,
+  getEvent,
+} from '@/lib/event-store'
+
+export const Route = createFileRoute('/events/$eventId')({
+  component: EventRecordsPage,
+})
+
+function EventRecordsPage() {
+  const { eventId } = Route.useParams()
+  const navigate = useNavigate({ from: '/events/$eventId' })
+  const queryClient = useQueryClient()
+
+  const eventQuery = useQuery({
+    queryKey: ['event', eventId],
+    queryFn: () => getEvent(eventId),
+  })
+
+  const completeMutation = useMutation<
+    Awaited<ReturnType<typeof completeEvent>>,
+    Error,
+    Parameters<typeof completeEvent>[0]
+  >({
+    mutationFn: (input) => completeEvent(input),
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['event', variables.eventId] }),
+        queryClient.invalidateQueries({ queryKey: ['events'] }),
+      ])
+    },
+  })
+
+  const deleteMutation = useMutation<void, Error, string>({
+    mutationFn: (id) => deleteEvent(id),
+    onSuccess: async (_, deletedId) => {
+      await queryClient.invalidateQueries({ queryKey: ['events'] })
+      queryClient.removeQueries({ queryKey: ['event', deletedId] })
+      navigate({ to: '/' })
+    },
+  })
+
+  const event = eventQuery.data
+
+  const handleComplete = () => {
+    if (!event) return
+    const shouldComplete = window.confirm(`Mark "${event.title}" as completed?`)
+    if (!shouldComplete) {
+      return
+    }
+
+    let createNext = false
+    let nextCount: number | undefined
+    if (
+      event.currentRecord &&
+      window.confirm('Create a new record for the next cycle?')
+    ) {
+      createNext = true
+      const response = window.prompt(
+        'Starting count for the new record',
+        String(event.currentRecord.count),
+      )
+      if (response === null) {
+        return
+      }
+      const parsed = Number(response)
+      if (!Number.isFinite(parsed) || parsed < 0) {
+        window.alert('Count must be a non-negative number')
+        return
+      }
+      nextCount = parsed
+    }
+
+    completeMutation.mutate({
+      eventId: event.id,
+      createNext,
+      nextCount,
+    })
+  }
+
+  const handleDelete = () => {
+    if (!event) return
+    const confirmed = window.confirm(
+      `Delete "${event.title}" and all of its records? This cannot be undone.`,
+    )
+    if (!confirmed) {
+      return
+    }
+    deleteMutation.mutate(event.id)
+  }
+
+  return (
+    <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white">
+      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 hover:text-cyan-100"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to events
+        </Link>
+
+        {eventQuery.isLoading ? (
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-6">
+            <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />
+            <p className="text-sm text-slate-300">Loading event…</p>
+          </div>
+        ) : eventQuery.isError ? (
+          <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-6 text-rose-200">
+            Unable to load this event. It may have been deleted.
+          </div>
+        ) : event ? (
+          <>
+            <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-900/40 p-6 shadow-xl shadow-black/30">
+              <header className="flex flex-col gap-3">
+                <p className="flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-cyan-300">
+                  <BookOpen className="h-4 w-4" /> Event Records
+                </p>
+                <div className="flex flex-wrap items-center gap-4">
+                  <h1 className="text-4xl font-black">{event.title}</h1>
+                  <EventStatusPill completed={event.completed} />
+                </div>
+                <p className="text-sm text-slate-400">
+                  Updated {formatTimestamp(event.updatedAt)} • {event.records.length}{' '}
+                  {event.records.length === 1 ? 'record' : 'records'}
+                </p>
+              </header>
+
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                <SummaryStat label="Current Count" value={event.currentRecord?.count ?? '—'} />
+                <SummaryStat label="Last Updated" value={formatTimestamp(event.updatedAt)} />
+                <SummaryStat label="Status" value={event.completed ? 'Completed' : 'Active'} />
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handleComplete}
+                  disabled={
+                    completeMutation.isPending ||
+                    !event.currentRecord ||
+                    event.completed
+                  }
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-500/90 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white disabled:cursor-not-allowed disabled:bg-white/10"
+                >
+                  {completeMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4" />
+                  )}
+                  Complete
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleteMutation.isPending}
+                  className="inline-flex items-center gap-2 rounded-full border border-red-400/50 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-red-200 hover:border-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {deleteMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                  Delete
+                </button>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-white/5 bg-white/5 p-6 shadow-inner shadow-black/20">
+              <div className="flex items-center gap-2 text-sm uppercase tracking-[0.4em] text-slate-300">
+                <History className="h-4 w-4" /> Records Timeline
+              </div>
+              {event.records.length === 0 ? (
+                <p className="mt-6 text-slate-400">This event has no records yet.</p>
+              ) : (
+                <ol className="mt-6 space-y-4">
+                  {event.records.map((record) => (
+                    <li
+                      key={record.id}
+                      className="rounded-2xl border border-white/10 bg-slate-900/60 p-4"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                            Count
+                          </p>
+                          <p className="text-3xl font-black">{record.count}</p>
+                        </div>
+                        <EventStatusPill completed={record.completed} />
+                      </div>
+                      <div className="mt-4 grid gap-1 text-sm text-slate-400">
+                        <p>Created {formatTimestamp(record.createdAt)}</p>
+                        <p>Updated {formatTimestamp(record.updatedAt)}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+          </>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+function SummaryStat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+      <p className="uppercase tracking-[0.3em] text-slate-400">{label}</p>
+      <p className="text-2xl font-bold text-white">{value}</p>
+    </div>
+  )
+}

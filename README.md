@@ -1,328 +1,100 @@
-Welcome to your new TanStack app! 
+<div align="center">
+  <img src="public/tanstack-circle-logo.png" alt="TanStack logo" width="96" />
+  <h1>Event Tracker Starter</h1>
+  <p>Lightweight event + record tracker built with TanStack Start, TanStack Router, and TanStack Store.</p>
+</div>
 
-# Getting Started
+## Contents
+- [Project Overview](#project-overview)
+- [Data Model](#data-model)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Available Scripts](#available-scripts)
+- [Implementation Notes](#implementation-notes)
+- [API & Data Flows](#api--data-flows)
+- [Roadmap](#roadmap)
 
-To run this application:
+## Project Overview
+This app demonstrates how to manage recurring, count-based events (workouts, lessons, habits, etc.). Each event always has a current record that holds the most recent count. Completing an event closes the active record and optionally creates the next one in a single flow. The UI is powered by TanStack Router pages, and shared state experiments live in TanStack Store.
 
-```bash
-npm install
-npm run start
-```
+## Data Model
+| Collection | Fields | Notes |
+|------------|--------|-------|
+| **Event** | `id`, `createdAt`, `updatedAt`, `title`, `currentRecordId`, `completed` | `currentRecordId` references the open `Record`. `completed` mirrors whether the current record is finished. |
+| **Record** | `id`, `createdAt`, `updatedAt`, `count`, `eventId`, `completed` | Multiple records belong to one event. Only one record per event should be unfinished at any moment. |
 
-# Building For Production
+When an event is deleted, all related records must be removed in the same transaction. When a record is marked complete, the parent event’s `currentRecordId` may be swapped to a newly created record if the user opts to continue the streak.
 
-To build this application for production:
+## Features
+- **Home Page**
+  - List all events with title and the count pulled from `currentRecordId`.
+  - Inline `Complete` button prompts for confirmation and optional next-count input.
+  - Delete action cascades to the event’s records.
+- **Create Event Page**
+  - Validates `title` and initial `count`.
+  - Creates the event plus its first record atomically and redirects home.
+- **Shared UX Enhancements**
+  - Optimistic UI for completion/delete flows.
+  - Graceful empty, loading, and error states.
+  - Confirmation dialogs for destructive actions.
 
-```bash
-npm run build
-```
-
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
-
-```bash
-npm run test
-```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-
-# TanStack Chat Application
-
-Am example chat application built with TanStack Start, TanStack Store, and Claude AI.
-
-## .env Updates
-
-```env
-ANTHROPIC_API_KEY=your_anthropic_api_key
-```
-
-## ✨ Features
-
-### AI Capabilities
-- 🤖 Powered by Claude 3.5 Sonnet 
-- 📝 Rich markdown formatting with syntax highlighting
-- 🎯 Customizable system prompts for tailored AI behavior
-- 🔄 Real-time message updates and streaming responses (coming soon)
-
-### User Experience
-- 🎨 Modern UI with Tailwind CSS and Lucide icons
-- 🔍 Conversation management and history
-- 🔐 Secure API key management
-- 📋 Markdown rendering with code highlighting
-
-### Technical Features
-- 📦 Centralized state management with TanStack Store
-- 🔌 Extensible architecture for multiple AI providers
-- 🛠️ TypeScript for type safety
-
-## Architecture
-
-### Tech Stack
-- **Frontend Framework**: TanStack Start
-- **Routing**: TanStack Router
-- **State Management**: TanStack Store
-- **Styling**: Tailwind CSS
-- **AI Integration**: Anthropic's Claude API
-
-
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add another a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
+## Getting Started
 
 ```bash
-npm install @tanstack/react-query @tanstack/react-query-devtools
+pnpm install
+pnpm dev
 ```
 
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
+- Navigate to `http://localhost:4173` (or the port shown in the console).
+- Populate `.env` with any keys required by integrations (see `src/routes/demo/*` for examples).
 
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
+### Building & Previewing
 
 ```bash
-npm install @tanstack/store
+pnpm build
+pnpm preview
 ```
 
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
+The `preview` command serves the production build locally so you can verify SSR + hydration before deploying.
 
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
+### Testing
 
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
+```bash
+pnpm test
 ```
 
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
+We use Vitest for unit and integration tests. Add new specs under `src/**/*.test.ts(x)` alongside components or utilities.
 
-Let's check this out by doubling the count using derived state.
+## Available Scripts
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start Vite in dev mode with TanStack Start SSR enabled. |
+| `pnpm build` | Build client + server bundles. |
+| `pnpm preview` | Serve the production build locally. |
+| `pnpm lint` | (Optional) Run ESLint if configured. |
+| `pnpm test` | Execute Vitest suites. |
 
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
+## Implementation Notes
+- **Routing**: File-based routes live in `src/routes`. Home (`index.tsx`) will host the event list; `events/new.tsx` (to be created) can handle creation.
+- **State & Data Fetching**: Prefer TanStack Query for server mutations + caching. Use loaders for SSR-friendly data requirements when possible.
+- **UI Toolkit**: Tailwind CSS provides the base design system; Lucide icons supply glyphs for actions.
+- **Devtools**: TanStack Router, Query, Store, and custom AI/store panels are pre-wired in `src/routes/__root.tsx` for quick debugging.
 
-const countStore = new Store(0);
+## API & Data Flows
+1. **List Events**: `GET /api/events` ➝ returns events with embedded `currentRecord` information so the UI stays render-only.
+2. **Create Event**: `POST /api/events` body `{ title, count }` ➝ server creates Event + Record transactionally, returns full Event.
+3. **Complete Record**: `POST /api/events/:id/complete` body `{ createNext: boolean, nextCount?: number }` ➝ marks existing record `completed=true`; optionally creates new record and updates event pointer.
+4. **Delete Event**: `DELETE /api/events/:id` ➝ removes event and its records in one operation.
 
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
+All endpoints should be idempotent and return updated entities to keep TanStack Query caches in sync.
 
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
+## Roadmap
+1. Hook up real persistence (e.g., SQLite via Drizzle or Supabase) instead of demo data.
+2. Add event detail view with historical record charting.
+3. Support bulk complete/delete actions and multi-select.
+4. Introduce reminders/notifications for overdue events.
+5. Enhance accessibility: keyboard shortcuts for completion, better focus management in dialogs.
 
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
+---
 
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+Need help or have ideas? File an issue or start a discussion so we can shape the event tracker together.

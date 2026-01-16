@@ -1,118 +1,262 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  Zap,
-  Server,
-  Route as RouteIcon,
-  Shield,
-  Waves,
-  Sparkles,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+import {
+  BookOpen,
+  CheckCircle2,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Target,
+  Trash2,
 } from 'lucide-react'
 
-export const Route = createFileRoute('/')({ component: App })
+import EventStatusPill from '@/components/EventStatusPill'
+import {
+  completeEvent,
+  deleteEvent,
+  listEvents,
+  type EventWithCurrentRecord,
+} from '@/lib/event-store'
+import { formatTimestamp } from '@/lib/date-utils'
 
-function App() {
-  const features = [
-    {
-      icon: <Zap className="w-12 h-12 text-cyan-400" />,
-      title: 'Powerful Server Functions',
-      description:
-        'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
-    },
-    {
-      icon: <Server className="w-12 h-12 text-cyan-400" />,
-      title: 'Flexible Server Side Rendering',
-      description:
-        'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
-    },
-    {
-      icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
-      title: 'API Routes',
-      description:
-        'Build type-safe API endpoints alongside your application. No separate backend needed.',
-    },
-    {
-      icon: <Shield className="w-12 h-12 text-cyan-400" />,
-      title: 'Strongly Typed Everything',
-      description:
-        'End-to-end type safety from server to client. Catch errors before they reach production.',
-    },
-    {
-      icon: <Waves className="w-12 h-12 text-cyan-400" />,
-      title: 'Full Streaming Support',
-      description:
-        'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
-    },
-    {
-      icon: <Sparkles className="w-12 h-12 text-cyan-400" />,
-      title: 'Next Generation Ready',
-      description:
-        'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
-    },
-  ]
+export const Route = createFileRoute('/')({ component: EventDashboard })
+
+function EventDashboard() {
+  const queryClient = useQueryClient()
+  const eventsQuery = useQuery({
+    queryKey: ['events'],
+    queryFn: listEvents,
+  })
+
+  const completeMutation = useMutation<
+    Awaited<ReturnType<typeof completeEvent>>,
+    Error,
+    Parameters<typeof completeEvent>[0]
+  >({
+    mutationFn: (input) => completeEvent(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
+  })
+
+  const deleteMutation = useMutation<void, Error, string>({
+    mutationFn: (eventId) => deleteEvent(eventId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
+  })
+
+  const events = eventsQuery.data ?? []
+  const activeEvents = events.filter((event) => !event.completed).length
+  const completedEvents = events.filter((event) => event.completed).length
+
+  const handleComplete = (event: EventWithCurrentRecord) => {
+    const shouldComplete = window.confirm(
+      `Mark "${event.title}" as completed?`,
+    )
+    if (!shouldComplete) {
+      return
+    }
+
+    let createNext = false
+    let nextCount: number | undefined
+    if (
+      event.currentRecord &&
+      window.confirm('Create a new record for the next cycle?')
+    ) {
+      createNext = true
+      const defaultValue = String(event.currentRecord.count)
+      const response = window.prompt(
+        'Starting count for the new record',
+        defaultValue,
+      )
+      if (response === null) {
+        return
+      }
+      const parsed = Number(response)
+      if (!Number.isFinite(parsed) || parsed < 0) {
+        window.alert('Count must be a non-negative number')
+        return
+      }
+      nextCount = parsed
+    }
+
+    completeMutation.mutate({
+      eventId: event.id,
+      createNext,
+      nextCount,
+    })
+  }
+
+  const handleDelete = (event: EventWithCurrentRecord) => {
+    const confirmed = window.confirm(
+      `Delete "${event.title}" and all of its records? This cannot be undone.`,
+    )
+    if (!confirmed) {
+      return
+    }
+    deleteMutation.mutate(event.id)
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      <section className="relative py-20 px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10"></div>
-        <div className="relative max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-6 mb-6">
-            <img
-              src="/tanstack-circle-logo.png"
-              alt="TanStack Logo"
-              className="w-24 h-24 md:w-32 md:h-32"
-            />
-            <h1 className="text-6xl md:text-7xl font-black text-white [letter-spacing:-0.08em]">
-              <span className="text-gray-300">TANSTACK</span>{' '}
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                START
-              </span>
-            </h1>
-          </div>
-          <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
-            The framework for next generation AI applications
+    <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white">
+      <section className="max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
+          <p className="flex items-center gap-2 text-cyan-300 text-sm uppercase tracking-[0.2em]">
+            <Target className="w-4 h-4" /> Event Tracker
           </p>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-8">
-            Full-stack framework powered by TanStack Router for React and Solid.
-            Build modern applications with server functions, streaming, and type
-            safety.
+          <h1 className="text-4xl md:text-5xl font-black">
+            Stay on top of every recurring commitment
+          </h1>
+          <p className="text-slate-300 max-w-2xl">
+            Track habits, workouts, lessons, and more. Mark the current record
+            complete and instantly spin up the next one when you are ready.
           </p>
-          <div className="flex flex-col items-center gap-4">
-            <a
-              href="https://tanstack.com/start"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/events/new"
+              className="inline-flex items-center gap-2 rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white hover:bg-cyan-400"
             >
-              Documentation
-            </a>
-            <p className="text-gray-400 text-sm mt-2">
-              Begin your TanStack Start journey by editing{' '}
-              <code className="px-2 py-1 bg-slate-700 rounded text-cyan-400">
-                /src/routes/index.tsx
-              </code>
-            </p>
+              <Plus className="w-4 h-4" /> Create Event
+            </Link>
+            <button
+              type="button"
+              onClick={() => queryClient.invalidateQueries({ queryKey: ['events'] })}
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white hover:border-white/60"
+            >
+              <RefreshCw className="w-4 h-4" /> Refresh
+            </button>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatCard label="Total" value={events.length} />
+          <StatCard label="Active" value={activeEvents} />
+          <StatCard label="Completed" value={completedEvents} />
         </div>
       </section>
 
-      <section className="py-16 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
-            >
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-gray-400 leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
+      <section className="max-w-5xl mx-auto px-4 pb-16">
+        {eventsQuery.isLoading ? (
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-6">
+            <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />
+            <p className="text-sm text-slate-300">Loading events…</p>
+          </div>
+        ) : eventsQuery.isError ? (
+          <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-6 text-rose-100">
+            Failed to load events. Please refresh and try again.
+          </div>
+        ) : events.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="space-y-4">
+            {events.map((event) => {
+              const isCompleting =
+                completeMutation.isPending &&
+                completeMutation.variables?.eventId === event.id
+              const isDeleting =
+                deleteMutation.isPending &&
+                deleteMutation.variables === event.id
+              const canComplete = Boolean(
+                event.currentRecord &&
+                  !event.completed &&
+                  !isCompleting,
+              )
+
+              return (
+                <article
+                  key={event.id}
+                  className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/70 to-slate-900/40 p-6 shadow-lg shadow-black/30"
+                >
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <h2 className="text-2xl font-semibold">{event.title}</h2>
+                        <EventStatusPill completed={event.completed} />
+                      </div>
+                      <p className="mt-2 text-sm text-slate-400">
+                        Updated {formatTimestamp(event.updatedAt)}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2 text-right">
+                      <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        Current Count
+                      </span>
+                      <span className="text-3xl font-black">
+                        {event.currentRecord?.count ?? '—'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <Link
+                      to="/events/$eventId"
+                      params={{ eventId: event.id }}
+                      className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white hover:border-white/60"
+                    >
+                      <BookOpen className="h-4 w-4" /> View Records
+                    </Link>
+                    <button
+                      type="button"
+                      disabled={!canComplete}
+                      onClick={() => handleComplete(event)}
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-500/90 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white disabled:cursor-not-allowed disabled:bg-white/10"
+                    >
+                      {isCompleting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4" />
+                      )}
+                      Complete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(event)}
+                      disabled={isDeleting}
+                      className="inline-flex items-center gap-2 rounded-full border border-red-400/50 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-red-200 hover:border-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isDeleting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        )}
       </section>
+    </div>
+  )
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4">
+      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+        {label}
+      </p>
+      <p className="text-3xl font-black">{value}</p>
+    </div>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-white/20 bg-white/5 px-6 py-12 text-center">
+      <p className="text-lg text-slate-200">No events yet.</p>
+      <p className="text-sm text-slate-400">
+        Create your first event to start tracking progress over time.
+      </p>
+      <Link
+        to="/events/new"
+        className="inline-flex items-center gap-2 rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white"
+      >
+        <Plus className="h-4 w-4" /> Create Event
+      </Link>
     </div>
   )
 }
