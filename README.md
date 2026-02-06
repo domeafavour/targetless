@@ -5,17 +5,20 @@
 </div>
 
 ## Contents
+- [Contents](#contents)
 - [Project Overview](#project-overview)
 - [Data Model](#data-model)
 - [Features](#features)
 - [Getting Started](#getting-started)
+  - [Building \& Previewing](#building--previewing)
+  - [Testing](#testing)
 - [Available Scripts](#available-scripts)
 - [Implementation Notes](#implementation-notes)
-- [API & Data Flows](#api--data-flows)
+- [API \& Data Flows](#api--data-flows)
 - [Roadmap](#roadmap)
 
 ## Project Overview
-This app demonstrates how to manage recurring, count-based events (workouts, lessons, habits, etc.). Each event always has a current record that holds the most recent count. Completing an event closes the active record and optionally creates the next one in a single flow. The UI is powered by TanStack Router pages, and shared state is managed by a lightweight in-memory store that syncs to `localStorage`.
+This app demonstrates how to manage recurring, count-based events (workouts, lessons, habits, etc.). Each event always has a current record that holds the most recent count. Completing an event closes the active record and optionally creates the next one in a single flow. The UI is powered by TanStack Router pages, and shared state is managed by a lightweight in-memory store that syncs to `IndexedDB`.
 
 ## Data Model
 | Collection | Fields | Notes |
