@@ -1,7 +1,7 @@
 <div align="center">
   <img src="public/tanstack-circle-logo.png" alt="TanStack logo" width="96" />
   <h1>Event Tracker Starter</h1>
-  <p>Lightweight event + record tracker built with TanStack Start, TanStack Router, and TanStack Store.</p>
+  <p>Lightweight event + record tracker built with TanStack Start and TanStack Router.</p>
 </div>
 
 ## Contents
@@ -15,7 +15,7 @@
 - [Roadmap](#roadmap)
 
 ## Project Overview
-This app demonstrates how to manage recurring, count-based events (workouts, lessons, habits, etc.). Each event always has a current record that holds the most recent count. Completing an event closes the active record and optionally creates the next one in a single flow. The UI is powered by TanStack Router pages, and shared state experiments live in TanStack Store.
+This app demonstrates how to manage recurring, count-based events (workouts, lessons, habits, etc.). Each event always has a current record that holds the most recent count. Completing an event closes the active record and optionally creates the next one in a single flow. The UI is powered by TanStack Router pages, and shared state is managed by a lightweight in-memory store that syncs to `localStorage`.
 
 ## Data Model
 | Collection | Fields | Notes |
@@ -46,7 +46,7 @@ pnpm dev
 ```
 
 - Navigate to `http://localhost:4173` (or the port shown in the console).
-- Populate `.env` with any keys required by integrations (see `src/routes/demo/*` for examples).
+- Populate `.env` with any keys required by your integrations.
 
 ### Building & Previewing
 
@@ -78,7 +78,7 @@ We use Vitest for unit and integration tests. Add new specs under `src/**/*.test
 - **Routing**: File-based routes live in `src/routes`. Home (`index.tsx`) will host the event list; `events/new.tsx` (to be created) can handle creation.
 - **State & Data Fetching**: Prefer TanStack Query for server mutations + caching. Use loaders for SSR-friendly data requirements when possible.
 - **UI Toolkit**: Tailwind CSS provides the base design system; Lucide icons supply glyphs for actions.
-- **Devtools**: TanStack Router, Query, Store, and custom AI/store panels are pre-wired in `src/routes/__root.tsx` for quick debugging.
+- **Devtools**: TanStack Router and Query panels plus a custom AI devtool are pre-wired in `src/routes/__root.tsx` for quick debugging.
 
 ## API & Data Flows
 1. **List Events**: `GET /api/events` ➝ returns events with embedded `currentRecord` information so the UI stays render-only.
