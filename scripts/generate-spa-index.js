@@ -9,7 +9,7 @@ const assetsDir = join(distDir, 'assets');
 
 const files = readdirSync(assetsDir);
 const mainJs = files.find(f => f.startsWith('main-') && f.endsWith('.js'));
-const stylesCs = files.find(f => f.startsWith('styles-') && f.endsWith('.css'));
+const stylesCss = files.find(f => f.startsWith('styles-') && f.endsWith('.css'));
 
 if (!mainJs) {
   console.error('Could not find main JS file');
@@ -25,7 +25,7 @@ const html = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TanStack Start Starter</title>
     <link rel="icon" href="${basePath}favicon.ico" />
-    ${stylesCs ? `<link rel="stylesheet" href="${basePath}assets/${stylesCs}" />` : ''}
+    ${stylesCss ? `<link rel="stylesheet" href="${basePath}assets/${stylesCss}" />` : ''}
   </head>
   <body>
     <div id="root"></div>
