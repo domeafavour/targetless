@@ -73,7 +73,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
               navigator.serviceWorker.register('/sw.js')
                 .then(registration => {
                   console.log('Service Worker registered:', registration.scope);
-                  setInterval(() => registration.update(), 60000);
+                  // Check for updates every 10 minutes
+                  setInterval(() => registration.update(), 600000);
                 })
                 .catch(error => console.error('Service Worker registration failed:', error));
             });

@@ -52,7 +52,7 @@ self.addEventListener('fetch', (event) => {
         
         return fetch(fetchRequest).then((response) => {
           // Check if we received a valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
+          if (!response || response.status !== 200) {
             return response;
           }
           
@@ -68,8 +68,15 @@ self.addEventListener('fetch', (event) => {
         });
       })
       .catch(() => {
-        // Return a custom offline page if available
-        return caches.match('/');
+        // Return appropriate fallback based on request type
+        if (event.request.mode === 'navigate') {
+          return caches.match('/');
+        }
+        // For other request types, just fail gracefully
+        return new Response('Offline', {
+          status: 503,
+          statusText: 'Service Unavailable'
+        });
       })
   );
 });
