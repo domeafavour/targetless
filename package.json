@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
+    "build:gh-pages": "vite build && node scripts/generate-spa-index.js && touch dist/client/.nojekyll",
     "preview": "vite preview",
     "test": "vitest run"
   },
