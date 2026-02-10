@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
-import { writeFileSync, readdirSync } from 'fs';
+import { writeFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 
 // Find the main JS and CSS files
 const distDir = 'dist/client';
 const assetsDir = join(distDir, 'assets');
+
+if (!existsSync(assetsDir)) {
+  console.error('Error: Assets directory does not exist. Please run "pnpm build" first.');
+  process.exit(1);
+}
 
 const files = readdirSync(assetsDir);
 const mainJs = files.find(f => f.startsWith('main-') && f.endsWith('.js'));
@@ -36,7 +41,6 @@ const html = `<!DOCTYPE html>
 writeFileSync(join(distDir, 'index.html'), html);
 
 // Also create 404.html for client-side routing on GitHub Pages
-const notFoundHtml = html;
-writeFileSync(join(distDir, '404.html'), notFoundHtml);
+writeFileSync(join(distDir, '404.html'), html);
 
 console.log('✅ Generated index.html and 404.html for GitHub Pages deployment');
