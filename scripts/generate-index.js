@@ -8,6 +8,10 @@
 const fs = require('fs');
 const path = require('path');
 
+// Read package.json for app name
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+const appName = packageJson.name || 'targetless';
+
 const distClientPath = path.join(__dirname, '..', 'dist', 'client');
 const indexPath = path.join(distClientPath, 'index.html');
 
@@ -34,8 +38,8 @@ if (fs.existsSync(assetsPath)) {
   const cssFiles = files.filter(f => f.endsWith('.css'));
   
   // Find the main bundle (usually the largest JS file)
-  mainJs = jsFiles.find(f => f.includes('main')) || (jsFiles.length > 0 ? jsFiles[jsFiles.length - 1] : '');
-  stylesCSS = cssFiles.find(f => f.includes('styles')) || (cssFiles.length > 0 ? cssFiles[0] : '');
+  mainJs = jsFiles.find(f => f.includes('main')) || jsFiles[jsFiles.length - 1] || '';
+  stylesCSS = cssFiles.find(f => f.includes('styles')) || cssFiles[0] || '';
 }
 
 // Generate index.html
@@ -45,7 +49,7 @@ const html = `<!DOCTYPE html>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/targetless/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Event Tracker - TanStack Start</title>
+    <title>${appName} - Event Tracker</title>
     ${stylesCSS ? `<link rel="stylesheet" href="/targetless/assets/${stylesCSS}" />` : ''}
   </head>
   <body>
