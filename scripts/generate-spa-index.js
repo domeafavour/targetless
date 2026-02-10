@@ -23,6 +23,11 @@ if (!mainJs) {
 
 const basePath = process.env.GITHUB_PAGES === 'true' ? '/targetless/' : '/';
 
+// Generate stylesheet link if CSS file exists
+const stylesheetLink = stylesCss 
+  ? `<link rel="stylesheet" href="${basePath}assets/${stylesCss}" />` 
+  : '';
+
 const html = `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -30,7 +35,7 @@ const html = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TanStack Start Starter</title>
     <link rel="icon" href="${basePath}favicon.ico" />
-    ${stylesCss ? `<link rel="stylesheet" href="${basePath}assets/${stylesCss}" />` : ''}
+    ${stylesheetLink}
   </head>
   <body>
     <div id="root"></div>
