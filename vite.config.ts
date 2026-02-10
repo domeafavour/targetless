@@ -19,6 +19,7 @@ const config = defineConfig({
       prerender: {
         enabled: true,
         autoSubfolderIndex: true,
+        crawlLinks: true,
       },
     }),
     viteReact(),
