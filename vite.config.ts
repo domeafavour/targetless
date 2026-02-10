@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig({
+  base: process.env.GITHUB_PAGES === 'true' ? '/targetless/' : '/',
   plugins: [
     devtools(),
     // this is the plugin that enables path aliases
@@ -15,6 +16,10 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart({
       router: { basepath: "/targetless" },
+      prerender: {
+        enabled: true,
+        autoSubfolderIndex: true,
+      },
     }),
     viteReact(),
   ],
