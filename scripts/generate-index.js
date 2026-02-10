@@ -34,8 +34,8 @@ if (fs.existsSync(assetsPath)) {
   const cssFiles = files.filter(f => f.endsWith('.css'));
   
   // Find the main bundle (usually the largest JS file)
-  mainJs = jsFiles.find(f => f.includes('main')) || jsFiles[jsFiles.length - 1] || '';
-  stylesCSS = cssFiles.find(f => f.includes('styles')) || cssFiles[0] || '';
+  mainJs = jsFiles.find(f => f.includes('main')) || (jsFiles.length > 0 ? jsFiles[jsFiles.length - 1] : '');
+  stylesCSS = cssFiles.find(f => f.includes('styles')) || (cssFiles.length > 0 ? cssFiles[0] : '');
 }
 
 // Generate index.html
