@@ -33,11 +33,53 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         title: 'TanStack Start Starter',
       },
+      {
+        name: 'theme-color',
+        content: '#000000',
+      },
+      {
+        name: 'mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
+        name: 'apple-mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
+        name: 'apple-mobile-web-app-status-bar-style',
+        content: 'black',
+      },
     ],
     links: [
       {
         rel: 'stylesheet',
         href: appCss,
+      },
+      {
+        rel: 'manifest',
+        href: '/manifest.json',
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: '/logo192.png',
+      },
+    ],
+    scripts: [
+      {
+        type: 'module',
+        children: `
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                  console.log('Service Worker registered:', registration.scope);
+                  // Check for updates every 10 minutes
+                  setInterval(() => registration.update(), 600000);
+                })
+                .catch(error => console.error('Service Worker registration failed:', error));
+            });
+          }
+        `,
       },
     ],
   }),
