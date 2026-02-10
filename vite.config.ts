@@ -6,6 +6,7 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
+  base: process.env.GITHUB_PAGES === 'true' ? '/targetless/' : '/',
   plugins: [
     devtools(),
     // this is the plugin that enables path aliases
