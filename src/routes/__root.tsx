@@ -57,11 +57,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         rel: 'manifest',
-        href: '/manifest.json',
+        href: './manifest.json',
       },
       {
         rel: 'apple-touch-icon',
-        href: '/logo192.png',
+        href: './logo192.png',
       },
     ],
     scripts: [
@@ -70,7 +70,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         children: `
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-              navigator.serviceWorker.register('/sw.js')
+              // Use relative path - Vite will handle base URL injection
+              const swPath = './sw.js';
+              navigator.serviceWorker.register(swPath)
                 .then(registration => {
                   console.log('Service Worker registered:', registration.scope);
                   // Check for updates every 10 minutes

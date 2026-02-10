@@ -1,8 +1,18 @@
 // Service Worker for Targetless PWA
 const CACHE_NAME = 'targetless-v1';
+
+// Detect base path from service worker registration scope
+const getBasePath = () => {
+  const scope = self.registration.scope;
+  const url = new URL(scope);
+  return url.pathname;
+};
+
+const BASE_PATH = getBasePath();
+
 const urlsToCache = [
-  '/',
-  '/manifest.json',
+  BASE_PATH,
+  `${BASE_PATH}manifest.json`,
 ];
 
 // Install event - cache essential files
@@ -70,7 +80,7 @@ self.addEventListener('fetch', (event) => {
       .catch(() => {
         // Return appropriate fallback based on request type
         if (event.request.mode === 'navigate') {
-          return caches.match('/');
+          return caches.match(BASE_PATH);
         }
         // For other request types, just fail gracefully
         return new Response('Offline', {
