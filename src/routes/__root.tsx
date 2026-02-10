@@ -5,14 +5,12 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { useEffect } from 'react'
 
 import Header from '../components/Header'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import AiDevtools from '../lib/ai-devtools'
-import { registerServiceWorker } from '../lib/service-worker'
 
 import appCss from '../styles.css?url'
 
@@ -40,6 +38,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: '#000000',
       },
       {
+        name: 'mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
         name: 'apple-mobile-web-app-capable',
         content: 'yes',
       },
@@ -62,16 +64,29 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         href: '/logo192.png',
       },
     ],
+    scripts: [
+      {
+        type: 'module',
+        children: `
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                  console.log('Service Worker registered:', registration.scope);
+                  setInterval(() => registration.update(), 60000);
+                })
+                .catch(error => console.error('Service Worker registration failed:', error));
+            });
+          }
+        `,
+      },
+    ],
   }),
 
   shellComponent: RootDocument,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    registerServiceWorker();
-  }, []);
-
   return (
     <html lang="en">
       <head>
