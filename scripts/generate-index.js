@@ -29,6 +29,21 @@ if (!fs.existsSync(distClientPath)) {
 if (fs.existsSync(indexPath)) {
   console.log('index.html already exists in dist/client - prerendering worked!');
 } else {
+  // Find the main JS file in assets
+  const assetsPath = path.join(distClientPath, 'assets');
+  let mainJs = '';
+  let stylesCSS = '';
+
+  if (fs.existsSync(assetsPath)) {
+    const files = fs.readdirSync(assetsPath);
+    const jsFiles = files.filter(f => f.endsWith('.js'));
+    const cssFiles = files.filter(f => f.endsWith('.css'));
+    
+    // Find the main bundle (usually the largest JS file)
+    mainJs = jsFiles.find(f => f.includes('main')) || jsFiles[jsFiles.length - 1] || '';
+    stylesCSS = cssFiles.find(f => f.includes('styles')) || cssFiles[0] || '';
+  }
+
   // Generate index.html
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -51,23 +66,25 @@ if (fs.existsSync(indexPath)) {
   console.log(`  Styles: ${stylesCSS}`);
 }
 
-// Update manifest.json for GitHub Pages
-const manifestPath = path.join(distClientPath, 'manifest.json');
-if (fs.existsSync(manifestPath)) {
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  
-  // Update start_url and scope for GitHub Pages
-  manifest.start_url = '/targetless/';
-  manifest.scope = '/targetless/';
-  
-  // Update icon paths to include base path
-  if (manifest.icons && Array.isArray(manifest.icons)) {
-    manifest.icons = manifest.icons.map(icon => ({
-      ...icon,
-      src: `/targetless/${icon.src}`
-    }));
+// Update manifest.json for GitHub Pages (only when GITHUB_PAGES env is set)
+if (process.env.GITHUB_PAGES === 'true') {
+  const manifestPath = path.join(distClientPath, 'manifest.json');
+  if (fs.existsSync(manifestPath)) {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    
+    // Update start_url and scope for GitHub Pages
+    manifest.start_url = '/targetless/';
+    manifest.scope = '/targetless/';
+    
+    // Update icon paths to include base path
+    if (manifest.icons && Array.isArray(manifest.icons)) {
+      manifest.icons = manifest.icons.map(icon => ({
+        ...icon,
+        src: `/targetless/${icon.src.replace(/^\//, '')}`
+      }));
+    }
+    
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    console.log('Updated manifest.json for GitHub Pages');
   }
-  
-  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-  console.log('Updated manifest.json for GitHub Pages');
 }
