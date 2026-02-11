@@ -4,7 +4,6 @@ import { BookOpen, Loader2, Plus, RefreshCw, Target } from "lucide-react";
 import { useState } from "react";
 
 import CompleteRecordButton from "@/components/CompleteRecordButton";
-import { DeleteEvent } from "@/components/DeleteEvent";
 import EventStatusPill from "@/components/EventStatusPill";
 import { Button } from "@/components/ui/Button";
 import { RouteView } from "@/components/ui/RouteView";
@@ -147,7 +146,6 @@ function EventDashboard() {
                         })
                       }
                     />
-                    <DeleteEvent id={event.id} title={event.title} />
                   </div>
                 </article>
               );
