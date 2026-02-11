@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/Dialog";
 import { eventsApi } from "@/lib/api/events";
 import {
-  type CompleteEventInput,
+  type CompleteRecordInput,
   type EventDetail,
   type EventWithCurrentRecord,
 } from "@/lib/event-store";
@@ -24,7 +24,7 @@ type CompleteRecordButtonProps = {
   buttonProps?: ComponentProps<typeof Button>;
   onSuccess?: (
     data: EventWithCurrentRecord,
-    variables: CompleteEventInput,
+    variables: CompleteRecordInput,
   ) => void | Promise<void>;
 };
 
@@ -40,7 +40,7 @@ export default function CompleteRecordButton({
   const [nextCount, setNextCount] = useState("0");
   const [error, setError] = useState<string | null>(null);
 
-  const mutation = eventsApi.complete.useMutation({
+  const mutation = eventsApi.completeRecord.useMutation({
     onSuccess: async (data, variables) => {
       setIsDialogOpen(false);
       if (onSuccess) {

@@ -31,6 +31,10 @@ export type CreateEventInput = {
 
 export type CompleteEventInput = {
   eventId: string;
+};
+
+export type CompleteRecordInput = {
+  eventId: string;
   createNext: boolean;
   nextCount?: number;
 };
@@ -50,9 +54,11 @@ let dbPromise: Promise<IDBDatabase> | null = null;
 export async function listEvents(): Promise<EventWithCurrentRecord[]> {
   const snapshot = await readState();
   const orderedEvents = [...snapshot.events].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
-  return orderedEvents.map((event) => attachCurrentRecord(event, snapshot.records));
+  return orderedEvents.map((event) =>
+    attachCurrentRecord(event, snapshot.records),
+  );
 }
 
 export async function getEvent(eventId: string): Promise<EventDetail> {
@@ -66,7 +72,7 @@ export async function getEvent(eventId: string): Promise<EventDetail> {
     .filter((record) => record.eventId === eventId)
     .sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
   return {
@@ -76,7 +82,7 @@ export async function getEvent(eventId: string): Promise<EventDetail> {
 }
 
 export async function createEvent(
-  input: CreateEventInput
+  input: CreateEventInput,
 ): Promise<EventWithCurrentRecord> {
   const title = input.title.trim();
   if (!title) {
@@ -116,14 +122,47 @@ export async function createEvent(
     (stores) => {
       stores[DB_EVENTS_STORE].put(event);
       stores[DB_RECORDS_STORE].put(record);
-    }
+    },
   );
 
   return attachCurrentRecord(event, [record]);
 }
 
 export async function completeEvent(
-  input: CompleteEventInput
+  input: CompleteEventInput,
+): Promise<EventWithCurrentRecord> {
+  const event = await runTransaction(
+    [DB_EVENTS_STORE, DB_RECORDS_STORE],
+    "readwrite",
+    async (stores) => {
+      const eventsStore = stores[DB_EVENTS_STORE];
+
+      const existingEvent =
+        (await requestToPromise<EventEntity | undefined>(
+          eventsStore.get(input.eventId),
+        )) ?? null;
+      if (!existingEvent) {
+        throw new Error("Event not found");
+      }
+
+      const now = new Date().toISOString();
+
+      const updatedEvent: EventEntity = {
+        ...existingEvent,
+        updatedAt: now,
+        completed: true,
+      };
+      eventsStore.put(updatedEvent);
+
+      return updatedEvent;
+    },
+  );
+
+  return attachCurrentRecord(event, []);
+}
+
+export async function completeRecord(
+  input: CompleteRecordInput,
 ): Promise<EventWithCurrentRecord> {
   const { event, currentRecord } = await runTransaction(
     [DB_EVENTS_STORE, DB_RECORDS_STORE],
@@ -132,9 +171,10 @@ export async function completeEvent(
       const eventsStore = stores[DB_EVENTS_STORE];
       const recordsStore = stores[DB_RECORDS_STORE];
 
-      const existingEvent = (await requestToPromise<EventEntity | undefined>(
-        eventsStore.get(input.eventId)
-      )) ?? null;
+      const existingEvent =
+        (await requestToPromise<EventEntity | undefined>(
+          eventsStore.get(input.eventId),
+        )) ?? null;
       if (!existingEvent) {
         throw new Error("Event not found");
       }
@@ -143,9 +183,10 @@ export async function completeEvent(
         throw new Error("There is no active record to complete");
       }
 
-      const existingRecord = (await requestToPromise<EventRecord | undefined>(
-        recordsStore.get(existingEvent.currentRecordId)
-      )) ?? null;
+      const existingRecord =
+        (await requestToPromise<EventRecord | undefined>(
+          recordsStore.get(existingEvent.currentRecordId),
+        )) ?? null;
       if (!existingRecord) {
         throw new Error("Current record could not be located");
       }
@@ -180,7 +221,6 @@ export async function completeEvent(
         ...existingEvent,
         updatedAt: now,
         currentRecordId: nextCurrentRecordId,
-        completed: !input.createNext,
       };
       eventsStore.put(updatedEvent);
 
@@ -188,7 +228,7 @@ export async function completeEvent(
         event: updatedEvent,
         currentRecord: nextRecord,
       };
-    }
+    },
   );
 
   return attachCurrentRecord(event, currentRecord ? [currentRecord] : []);
@@ -202,22 +242,23 @@ export async function deleteEvent(eventId: string): Promise<void> {
       const eventsStore = stores[DB_EVENTS_STORE];
       const recordsStore = stores[DB_RECORDS_STORE];
 
-      const existingEvent = (await requestToPromise<EventEntity | undefined>(
-        eventsStore.get(eventId)
-      )) ?? null;
+      const existingEvent =
+        (await requestToPromise<EventEntity | undefined>(
+          eventsStore.get(eventId),
+        )) ?? null;
       if (!existingEvent) {
         throw new Error("Event not found");
       }
 
       eventsStore.delete(eventId);
       await deleteRecordsByEvent(recordsStore, eventId);
-    }
+    },
   );
 }
 
 function attachCurrentRecord(
   event: EventEntity,
-  records: EventRecord[]
+  records: EventRecord[],
 ): EventWithCurrentRecord {
   const currentRecord = event.currentRecordId
     ? (records.find((record) => record.id === event.currentRecordId) ?? null)
@@ -296,7 +337,7 @@ async function readPersistedCollections(): Promise<State | null> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(
       [DB_EVENTS_STORE, DB_RECORDS_STORE],
-      "readonly"
+      "readonly",
     );
 
     const eventsStore = transaction.objectStore(DB_EVENTS_STORE);
@@ -320,7 +361,10 @@ async function readPersistedCollections(): Promise<State | null> {
       finishIfReady();
     };
     eventsRequest.onerror = () =>
-      reject(eventsRequest.error ?? new Error("Failed to read events from IndexedDB"));
+      reject(
+        eventsRequest.error ??
+          new Error("Failed to read events from IndexedDB"),
+      );
 
     const recordsRequest = recordsStore.getAll();
     recordsRequest.onsuccess = () => {
@@ -329,10 +373,15 @@ async function readPersistedCollections(): Promise<State | null> {
       finishIfReady();
     };
     recordsRequest.onerror = () =>
-      reject(recordsRequest.error ?? new Error("Failed to read records from IndexedDB"));
+      reject(
+        recordsRequest.error ??
+          new Error("Failed to read records from IndexedDB"),
+      );
 
     transaction.onerror = () =>
-      reject(transaction.error ?? new Error("Failed to read state from IndexedDB"));
+      reject(
+        transaction.error ?? new Error("Failed to read state from IndexedDB"),
+      );
   });
 }
 
@@ -341,7 +390,7 @@ type StoreMap = Record<string, IDBObjectStore>;
 async function runTransaction<T>(
   storeNames: string[],
   mode: IDBTransactionMode,
-  executor: (stores: StoreMap) => T | Promise<T>
+  executor: (stores: StoreMap) => T | Promise<T>,
 ): Promise<T> {
   const db = await getDatabase();
 
@@ -385,7 +434,7 @@ function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {
 
 function deleteRecordsByEvent(
   recordsStore: IDBObjectStore,
-  eventId: string
+  eventId: string,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const cursorRequest = recordsStore.openCursor();

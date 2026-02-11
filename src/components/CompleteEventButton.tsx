@@ -76,7 +76,6 @@ export default function CompleteEventButton({
   const handleComplete = () => {
     mutation.mutate({
       eventId: event.id,
-      createNext: false,
     });
   };
 

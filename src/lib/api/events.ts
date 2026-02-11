@@ -3,10 +3,12 @@ import { router } from 'react-query-kit'
 import {
   createEvent,
   completeEvent,
+  completeRecord,
   deleteEvent,
   getEvent,
   listEvents,
   type CompleteEventInput,
+  type CompleteRecordInput,
   type CreateEventInput,
 } from '@/lib/event-store'
 
@@ -22,6 +24,9 @@ export const eventsApi = router(['events'], {
   }),
   complete: router.mutation({
     mutationFn: (input: CompleteEventInput) => completeEvent(input),
+  }),
+  completeRecord: router.mutation({
+    mutationFn: (input: CompleteRecordInput) => completeRecord(input),
   }),
   delete: router.mutation({
     mutationFn: (eventId: string) => deleteEvent(eventId),
