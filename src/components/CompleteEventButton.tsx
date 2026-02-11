@@ -1,31 +1,32 @@
-import { useState, type ComponentProps } from 'react'
-import { Loader2, CheckCircle2, X } from 'lucide-react'
+import { CheckCircle2, X } from "lucide-react";
+import { useState, type ComponentProps } from "react";
 
-import { eventsApi } from '@/lib/api/events'
-import {
-  type CompleteEventInput,
-  type EventDetail,
-  type EventWithCurrentRecord,
-} from '@/lib/event-store'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/Button'
+import { Button } from "@/components/ui/Button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from '@/components/ui/Dialog'
+} from "@/components/ui/Dialog";
+import { eventsApi } from "@/lib/api/events";
+import {
+  type CompleteEventInput,
+  type EventDetail,
+  type EventWithCurrentRecord,
+} from "@/lib/event-store";
+import { cn } from "@/lib/utils";
+import { LoadingOr } from "./LoadingOr";
 
 type CompleteEventButtonProps = {
-  event: EventWithCurrentRecord | EventDetail
-  disabled?: boolean
-  className?: string
-  buttonProps?: ComponentProps<typeof Button>
+  event: EventWithCurrentRecord | EventDetail;
+  disabled?: boolean;
+  className?: string;
+  buttonProps?: ComponentProps<typeof Button>;
   onSuccess?: (
     data: EventWithCurrentRecord,
     variables: CompleteEventInput,
-  ) => void | Promise<void>
-}
+  ) => void | Promise<void>;
+};
 
 export default function CompleteEventButton({
   event,
@@ -34,89 +35,90 @@ export default function CompleteEventButton({
   buttonProps,
   onSuccess,
 }: CompleteEventButtonProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [createNext, setCreateNext] = useState(false)
-  const [nextCount, setNextCount] = useState('0')
-  const [error, setError] = useState<string | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [createNext, setCreateNext] = useState(false);
+  const [nextCount, setNextCount] = useState("0");
+  const [error, setError] = useState<string | null>(null);
 
   const mutation = eventsApi.complete.useMutation({
     onSuccess: async (data, variables) => {
-      setIsDialogOpen(false)
+      setIsDialogOpen(false);
       if (onSuccess) {
-        await onSuccess(data, variables)
+        await onSuccess(data, variables);
       }
     },
-  })
+  });
 
   const isActiveMutation =
-    mutation.isPending && mutation.variables?.eventId === event.id
+    mutation.isPending && mutation.variables?.eventId === event.id;
 
   const computedDisabled =
-    disabled || !event.currentRecord || event.completed || isActiveMutation
+    disabled || !event.currentRecord || event.completed || isActiveMutation;
 
-  const { className: buttonClassName, variant, ...restButtonProps } =
-    buttonProps ?? {}
+  const {
+    className: buttonClassName,
+    variant,
+    ...restButtonProps
+  } = buttonProps ?? {};
 
-  const finalClassName = cn(buttonClassName, className)
+  const finalClassName = cn(buttonClassName, className);
 
   const openDialog = () => {
     if (computedDisabled || !event.currentRecord) {
-      return
+      return;
     }
-    setCreateNext(Boolean(event.currentRecord))
-    setNextCount(String(event.currentRecord?.count ?? 0))
-    setError(null)
-    setIsDialogOpen(true)
-  }
+    setCreateNext(Boolean(event.currentRecord));
+    setNextCount(String(event.currentRecord?.count ?? 0));
+    setError(null);
+    setIsDialogOpen(true);
+  };
 
   const closeDialog = () => {
     if (mutation.isPending) {
-      return
+      return;
     }
-    setIsDialogOpen(false)
-  }
+    setIsDialogOpen(false);
+  };
 
   const handleComplete = () => {
     if (!event.currentRecord) {
-      return
+      return;
     }
-    let parsedCount: number | undefined
+    let parsedCount: number | undefined;
     if (createNext) {
-      parsedCount = Number(nextCount)
+      parsedCount = Number(nextCount);
       if (!Number.isFinite(parsedCount) || parsedCount < 0) {
-        setError('Count must be a non-negative number')
-        return
+        setError("Count must be a non-negative number");
+        return;
       }
     }
-    setError(null)
+    setError(null);
     mutation.mutate({
       eventId: event.id,
       createNext,
       nextCount: parsedCount,
-    })
-  }
+    });
+  };
 
   const handleDialogChange = (open: boolean) => {
     if (!open) {
-      closeDialog()
+      closeDialog();
     }
-  }
+  };
 
   return (
     <>
       <Button
         type="button"
-        variant={variant ?? 'success'}
+        variant={variant ?? "success"}
         {...restButtonProps}
         disabled={computedDisabled}
         onClick={openDialog}
         className={finalClassName}
       >
-        {isActiveMutation ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
+        <LoadingOr loading={isActiveMutation}>
           <CheckCircle2 className="h-4 w-4" />
-        )}
+        </LoadingOr>
         Complete
       </Button>
 
@@ -132,7 +134,12 @@ export default function CompleteEventButton({
                 Confirm the completion and optionally set up the next record.
               </DialogDescription>
             </div>
-            <Button type="button" variant="ghost" size="sm" onClick={closeDialog}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={closeDialog}
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -187,16 +194,14 @@ export default function CompleteEventButton({
               onClick={handleComplete}
               disabled={mutation.isPending}
             >
-              {mutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
+              <LoadingOr loading={mutation.isPending}>
                 <CheckCircle2 className="h-4 w-4" />
-              )}
+              </LoadingOr>
               Confirm Completion
             </Button>
           </div>
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

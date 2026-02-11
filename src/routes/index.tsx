@@ -1,49 +1,27 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
-import {
-  BookOpen,
-  Loader2,
-  Plus,
-  RefreshCw,
-  Target,
-  Trash2,
-} from 'lucide-react'
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { BookOpen, Loader2, Plus, RefreshCw, Target } from "lucide-react";
 
-import CompleteEventButton from '@/components/CompleteEventButton'
-import EventStatusPill from '@/components/EventStatusPill'
-import { Button } from '@/components/ui/Button'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { eventsApi } from '@/lib/api/events'
-import { type EventWithCurrentRecord } from '@/lib/event-store'
-import { formatTimestamp } from '@/lib/date-utils'
+import CompleteEventButton from "@/components/CompleteEventButton";
+import { DeleteEvent } from "@/components/DeleteEvent";
+import EventStatusPill from "@/components/EventStatusPill";
+import { Button } from "@/components/ui/Button";
+import { RouteView } from "@/components/ui/RouteView";
+import { eventsApi } from "@/lib/api/events";
+import { formatTimestamp } from "@/lib/date-utils";
 
-export const Route = createFileRoute('/')({ component: EventDashboard })
+export const Route = createFileRoute("/")({ component: EventDashboard });
 
 function EventDashboard() {
-  const queryClient = useQueryClient()
-  const eventsQuery = eventsApi.list.useQuery()
+  const queryClient = useQueryClient();
+  const eventsQuery = eventsApi.list.useQuery();
 
-  const deleteMutation = eventsApi.delete.useMutation({
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: eventsApi.list.getKey() }),
-  })
-
-  const events = eventsQuery.data ?? []
-  const activeEvents = events.filter((event) => !event.completed).length
-  const completedEvents = events.filter((event) => event.completed).length
+  const events = eventsQuery.data ?? [];
+  const activeEvents = events.filter((event) => !event.completed).length;
+  const completedEvents = events.filter((event) => event.completed).length;
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white">
+    <RouteView>
       <section className="max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
         <div className="flex flex-col gap-3">
           <p className="flex items-center gap-2 text-cyan-300 text-sm uppercase tracking-[0.2em]">
@@ -66,7 +44,9 @@ function EventDashboard() {
               type="button"
               variant="outline"
               onClick={() =>
-                queryClient.invalidateQueries({ queryKey: eventsApi.list.getKey() })
+                queryClient.invalidateQueries({
+                  queryKey: eventsApi.list.getKey(),
+                })
               }
             >
               <RefreshCw className="w-4 h-4" /> Refresh
@@ -96,10 +76,6 @@ function EventDashboard() {
         ) : (
           <div className="space-y-4">
             {events.map((event) => {
-              const isDeleting =
-                deleteMutation.isPending &&
-                deleteMutation.variables === event.id
-
               return (
                 <article
                   key={event.id}
@@ -108,7 +84,9 @@ function EventDashboard() {
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
                       <div className="flex items-center gap-3">
-                        <h2 className="text-2xl font-semibold">{event.title}</h2>
+                        <h2 className="text-2xl font-semibold">
+                          {event.title}
+                        </h2>
                         <EventStatusPill completed={event.completed} />
                       </div>
                       <p className="mt-2 text-sm text-slate-400">
@@ -120,14 +98,17 @@ function EventDashboard() {
                         Current Count
                       </span>
                       <span className="text-3xl font-black">
-                        {event.currentRecord?.count ?? '—'}
+                        {event.currentRecord?.count ?? "—"}
                       </span>
                     </div>
                   </div>
 
                   <div className="mt-6 flex flex-wrap gap-3">
                     <Button asChild variant="outline">
-                      <Link to="/events/$eventId" params={{ eventId: event.id }}>
+                      <Link
+                        to="/events/$eventId"
+                        params={{ eventId: event.id }}
+                      >
                         <BookOpen className="h-4 w-4" /> View Records
                       </Link>
                     </Button>
@@ -140,62 +121,16 @@ function EventDashboard() {
                         })
                       }
                     />
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="danger"
-                          disabled={isDeleting}
-                        >
-                          {isDeleting ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                          Delete
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
-                            Delete Event
-                          </p>
-                          <AlertDialogTitle>
-                            Remove "{event.title}"?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently delete the event and all of its records.
-                            You cannot undo this action.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel disabled={isDeleting}>
-                            Cancel
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            variant="danger"
-                            onClick={() => deleteMutation.mutate(event.id)}
-                            disabled={isDeleting}
-                          >
-                            {isDeleting ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4" />
-                            )}
-                            Delete Event
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <DeleteEvent id={event.id} title={event.title} />
                   </div>
                 </article>
-              )
+              );
             })}
           </div>
         )}
       </section>
-    </div>
-  )
+    </RouteView>
+  );
 }
 
 function StatCard({ label, value }: { label: string; value: number }) {
@@ -206,7 +141,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
       </p>
       <p className="text-3xl font-black">{value}</p>
     </div>
-  )
+  );
 }
 
 function EmptyState() {
@@ -222,5 +157,5 @@ function EmptyState() {
         </Link>
       </Button>
     </div>
-  )
+  );
 }
