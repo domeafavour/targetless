@@ -39,6 +39,11 @@ export type CompleteRecordInput = {
   nextCount?: number;
 };
 
+export type CreateRecordInput = {
+  eventId: string;
+  count: number;
+};
+
 type State = {
   events: EventEntity[];
   records: EventRecord[];
@@ -159,6 +164,61 @@ export async function completeEvent(
   );
 
   return attachCurrentRecord(event, []);
+}
+
+export async function createRecord(
+  input: CreateRecordInput,
+): Promise<EventWithCurrentRecord> {
+  const { event, record } = await runTransaction(
+    [DB_EVENTS_STORE, DB_RECORDS_STORE],
+    "readwrite",
+    async (stores) => {
+      const eventsStore = stores[DB_EVENTS_STORE];
+      const recordsStore = stores[DB_RECORDS_STORE];
+
+      const existingEvent =
+        (await requestToPromise<EventEntity | undefined>(
+          eventsStore.get(input.eventId),
+        )) ?? null;
+      if (!existingEvent) {
+        throw new Error("Event not found");
+      }
+
+      if (existingEvent.currentRecordId) {
+        throw new Error("There is already an active record");
+      }
+
+      const parsedCount = Number(input.count);
+      if (!Number.isFinite(parsedCount) || parsedCount < 0) {
+        throw new Error("Count must be a non-negative number");
+      }
+
+      const now = new Date().toISOString();
+      const newRecord: EventRecord = {
+        id: generateId(),
+        eventId: existingEvent.id,
+        createdAt: now,
+        updatedAt: now,
+        count: parsedCount,
+        completed: false,
+      };
+      recordsStore.put(newRecord);
+
+      const updatedEvent: EventEntity = {
+        ...existingEvent,
+        updatedAt: now,
+        currentRecordId: newRecord.id,
+      };
+      eventsStore.put(updatedEvent);
+
+      return {
+        event: updatedEvent,
+        record: newRecord,
+      };
+    },
+  );
+
+  return attachCurrentRecord(event, [record]);
 }
 
 export async function completeRecord(

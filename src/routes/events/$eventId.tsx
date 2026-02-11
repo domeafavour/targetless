@@ -6,6 +6,7 @@ import CompleteEventButton from "@/components/CompleteEventButton";
 import CompleteRecordButton from "@/components/CompleteRecordButton";
 import { DeleteEvent } from "@/components/DeleteEvent";
 import EventStatusPill from "@/components/EventStatusPill";
+import NewRecordButton from "@/components/NewRecordButton";
 import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
@@ -51,6 +52,23 @@ function EventHeader({ event }: { event: EventDetail }) {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
+        {event.records.length > 0 && event.records.every((r) => r.completed) && !event.completed && (
+          <NewRecordButton
+            event={event}
+            onSuccess={async (_, variables) => {
+              await Promise.all([
+                queryClient.invalidateQueries({
+                  queryKey: eventsApi.detail.getKey({
+                    eventId: variables.eventId,
+                  }),
+                }),
+                queryClient.invalidateQueries({
+                  queryKey: eventsApi.list.getKey(),
+                }),
+              ]);
+            }}
+          />
+        )}
         <CompleteEventButton
           event={event}
           disabled={event.completed}
