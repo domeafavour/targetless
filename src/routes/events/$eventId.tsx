@@ -5,14 +5,13 @@ import { ArrowLeft, BookOpen, History, Loader2 } from "lucide-react";
 import CompleteEventButton from "@/components/CompleteEventButton";
 import { DeleteEvent } from "@/components/DeleteEvent";
 import EventStatusPill from "@/components/EventStatusPill";
+import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
 
 export const Route = createFileRoute("/events/$eventId")({
   component: EventRecordsPage,
-  pendingComponent: () => (
-    <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white" />
-  ),
+  pendingComponent: RouteView,
 });
 
 function EventRecordsPage() {
@@ -27,7 +26,7 @@ function EventRecordsPage() {
   const event = eventQuery.data;
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white">
+    <RouteView>
       <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10">
         <Link
           to="/"
@@ -144,7 +143,7 @@ function EventRecordsPage() {
           </>
         ) : null}
       </div>
-    </div>
+    </RouteView>
   );
 }
 

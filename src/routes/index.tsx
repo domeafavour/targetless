@@ -6,6 +6,7 @@ import CompleteEventButton from "@/components/CompleteEventButton";
 import { DeleteEvent } from "@/components/DeleteEvent";
 import EventStatusPill from "@/components/EventStatusPill";
 import { Button } from "@/components/ui/Button";
+import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
 
@@ -20,7 +21,7 @@ function EventDashboard() {
   const completedEvents = events.filter((event) => event.completed).length;
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white">
+    <RouteView>
       <section className="max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
         <div className="flex flex-col gap-3">
           <p className="flex items-center gap-2 text-cyan-300 text-sm uppercase tracking-[0.2em]">
@@ -128,7 +129,7 @@ function EventDashboard() {
           </div>
         )}
       </section>
-    </div>
+    </RouteView>
   );
 }
 

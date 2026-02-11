@@ -1,52 +1,55 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
-import { Loader2, PlusCircle, ArrowLeft } from 'lucide-react'
-import { useState } from 'react'
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, Loader2, PlusCircle } from "lucide-react";
+import { useState } from "react";
 
-import { eventsApi } from '@/lib/api/events'
-import { Button } from '@/components/ui/Button'
+import { Button } from "@/components/ui/Button";
+import { RouteView } from "@/components/ui/RouteView";
+import { eventsApi } from "@/lib/api/events";
 
-export const Route = createFileRoute('/events/new')({
+export const Route = createFileRoute("/events/new")({
   component: CreateEventPage,
-})
+});
 
 function CreateEventPage() {
-  const navigate = useNavigate({ from: '/events/new' })
-  const queryClient = useQueryClient()
-  const [title, setTitle] = useState('')
-  const [count, setCount] = useState('0')
-  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate({ from: "/events/new" });
+  const queryClient = useQueryClient();
+  const [title, setTitle] = useState("");
+  const [count, setCount] = useState("0");
+  const [error, setError] = useState<string | null>(null);
 
   const mutation = eventsApi.create.useMutation({
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: eventsApi.list.getKey() })
-      navigate({ to: '/' })
+      await queryClient.invalidateQueries({
+        queryKey: eventsApi.list.getKey(),
+      });
+      navigate({ to: "/" });
     },
     onError: (err: Error) => setError(err.message),
-  })
+  });
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setError(null)
+    event.preventDefault();
+    setError(null);
 
-    const trimmedTitle = title.trim()
-    const parsedCount = Number(count)
+    const trimmedTitle = title.trim();
+    const parsedCount = Number(count);
 
     if (!trimmedTitle) {
-      setError('Title is required')
-      return
+      setError("Title is required");
+      return;
     }
 
     if (!Number.isFinite(parsedCount) || parsedCount < 0) {
-      setError('Count must be a non-negative number')
-      return
+      setError("Count must be a non-negative number");
+      return;
     }
 
-    mutation.mutate({ title: trimmedTitle, count: parsedCount })
-  }
+    mutation.mutate({ title: trimmedTitle, count: parsedCount });
+  };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white">
+    <RouteView>
       <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-12">
         <Link
           to="/"
@@ -62,7 +65,8 @@ function CreateEventPage() {
           </p>
           <h1 className="text-4xl font-black">Create an event</h1>
           <p className="text-slate-300">
-            Provide the event name and the current count to open its first record.
+            Provide the event name and the current count to open its first
+            record.
           </p>
         </header>
 
@@ -118,6 +122,6 @@ function CreateEventPage() {
           </div>
         </form>
       </div>
-    </div>
-  )
+    </RouteView>
+  );
 }
