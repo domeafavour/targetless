@@ -1,8 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Loader2, PlusCircle } from "lucide-react";
+import { ArrowLeft, PlusCircle } from "lucide-react";
 import { useState } from "react";
 
+import { LoadingOr } from "@/components/LoadingOr";
 import { Button } from "@/components/ui/Button";
 import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
@@ -112,11 +113,9 @@ function CreateEventPage() {
               disabled={mutation.isPending}
               fullWidth
             >
-              {mutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
+              <LoadingOr loading={mutation.isPending}>
                 <PlusCircle className="h-4 w-4" />
-              )}
+              </LoadingOr>
               Create Event
             </Button>
           </div>

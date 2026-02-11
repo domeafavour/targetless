@@ -1,7 +1,8 @@
 import { eventsApi } from "@/lib/api/events";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { ReactNode } from "react";
+import { LoadingOr } from "./LoadingOr";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,11 +39,9 @@ export function DeleteEvent({ children, id, title, onSuccess }: Props) {
     children({ loading: deleteMutation.isPending })
   ) : (
     <Button type="button" variant="danger" disabled={deleteMutation.isPending}>
-      {deleteMutation.isPending ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
+      <LoadingOr loading={deleteMutation.isPending}>
         <Trash2 className="h-4 w-4" />
-      )}
+      </LoadingOr>
       Delete
     </Button>
   );
@@ -70,11 +69,9 @@ export function DeleteEvent({ children, id, title, onSuccess }: Props) {
             onClick={() => deleteMutation.mutate(id)}
             disabled={deleteMutation.isPending}
           >
-            {deleteMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
+            <LoadingOr loading={deleteMutation.isPending}>
               <Trash2 className="h-4 w-4" />
-            )}
+            </LoadingOr>
             Delete Event
           </AlertDialogAction>
         </AlertDialogFooter>
