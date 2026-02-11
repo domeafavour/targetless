@@ -1,59 +1,30 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
-import {
-  ArrowLeft,
-  BookOpen,
-  History,
-  Loader2,
-  Trash2,
-} from 'lucide-react'
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, BookOpen, History, Loader2 } from "lucide-react";
 
-import CompleteEventButton from '@/components/CompleteEventButton'
-import EventStatusPill from '@/components/EventStatusPill'
-import { eventsApi } from '@/lib/api/events'
-import { formatTimestamp } from '@/lib/date-utils'
-import { Button } from '@/components/ui/Button'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+import CompleteEventButton from "@/components/CompleteEventButton";
+import { DeleteEvent } from "@/components/DeleteEvent";
+import EventStatusPill from "@/components/EventStatusPill";
+import { eventsApi } from "@/lib/api/events";
+import { formatTimestamp } from "@/lib/date-utils";
 
-export const Route = createFileRoute('/events/$eventId')({
+export const Route = createFileRoute("/events/$eventId")({
   component: EventRecordsPage,
-})
+  pendingComponent: () => (
+    <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white" />
+  ),
+});
 
 function EventRecordsPage() {
-  const { eventId } = Route.useParams()
-  const navigate = useNavigate({ from: '/events/$eventId' })
-  const queryClient = useQueryClient()
+  const { eventId } = Route.useParams();
+  const navigate = useNavigate({ from: "/events/$eventId" });
+  const queryClient = useQueryClient();
 
-  const eventQuery = eventsApi.detail.useQuery({
+  const eventQuery = eventsApi.detail.useSuspenseQuery({
     variables: { eventId },
-  })
+  });
 
-  const deleteMutation = eventsApi.delete.useMutation({
-    onSuccess: async (_, deletedId) => {
-      await queryClient.invalidateQueries({ queryKey: eventsApi.list.getKey() })
-      queryClient.removeQueries({
-        queryKey: eventsApi.detail.getKey({ eventId: deletedId }),
-      })
-      navigate({ to: '/' })
-    },
-  })
-
-  const event = eventQuery.data
-
-  const handleDelete = () => {
-    if (!event) return
-    deleteMutation.mutate(event.id)
-  }
+  const event = eventQuery.data;
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-white">
@@ -86,15 +57,25 @@ function EventRecordsPage() {
                   <EventStatusPill completed={event.completed} />
                 </div>
                 <p className="text-sm text-slate-400">
-                  Updated {formatTimestamp(event.updatedAt)} • {event.records.length}{' '}
-                  {event.records.length === 1 ? 'record' : 'records'}
+                  Updated {formatTimestamp(event.updatedAt)} •{" "}
+                  {event.records.length}{" "}
+                  {event.records.length === 1 ? "record" : "records"}
                 </p>
               </header>
 
               <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <SummaryStat label="Current Count" value={event.currentRecord?.count ?? '—'} />
-                <SummaryStat label="Last Updated" value={formatTimestamp(event.updatedAt)} />
-                <SummaryStat label="Status" value={event.completed ? 'Completed' : 'Active'} />
+                <SummaryStat
+                  label="Current Count"
+                  value={event.currentRecord?.count ?? "—"}
+                />
+                <SummaryStat
+                  label="Last Updated"
+                  value={formatTimestamp(event.updatedAt)}
+                />
+                <SummaryStat
+                  label="Status"
+                  value={event.completed ? "Completed" : "Active"}
+                />
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3">
@@ -111,56 +92,19 @@ function EventRecordsPage() {
                       queryClient.invalidateQueries({
                         queryKey: eventsApi.list.getKey(),
                       }),
-                    ])
+                    ]);
                   }}
                 />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="danger"
-                      disabled={deleteMutation.isPending}
-                    >
-                      {deleteMutation.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
-                        Delete Event
-                      </p>
-                      <AlertDialogTitle>
-                        Remove "{event.title}"?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete the event and every record in its
-                        timeline. You cannot undo this action.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel disabled={deleteMutation.isPending}>
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        variant="danger"
-                        onClick={handleDelete}
-                        disabled={deleteMutation.isPending}
-                      >
-                        {deleteMutation.isPending ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                        Delete Event
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <DeleteEvent
+                  id={event.id}
+                  title={event.title}
+                  onSuccess={() => {
+                    queryClient.removeQueries({
+                      queryKey: eventsApi.detail.getKey({ eventId: event.id }),
+                    });
+                    navigate({ to: "/" });
+                  }}
+                />
               </div>
             </section>
 
@@ -169,7 +113,9 @@ function EventRecordsPage() {
                 <History className="h-4 w-4" /> Records Timeline
               </div>
               {event.records.length === 0 ? (
-                <p className="mt-6 text-slate-400">This event has no records yet.</p>
+                <p className="mt-6 text-slate-400">
+                  This event has no records yet.
+                </p>
               ) : (
                 <ol className="mt-6 space-y-4">
                   {event.records.map((record) => (
@@ -199,14 +145,20 @@ function EventRecordsPage() {
         ) : null}
       </div>
     </div>
-  )
+  );
 }
 
-function SummaryStat({ label, value }: { label: string; value: string | number }) {
+function SummaryStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
       <p className="uppercase tracking-[0.3em] text-slate-400">{label}</p>
       <p className="text-2xl font-bold text-white">{value}</p>
     </div>
-  )
+  );
 }
