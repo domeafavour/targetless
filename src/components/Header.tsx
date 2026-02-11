@@ -8,7 +8,7 @@ const navLinks = [
 
 export default function Header() {
   return (
-    <header className="border-b border-white/10 bg-slate-950/80 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 text-white">
         <Link to="/" className="flex items-center gap-3 text-lg font-semibold">
           <CalendarCheck2 className="h-6 w-6 text-cyan-400" />

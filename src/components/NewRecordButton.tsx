@@ -1,4 +1,4 @@
-import { CheckCircle2, X } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
 import { useState, type ComponentProps } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -10,34 +10,36 @@ import {
 } from "@/components/ui/Dialog";
 import { eventsApi } from "@/lib/api/events";
 import {
-  type CompleteEventInput,
+  type CreateRecordInput,
   type EventDetail,
   type EventWithCurrentRecord,
 } from "@/lib/event-store";
 import { cn } from "@/lib/utils";
 import { LoadingOr } from "./LoadingOr";
 
-type CompleteEventButtonProps = {
+type NewRecordButtonProps = {
   event: EventWithCurrentRecord | EventDetail;
   disabled?: boolean;
   className?: string;
   buttonProps?: ComponentProps<typeof Button>;
   onSuccess?: (
     data: EventWithCurrentRecord,
-    variables: CompleteEventInput,
+    variables: CreateRecordInput,
   ) => void | Promise<void>;
 };
 
-export default function CompleteEventButton({
+export default function NewRecordButton({
   event,
   disabled,
   className,
   buttonProps,
   onSuccess,
-}: CompleteEventButtonProps) {
+}: NewRecordButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [count, setCount] = useState("0");
+  const [error, setError] = useState<string | null>(null);
 
-  const mutation = eventsApi.complete.useMutation({
+  const mutation = eventsApi.createRecord.useMutation({
     onSuccess: async (data, variables) => {
       setIsDialogOpen(false);
       if (onSuccess) {
@@ -49,7 +51,8 @@ export default function CompleteEventButton({
   const isActiveMutation =
     mutation.isPending && mutation.variables?.eventId === event.id;
 
-  const computedDisabled = disabled || event.completed || isActiveMutation;
+  const computedDisabled =
+    disabled || event.currentRecord !== null || event.completed || isActiveMutation;
 
   const {
     className: buttonClassName,
@@ -63,6 +66,8 @@ export default function CompleteEventButton({
     if (computedDisabled) {
       return;
     }
+    setCount("0");
+    setError(null);
     setIsDialogOpen(true);
   };
 
@@ -73,9 +78,16 @@ export default function CompleteEventButton({
     setIsDialogOpen(false);
   };
 
-  const handleComplete = () => {
+  const handleCreate = () => {
+    const parsedCount = Number(count);
+    if (!Number.isFinite(parsedCount) || parsedCount < 0) {
+      setError("Count must be a non-negative number");
+      return;
+    }
+    setError(null);
     mutation.mutate({
       eventId: event.id,
+      count: parsedCount,
     });
   };
 
@@ -96,9 +108,9 @@ export default function CompleteEventButton({
         className={finalClassName}
       >
         <LoadingOr loading={isActiveMutation}>
-          <CheckCircle2 className="h-4 w-4" />
+          <PlusCircle className="h-4 w-4" />
         </LoadingOr>
-        Complete Event
+        New Record
       </Button>
 
       <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
@@ -106,11 +118,11 @@ export default function CompleteEventButton({
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
-                Complete Event
+                Create New Record
               </p>
               <DialogTitle>{event.title}</DialogTitle>
               <DialogDescription>
-                Mark this event as completed.
+                Create a new record to continue tracking this event.
               </DialogDescription>
             </div>
             <Button
@@ -121,6 +133,28 @@ export default function CompleteEventButton({
             >
               <X className="h-4 w-4" />
             </Button>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+              Starting Count
+              <input
+                type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
+                value={count}
+                onChange={(e) => setCount(e.target.value)}
+                disabled={mutation.isPending}
+                className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-base text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+              />
+            </label>
+
+            {error ? (
+              <p className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                {error}
+              </p>
+            ) : null}
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -135,13 +169,13 @@ export default function CompleteEventButton({
             <Button
               type="button"
               variant="primary"
-              onClick={handleComplete}
+              onClick={handleCreate}
               disabled={mutation.isPending}
             >
               <LoadingOr loading={mutation.isPending}>
-                <CheckCircle2 className="h-4 w-4" />
+                <PlusCircle className="h-4 w-4" />
               </LoadingOr>
-              Complete Event
+              Create Record
             </Button>
           </div>
         </DialogContent>
