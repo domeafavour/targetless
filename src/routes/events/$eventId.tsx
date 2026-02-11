@@ -51,22 +51,6 @@ function EventHeader({ event }: { event: EventDetail }) {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <CompleteRecordButton
-          event={event}
-          disabled={!event.currentRecord || event.completed}
-          onSuccess={async (_, variables) => {
-            await Promise.all([
-              queryClient.invalidateQueries({
-                queryKey: eventsApi.detail.getKey({
-                  eventId: variables.eventId,
-                }),
-              }),
-              queryClient.invalidateQueries({
-                queryKey: eventsApi.list.getKey(),
-              }),
-            ]);
-          }}
-        />
         <CompleteEventButton
           event={event}
           disabled={event.completed}
@@ -99,6 +83,7 @@ function EventHeader({ event }: { event: EventDetail }) {
 }
 
 function EventRecordsPage() {
+  const queryClient = useQueryClient();
   const { eventId } = Route.useParams();
 
   const eventQuery = eventsApi.detail.useSuspenseQuery({
@@ -152,7 +137,26 @@ function EventRecordsPage() {
                           </p>
                           <p className="text-3xl font-black">{record.count}</p>
                         </div>
-                        <EventStatusPill completed={record.completed} />
+                        {record.completed ? (
+                          <EventStatusPill completed />
+                        ) : (
+                          <CompleteRecordButton
+                            event={event}
+                            disabled={!event.currentRecord || event.completed}
+                            onSuccess={async (_, variables) => {
+                              await Promise.all([
+                                queryClient.invalidateQueries({
+                                  queryKey: eventsApi.detail.getKey({
+                                    eventId: variables.eventId,
+                                  }),
+                                }),
+                                queryClient.invalidateQueries({
+                                  queryKey: eventsApi.list.getKey(),
+                                }),
+                              ]);
+                            }}
+                          />
+                        )}
                       </div>
                       <div className="mt-4 grid gap-1 text-sm text-slate-400">
                         <p>Created {formatTimestamp(record.createdAt)}</p>
