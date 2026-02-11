@@ -3,6 +3,7 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, BookOpen, History, Loader2 } from "lucide-react";
 
 import CompleteEventButton from "@/components/CompleteEventButton";
+import CompleteRecordButton from "@/components/CompleteRecordButton";
 import { DeleteEvent } from "@/components/DeleteEvent";
 import EventStatusPill from "@/components/EventStatusPill";
 import { RouteView } from "@/components/ui/RouteView";
@@ -50,9 +51,25 @@ function EventHeader({ event }: { event: EventDetail }) {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <CompleteEventButton
+        <CompleteRecordButton
           event={event}
           disabled={!event.currentRecord || event.completed}
+          onSuccess={async (_, variables) => {
+            await Promise.all([
+              queryClient.invalidateQueries({
+                queryKey: eventsApi.detail.getKey({
+                  eventId: variables.eventId,
+                }),
+              }),
+              queryClient.invalidateQueries({
+                queryKey: eventsApi.list.getKey(),
+              }),
+            ]);
+          }}
+        />
+        <CompleteEventButton
+          event={event}
+          disabled={event.completed}
           onSuccess={async (_, variables) => {
             await Promise.all([
               queryClient.invalidateQueries({

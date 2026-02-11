@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { BookOpen, Loader2, Plus, RefreshCw, Target } from "lucide-react";
 
-import CompleteEventButton from "@/components/CompleteEventButton";
+import CompleteRecordButton from "@/components/CompleteRecordButton";
 import { DeleteEvent } from "@/components/DeleteEvent";
 import EventStatusPill from "@/components/EventStatusPill";
 import { Button } from "@/components/ui/Button";
@@ -112,7 +112,7 @@ function EventDashboard() {
                         <BookOpen className="h-4 w-4" /> View Records
                       </Link>
                     </Button>
-                    <CompleteEventButton
+                    <CompleteRecordButton
                       event={event}
                       disabled={!event.currentRecord || event.completed}
                       onSuccess={() =>
