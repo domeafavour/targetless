@@ -8,16 +8,81 @@ import EventStatusPill from "@/components/EventStatusPill";
 import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
+import { EventDetail } from "@/lib/event-store";
 
 export const Route = createFileRoute("/events/$eventId")({
   component: EventRecordsPage,
   pendingComponent: RouteView,
 });
 
-function EventRecordsPage() {
-  const { eventId } = Route.useParams();
+function EventHeader({ event }: { event: EventDetail }) {
   const navigate = useNavigate({ from: "/events/$eventId" });
   const queryClient = useQueryClient();
+  return (
+    <header className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-900/40 p-6 shadow-xl shadow-black/30">
+      <header className="flex flex-col gap-3">
+        <p className="flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-cyan-300">
+          <BookOpen className="h-4 w-4" /> Event Records
+        </p>
+        <div className="flex flex-wrap items-center gap-4">
+          <h1 className="text-4xl font-black">{event.title}</h1>
+          <EventStatusPill completed={event.completed} />
+        </div>
+        <p className="text-sm text-slate-400">
+          Updated {formatTimestamp(event.updatedAt)} • {event.records.length}{" "}
+          {event.records.length === 1 ? "record" : "records"}
+        </p>
+      </header>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        <SummaryStat
+          label="Current Count"
+          value={event.currentRecord?.count ?? "—"}
+        />
+        <SummaryStat
+          label="Last Updated"
+          value={formatTimestamp(event.updatedAt)}
+        />
+        <SummaryStat
+          label="Status"
+          value={event.completed ? "Completed" : "Active"}
+        />
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-3">
+        <CompleteEventButton
+          event={event}
+          disabled={!event.currentRecord || event.completed}
+          onSuccess={async (_, variables) => {
+            await Promise.all([
+              queryClient.invalidateQueries({
+                queryKey: eventsApi.detail.getKey({
+                  eventId: variables.eventId,
+                }),
+              }),
+              queryClient.invalidateQueries({
+                queryKey: eventsApi.list.getKey(),
+              }),
+            ]);
+          }}
+        />
+        <DeleteEvent
+          id={event.id}
+          title={event.title}
+          onSuccess={() => {
+            queryClient.removeQueries({
+              queryKey: eventsApi.detail.getKey({ eventId: event.id }),
+            });
+            navigate({ to: "/" });
+          }}
+        />
+      </div>
+    </header>
+  );
+}
+
+function EventRecordsPage() {
+  const { eventId } = Route.useParams();
 
   const eventQuery = eventsApi.detail.useSuspenseQuery({
     variables: { eventId },
@@ -46,66 +111,7 @@ function EventRecordsPage() {
           </div>
         ) : event ? (
           <>
-            <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-900/40 p-6 shadow-xl shadow-black/30">
-              <header className="flex flex-col gap-3">
-                <p className="flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-cyan-300">
-                  <BookOpen className="h-4 w-4" /> Event Records
-                </p>
-                <div className="flex flex-wrap items-center gap-4">
-                  <h1 className="text-4xl font-black">{event.title}</h1>
-                  <EventStatusPill completed={event.completed} />
-                </div>
-                <p className="text-sm text-slate-400">
-                  Updated {formatTimestamp(event.updatedAt)} •{" "}
-                  {event.records.length}{" "}
-                  {event.records.length === 1 ? "record" : "records"}
-                </p>
-              </header>
-
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <SummaryStat
-                  label="Current Count"
-                  value={event.currentRecord?.count ?? "—"}
-                />
-                <SummaryStat
-                  label="Last Updated"
-                  value={formatTimestamp(event.updatedAt)}
-                />
-                <SummaryStat
-                  label="Status"
-                  value={event.completed ? "Completed" : "Active"}
-                />
-              </div>
-
-              <div className="mt-6 flex flex-wrap gap-3">
-                <CompleteEventButton
-                  event={event}
-                  disabled={!event.currentRecord || event.completed}
-                  onSuccess={async (_, variables) => {
-                    await Promise.all([
-                      queryClient.invalidateQueries({
-                        queryKey: eventsApi.detail.getKey({
-                          eventId: variables.eventId,
-                        }),
-                      }),
-                      queryClient.invalidateQueries({
-                        queryKey: eventsApi.list.getKey(),
-                      }),
-                    ]);
-                  }}
-                />
-                <DeleteEvent
-                  id={event.id}
-                  title={event.title}
-                  onSuccess={() => {
-                    queryClient.removeQueries({
-                      queryKey: eventsApi.detail.getKey({ eventId: event.id }),
-                    });
-                    navigate({ to: "/" });
-                  }}
-                />
-              </div>
-            </section>
+            <EventHeader event={event} />
 
             <section className="rounded-3xl border border-white/5 bg-white/5 p-6 shadow-inner shadow-black/20">
               <div className="flex items-center gap-2 text-sm uppercase tracking-[0.4em] text-slate-300">
