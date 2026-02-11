@@ -88,3 +88,16 @@ if (process.env.GITHUB_PAGES === 'true') {
     console.log('Updated manifest.json for GitHub Pages');
   }
 }
+
+// Update service worker with build timestamp to ensure cache busting
+const swPath = path.join(distClientPath, 'sw.js');
+if (fs.existsSync(swPath)) {
+  const buildTimestamp = Date.now();
+  let swContent = fs.readFileSync(swPath, 'utf8');
+  
+  // Replace the BUILD_TIMESTAMP placeholder with actual timestamp
+  swContent = swContent.replace(/BUILD_TIMESTAMP/g, buildTimestamp.toString());
+  
+  fs.writeFileSync(swPath, swContent);
+  console.log(`Updated service worker with build timestamp: ${buildTimestamp}`);
+}

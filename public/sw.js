@@ -1,5 +1,6 @@
 // Service Worker for Targetless PWA
-const CACHE_NAME = 'targetless-v1';
+// The BUILD_TIMESTAMP will be replaced during build time
+const CACHE_NAME = 'targetless-v1-BUILD_TIMESTAMP';
 
 // Detect base path from service worker registration scope
 const getBasePath = () => {
