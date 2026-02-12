@@ -29,7 +29,8 @@ function EventHeader({ event }: { event: EventDetail }) {
             <EventStatusPill completed={event.completed} />
           </div>
           <p className="text-sm text-slate-400">
-            Updated {formatTimestamp(event.updatedAt)} • {event.records.length}{" "}
+            Updated {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}{" "}
+            • {event.records.length}{" "}
             {event.records.length === 1 ? "record" : "records"}
           </p>
         </div>

@@ -115,7 +115,10 @@ function EventDashboard() {
                         <EventStatusPill completed={event.completed} />
                       </div>
                       <p className="mt-2 text-sm text-slate-400">
-                        Updated {formatTimestamp(event.updatedAt)}
+                        Updated{" "}
+                        {event.updatedAt
+                          ? formatTimestamp(event.updatedAt)
+                          : "N/A"}
                       </p>
                     </div>
                     <div className="flex flex-col gap-2 text-right">

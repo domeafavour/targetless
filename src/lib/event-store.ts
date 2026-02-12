@@ -10,7 +10,7 @@ export type EventRecord = {
 export type EventEntity = {
   id: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
   title: string;
   currentRecordId: string | null;
   completed: boolean;
