@@ -44,6 +44,7 @@ export type Database = {
           completed: boolean | null;
           created_at: string;
           creator_id: string;
+          current_record_id: number | null;
           id: number;
           title: string | null;
           updated_at: string | null;
@@ -52,6 +53,7 @@ export type Database = {
           completed?: boolean | null;
           created_at?: string;
           creator_id: string;
+          current_record_id?: number | null;
           id?: number;
           title?: string | null;
           updated_at?: string | null;
@@ -60,11 +62,20 @@ export type Database = {
           completed?: boolean | null;
           created_at?: string;
           creator_id?: string;
+          current_record_id?: number | null;
           id?: number;
           title?: string | null;
           updated_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "events_current_record_id_fkey";
+            columns: ["current_record_id"];
+            isOneToOne: false;
+            referencedRelation: "records";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       records: {
         Row: {
