@@ -11,7 +11,7 @@ if (!supabaseUrl || !supabaseApiKey) {
   const missingVars = [];
   if (!supabaseUrl) missingVars.push("VITE_SUPABASE_URL");
   if (!supabaseApiKey) missingVars.push("VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY");
-  
+
   throw new Error(
     `Missing required environment variables: ${missingVars.join(", ")}. ` +
     `Please create a .env file with your Supabase configuration. ` +
