@@ -17,9 +17,7 @@ const config = defineConfig({
     tanstackStart({
       router: { basepath: "/targetless" },
       prerender: {
-        enabled: true,
-        autoSubfolderIndex: true,
-        crawlLinks: true,
+        enabled: false,
       },
     }),
     viteReact(),
