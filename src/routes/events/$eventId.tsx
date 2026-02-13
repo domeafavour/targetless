@@ -41,11 +41,11 @@ function EventHeader({ event }: { event: EventDetail }) {
             !event.completed && (
               <NewRecordButton
                 event={event}
-                onSuccess={async (_, variables) => {
+                onSuccess={async () => {
                   await Promise.all([
                     queryClient.invalidateQueries({
                       queryKey: eventsApi.detail.getKey({
-                        eventId: variables.eventId,
+                        eventId: event.id,
                       }),
                     }),
                     queryClient.invalidateQueries({
@@ -58,11 +58,11 @@ function EventHeader({ event }: { event: EventDetail }) {
           <CompleteEventButton
             event={event}
             disabled={event.completed}
-            onSuccess={async (_, variables) => {
+            onSuccess={async () => {
               await Promise.all([
                 queryClient.invalidateQueries({
                   queryKey: eventsApi.detail.getKey({
-                    eventId: variables.eventId,
+                    eventId: event.id,
                   }),
                 }),
                 queryClient.invalidateQueries({

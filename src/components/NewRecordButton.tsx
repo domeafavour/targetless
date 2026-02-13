@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/Dialog";
 import { eventsApi } from "@/lib/api/events";
 import {
-  type CreateRecordInput,
   type EventDetail,
   type EventWithCurrentRecord,
 } from "@/lib/event-store";
@@ -22,10 +21,7 @@ type NewRecordButtonProps = {
   disabled?: boolean;
   className?: string;
   buttonProps?: ComponentProps<typeof Button>;
-  onSuccess?: (
-    data: EventWithCurrentRecord,
-    variables: CreateRecordInput,
-  ) => void | Promise<void>;
+  onSuccess?: () => void | Promise<void>;
 };
 
 export default function NewRecordButton({
@@ -40,10 +36,10 @@ export default function NewRecordButton({
   const [error, setError] = useState<string | null>(null);
 
   const mutation = eventsApi.createRecord.useMutation({
-    onSuccess: async (data, variables) => {
+    onSuccess: async () => {
       setIsDialogOpen(false);
       if (onSuccess) {
-        await onSuccess(data, variables);
+        await onSuccess();
       }
     },
   });
@@ -51,8 +47,7 @@ export default function NewRecordButton({
   const isActiveMutation =
     mutation.isPending && mutation.variables?.eventId === event.id;
 
-  const computedDisabled =
-    disabled || event.currentRecord !== null || event.completed || isActiveMutation;
+  const computedDisabled = disabled || event.completed || isActiveMutation;
 
   const {
     className: buttonClassName,
