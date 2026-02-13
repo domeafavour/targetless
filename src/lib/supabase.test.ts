@@ -18,6 +18,10 @@ describe("supabase fallback client", () => {
 
     expect(session.data.session).toBeNull();
     expect(user.data.user).toBeNull();
+    expect(session.error).toBeInstanceOf(Error);
+    expect(session.error?.message).toContain(
+      "Missing required environment variables",
+    );
     expect(typeof authState.data.subscription.unsubscribe).toBe("function");
   });
 });

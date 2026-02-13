@@ -39,7 +39,6 @@ if (!isSupabaseConfigured) {
   });
   supabase.auth.onAuthStateChange = () => ({
     data: { subscription: { unsubscribe: () => undefined } },
-    error: configError,
   });
   supabase.auth.signInWithPassword = async () => ({
     data: { user: null, session: null },
