@@ -20,7 +20,7 @@ const configErrorMessage =
 const isSupabaseConfigured = missingVars.length === 0;
 
 const FALLBACK_SUPABASE_URL = "http://localhost:54321";
-const FALLBACK_SUPABASE_API_KEY = "invalid-key";
+const FALLBACK_SUPABASE_API_KEY = "unconfigured-fallback-key";
 
 export const supabase = createClient<Database>(
   isSupabaseConfigured ? supabaseUrl! : FALLBACK_SUPABASE_URL,
@@ -39,7 +39,7 @@ if (!isSupabaseConfigured) {
   });
   supabase.auth.onAuthStateChange = () => ({
     data: { subscription: { unsubscribe: () => undefined } },
-    error: null,
+    error: configError,
   });
   supabase.auth.signInWithPassword = async () => ({
     data: { user: null, session: null },
