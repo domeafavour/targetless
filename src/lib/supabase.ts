@@ -19,7 +19,7 @@ const configErrorMessage =
 
 const isSupabaseConfigured = missingVars.length === 0;
 
-// Fallback to the default local Supabase URL when configuration is missing.
+// Placeholder URL used to initialize the client when configuration is missing.
 const FALLBACK_SUPABASE_URL = "http://localhost:54321";
 const FALLBACK_SUPABASE_ANON_KEY = "unconfigured-fallback-key";
 
@@ -40,7 +40,7 @@ if (!isSupabaseConfigured) {
   });
   supabase.auth.onAuthStateChange = () => ({
     data: { subscription: { unsubscribe: () => undefined } },
-    error: null,
+    error: configError,
   });
   supabase.auth.signInWithPassword = async () => ({
     data: { user: null, session: null },
