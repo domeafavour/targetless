@@ -165,7 +165,6 @@ function EventRecordsPage() {
                       </div>
                       <div className="mt-4 grid gap-1 text-sm text-slate-400">
                         <p>Created {formatTimestamp(record.createdAt)}</p>
-                        <p>Updated {formatTimestamp(record.updatedAt)}</p>
                       </div>
                     </li>
                   ))}
