@@ -19,8 +19,8 @@ const configErrorMessage =
 
 const isSupabaseConfigured = missingVars.length === 0;
 
-const fallbackUrl = "https://example.supabase.co";
-const fallbackApiKey = "public-anon-key";
+const fallbackUrl = "https://not-configured.local";
+const fallbackApiKey = "invalid-key";
 
 export const supabase = createClient<Database>(
   isSupabaseConfigured ? supabaseUrl! : fallbackUrl,
@@ -39,6 +39,7 @@ if (!isSupabaseConfigured) {
   });
   supabase.auth.onAuthStateChange = () => ({
     data: { subscription: { unsubscribe: () => undefined } },
+    error: null,
   });
   supabase.auth.signInWithPassword = async () => ({
     data: { user: null, session: null },
