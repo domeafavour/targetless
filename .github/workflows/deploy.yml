@@ -51,6 +51,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Check and generate .env file
+        run: |
+          if [ ! -f .env ]; then
+            echo "Creating .env file from GitHub Actions variables..."
+            echo "VITE_SUPABASE_URL=${{ vars.SUPABASE_URL }}" >> .env
+            echo "VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY=${{ vars.SUPABASE_PUBLISHABLE_DEFAULT_KEY }}" >> .env
+            echo ".env file created successfully"
+          else
+            echo ".env file already exists, skipping creation"
+          fi
+
       - name: Build
         run: pnpm build:gh-pages
 

@@ -58,8 +58,15 @@ function EventDashboard() {
                   queryKey: eventsApi.list.getKey(),
                 })
               }
+              disabled={eventsQuery.isFetching}
             >
-              <RefreshCw className="w-4 h-4" /> Refresh
+              <RefreshCw
+                className={cn(
+                  "w-4 h-4",
+                  eventsQuery.isFetching && "animate-spin",
+                )}
+              />
+              Refresh
             </Button>
           </div>
         </div>
@@ -115,7 +122,7 @@ function EventDashboard() {
                         <EventStatusPill completed={event.completed} />
                       </div>
                       <p className="mt-2 text-sm text-slate-400">
-                        Updated {formatTimestamp(event.updatedAt)}
+                        Created at {formatTimestamp(event.createdAt)}
                       </p>
                     </div>
                     <div className="flex flex-col gap-2 text-right">

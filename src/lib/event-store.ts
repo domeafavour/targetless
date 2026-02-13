@@ -1,7 +1,7 @@
 export type EventRecord = {
   id: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
   count: number;
   eventId: string;
   completed: boolean;
@@ -10,7 +10,7 @@ export type EventRecord = {
 export type EventEntity = {
   id: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
   title: string;
   currentRecordId: string | null;
   completed: boolean;

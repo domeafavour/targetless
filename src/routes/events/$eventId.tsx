@@ -29,7 +29,8 @@ function EventHeader({ event }: { event: EventDetail }) {
             <EventStatusPill completed={event.completed} />
           </div>
           <p className="text-sm text-slate-400">
-            Updated {formatTimestamp(event.updatedAt)} • {event.records.length}{" "}
+            Updated {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}{" "}
+            • {event.records.length}{" "}
             {event.records.length === 1 ? "record" : "records"}
           </p>
         </div>
@@ -40,11 +41,11 @@ function EventHeader({ event }: { event: EventDetail }) {
             !event.completed && (
               <NewRecordButton
                 event={event}
-                onSuccess={async (_, variables) => {
+                onSuccess={async () => {
                   await Promise.all([
                     queryClient.invalidateQueries({
                       queryKey: eventsApi.detail.getKey({
-                        eventId: variables.eventId,
+                        eventId: event.id,
                       }),
                     }),
                     queryClient.invalidateQueries({
@@ -57,11 +58,11 @@ function EventHeader({ event }: { event: EventDetail }) {
           <CompleteEventButton
             event={event}
             disabled={event.completed}
-            onSuccess={async (_, variables) => {
+            onSuccess={async () => {
               await Promise.all([
                 queryClient.invalidateQueries({
                   queryKey: eventsApi.detail.getKey({
-                    eventId: variables.eventId,
+                    eventId: event.id,
                   }),
                 }),
                 queryClient.invalidateQueries({
@@ -164,7 +165,6 @@ function EventRecordsPage() {
                       </div>
                       <div className="mt-4 grid gap-1 text-sm text-slate-400">
                         <p>Created {formatTimestamp(record.createdAt)}</p>
-                        <p>Updated {formatTimestamp(record.updatedAt)}</p>
                       </div>
                     </li>
                   ))}
