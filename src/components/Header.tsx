@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { CalendarCheck2, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -12,10 +12,12 @@ const navLinks = [
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   const signOutMutation = authApi.signOut.useMutation({
     onSuccess: () => {
       setUser(null);
+      navigate({ to: "/", reloadDocument: true });
     },
   });
 
