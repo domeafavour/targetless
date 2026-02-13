@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import { Database } from "./api/supabase.types";
 
 // These should be set in your environment variables
@@ -19,34 +19,35 @@ const configErrorMessage =
 
 const isSupabaseConfigured = missingVars.length === 0;
 
-const createFallbackClient = (): SupabaseClient<Database> => {
+const fallbackUrl = "https://example.supabase.co";
+const fallbackApiKey = "public-anon-key";
+
+export const supabase = createClient<Database>(
+  isSupabaseConfigured ? supabaseUrl! : fallbackUrl,
+  isSupabaseConfigured ? supabaseApiKey! : fallbackApiKey,
+);
+
+if (!isSupabaseConfigured) {
   const configError = new Error(configErrorMessage);
-  const subscription = { unsubscribe: () => undefined };
-
-  return {
-    auth: {
-      getSession: async () => ({ data: { session: null }, error: null }),
-      getUser: async () => ({ data: { user: null }, error: null }),
-      onAuthStateChange: () => ({
-        data: { subscription },
-        error: null,
-      }),
-      signInWithPassword: async () => ({
-        data: { user: null, session: null },
-        error: configError as Error,
-      }),
-      signUp: async () => ({
-        data: { user: null, session: null },
-        error: configError as Error,
-      }),
-      signOut: async () => ({ error: configError as Error }),
-    },
-    from: () => {
-      throw configError;
-    },
-  } as SupabaseClient<Database>;
-};
-
-export const supabase = isSupabaseConfigured
-  ? createClient<Database>(supabaseUrl!, supabaseApiKey!)
-  : createFallbackClient();
+  supabase.auth.getSession = async () => ({
+    data: { session: null },
+    error: configError,
+  });
+  supabase.auth.getUser = async () => ({
+    data: { user: null },
+    error: configError,
+  });
+  supabase.auth.onAuthStateChange = () => ({
+    data: { subscription: { unsubscribe: () => undefined } },
+    error: configError,
+  });
+  supabase.auth.signInWithPassword = async () => ({
+    data: { user: null, session: null },
+    error: configError,
+  });
+  supabase.auth.signUp = async () => ({
+    data: { user: null, session: null },
+    error: configError,
+  });
+  supabase.auth.signOut = async () => ({ error: configError });
+}
