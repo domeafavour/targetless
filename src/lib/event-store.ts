@@ -1,7 +1,7 @@
 export type EventRecord = {
   id: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
   count: number;
   eventId: string;
   completed: boolean;
