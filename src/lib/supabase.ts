@@ -21,11 +21,11 @@ const isSupabaseConfigured = missingVars.length === 0;
 
 // Placeholder URL used to initialize the client when configuration is missing.
 const FALLBACK_SUPABASE_URL = "http://localhost:54321";
-const FALLBACK_SUPABASE_ANON_KEY = "unconfigured-fallback-key";
+const FALLBACK_SUPABASE_KEY = "unconfigured-fallback-key";
 
 export const supabase = createClient<Database>(
   isSupabaseConfigured ? supabaseUrl! : FALLBACK_SUPABASE_URL,
-  isSupabaseConfigured ? supabaseApiKey! : FALLBACK_SUPABASE_ANON_KEY,
+  isSupabaseConfigured ? supabaseApiKey! : FALLBACK_SUPABASE_KEY,
 );
 
 if (!isSupabaseConfigured) {
