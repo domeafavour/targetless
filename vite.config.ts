@@ -24,19 +24,19 @@ const config = defineConfig({
       },
       prerender: {
         // Enable prerendering
-        // enabled: true,
+        enabled: true,
 
         // // Enable if you need pages to be at `/page/index.html` instead of `/page.html`
-        // autoSubfolderIndex: true,
+        autoSubfolderIndex: true,
 
         // // If disabled, only the root path or the paths defined in the pages config will be prerendered
-        // autoStaticPathsDiscovery: true,
+        autoStaticPathsDiscovery: true,
 
         // // How many prerender jobs to run at once
         // concurrency: 14,
 
         // // Whether to extract links from the HTML and prerender them also
-        // crawlLinks: true,
+        crawlLinks: true,
 
         // // Number of times to retry a failed prerender job
         // retryCount: 2,

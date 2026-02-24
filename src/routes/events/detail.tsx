@@ -12,9 +12,13 @@ import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
 import { EventDetail } from "@/lib/event-store";
 
-export const Route = createFileRoute("/events/$eventId")({
-  ssr: false,
+export const Route = createFileRoute("/events/detail")({
   component: EventRecordsPage,
+  validateSearch: (search: Record<string, unknown>): { id: string } => {
+    return {
+      id: (search.id as string) || "",
+    };
+  },
   pendingComponent: () => (
     <RouteView>
       <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-6">
@@ -30,15 +34,10 @@ export const Route = createFileRoute("/events/$eventId")({
       </div>
     </RouteView>
   ),
-  loader: async (ctx) => {
-    return await ctx.context.queryClient.ensureQueryData(
-      eventsApi.detail.getOptions({ eventId: ctx.params.eventId }),
-    );
-  },
 });
 
 function EventHeader({ event }: { event: EventDetail }) {
-  const navigate = useNavigate({ from: "/events/$eventId" });
+  const navigate = useNavigate({ from: "/events/detail" });
   const queryClient = useQueryClient();
   return (
     <header className="rounded-3xl border border-white/10 bg-linear-to-br from-slate-900/80 to-slate-900/40 p-6 shadow-xl shadow-black/30">
@@ -109,9 +108,9 @@ function EventHeader({ event }: { event: EventDetail }) {
 
 function EventRecordsPage() {
   const queryClient = useQueryClient();
-  const { eventId } = Route.useParams();
+  const { id } = Route.useSearch();
   const { data: event } = eventsApi.detail.useSuspenseQuery({
-    variables: { eventId },
+    variables: { eventId: id },
   });
 
   return (

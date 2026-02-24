@@ -137,10 +137,7 @@ function EventDashboard() {
 
                   <div className="mt-6 flex flex-wrap gap-3">
                     <Button asChild variant="outline">
-                      <Link
-                        to="/events/$eventId"
-                        params={{ eventId: event.id }}
-                      >
+                      <Link to="/events/detail" search={{ id: event.id }}>
                         <BookOpen className="h-4 w-4" /> View Records
                       </Link>
                     </Button>
