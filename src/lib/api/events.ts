@@ -213,7 +213,7 @@ async function deleteEventApi(eventId: string | number) {
     .throwOnError();
 }
 
-async function apiOr<T extends () => Promise<any>>(api: T, local: T) {
+async function apiOr<T extends () => Promise<any>>(api: T, local: T): Promise<Awaited<ReturnType<T>>> {
   try {
     await isLoggedIn();
     return await api();

@@ -13,15 +13,35 @@ import { formatTimestamp } from "@/lib/date-utils";
 import { EventDetail } from "@/lib/event-store";
 
 export const Route = createFileRoute("/events/$eventId")({
+  ssr: false,
   component: EventRecordsPage,
-  pendingComponent: RouteView,
+  pendingComponent: () => (
+    <RouteView>
+      <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-6">
+        <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />
+        <p className="text-sm text-slate-300">Loading event…</p>
+      </div>
+    </RouteView>
+  ),
+  errorComponent: () => (
+    <RouteView>
+      <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-6 text-rose-200">
+        Unable to load this event. It may have been deleted.
+      </div>
+    </RouteView>
+  ),
+  loader: async (ctx) => {
+    return await ctx.context.queryClient.ensureQueryData(
+      eventsApi.detail.getOptions({ eventId: ctx.params.eventId }),
+    );
+  },
 });
 
 function EventHeader({ event }: { event: EventDetail }) {
   const navigate = useNavigate({ from: "/events/$eventId" });
   const queryClient = useQueryClient();
   return (
-    <header className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-900/40 p-6 shadow-xl shadow-black/30">
+    <header className="rounded-3xl border border-white/10 bg-linear-to-br from-slate-900/80 to-slate-900/40 p-6 shadow-xl shadow-black/30">
       <div className="flex flex-col items-start sm:flex-row">
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-4">
@@ -90,12 +110,9 @@ function EventHeader({ event }: { event: EventDetail }) {
 function EventRecordsPage() {
   const queryClient = useQueryClient();
   const { eventId } = Route.useParams();
-
-  const eventQuery = eventsApi.detail.useSuspenseQuery({
+  const { data: event } = eventsApi.detail.useSuspenseQuery({
     variables: { eventId },
   });
-
-  const event = eventQuery.data;
 
   return (
     <RouteView>
@@ -107,72 +124,61 @@ function EventRecordsPage() {
           <ArrowLeft className="h-4 w-4" /> Back to events
         </Link>
 
-        {eventQuery.isLoading ? (
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-6">
-            <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />
-            <p className="text-sm text-slate-300">Loading event…</p>
-          </div>
-        ) : eventQuery.isError ? (
-          <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-6 text-rose-200">
-            Unable to load this event. It may have been deleted.
-          </div>
-        ) : event ? (
-          <>
-            <EventHeader event={event} />
+        <>
+          <EventHeader event={event} />
 
-            <section className="rounded-3xl border border-white/5 bg-white/5 p-6 shadow-inner shadow-black/20">
-              <div className="flex items-center gap-2 text-sm uppercase tracking-[0.4em] text-slate-300">
-                <History className="h-4 w-4" /> Records Timeline
-              </div>
-              {event.records.length === 0 ? (
-                <p className="mt-6 text-slate-400">
-                  This event has no records yet.
-                </p>
-              ) : (
-                <ol className="mt-6 space-y-4">
-                  {event.records.map((record) => (
-                    <li
-                      key={record.id}
-                      className="rounded-2xl border border-white/10 bg-slate-900/60 p-4"
-                    >
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                            Count
-                          </p>
-                          <p className="text-3xl font-black">{record.count}</p>
-                        </div>
-                        {record.completed ? (
-                          <EventStatusPill completed />
-                        ) : (
-                          <CompleteRecordButton
-                            event={event}
-                            disabled={!event.currentRecord || event.completed}
-                            onSuccess={async (_, variables) => {
-                              await Promise.all([
-                                queryClient.invalidateQueries({
-                                  queryKey: eventsApi.detail.getKey({
-                                    eventId: variables.eventId,
-                                  }),
-                                }),
-                                queryClient.invalidateQueries({
-                                  queryKey: eventsApi.list.getKey(),
-                                }),
-                              ]);
-                            }}
-                          />
-                        )}
+          <section className="rounded-3xl border border-white/5 bg-white/5 p-6 shadow-inner shadow-black/20">
+            <div className="flex items-center gap-2 text-sm uppercase tracking-[0.4em] text-slate-300">
+              <History className="h-4 w-4" /> Records Timeline
+            </div>
+            {event.records.length === 0 ? (
+              <p className="mt-6 text-slate-400">
+                This event has no records yet.
+              </p>
+            ) : (
+              <ol className="mt-6 space-y-4">
+                {event.records.map((record) => (
+                  <li
+                    key={record.id}
+                    className="rounded-2xl border border-white/10 bg-slate-900/60 p-4"
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                          Count
+                        </p>
+                        <p className="text-3xl font-black">{record.count}</p>
                       </div>
-                      <div className="mt-4 grid gap-1 text-sm text-slate-400">
-                        <p>Created {formatTimestamp(record.createdAt)}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </section>
-          </>
-        ) : null}
+                      {record.completed ? (
+                        <EventStatusPill completed />
+                      ) : (
+                        <CompleteRecordButton
+                          event={event}
+                          disabled={!event.currentRecord || event.completed}
+                          onSuccess={async (_, variables) => {
+                            await Promise.all([
+                              queryClient.invalidateQueries({
+                                queryKey: eventsApi.detail.getKey({
+                                  eventId: variables.eventId,
+                                }),
+                              }),
+                              queryClient.invalidateQueries({
+                                queryKey: eventsApi.list.getKey(),
+                              }),
+                            ]);
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="mt-4 grid gap-1 text-sm text-slate-400">
+                      <p>Created {formatTimestamp(record.createdAt)}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+        </>
       </div>
     </RouteView>
   );
