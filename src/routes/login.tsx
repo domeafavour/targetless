@@ -6,6 +6,9 @@ import { RouteView } from "@/components/ui/RouteView";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
+  head: () => ({
+    meta: [{ title: "Sign In | Targetless" }],
+  }),
 });
 
 function LoginPage() {
