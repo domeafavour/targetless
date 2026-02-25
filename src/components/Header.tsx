@@ -1,9 +1,15 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { CalendarCheck2, LogOut } from "lucide-react";
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
-import { authApi } from "../lib/api/auth";
 import type { User } from "@supabase/supabase-js";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { CalendarCheck2, ChevronDown, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
+import { authApi } from "../lib/api/auth";
+import { supabase } from "../lib/supabase";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const navLinks = [
   { to: "/", label: "Events", exact: true },
@@ -65,18 +71,24 @@ export default function Header() {
             </Link>
           ))}
           {user ? (
-            <>
-              <span className="px-4 py-2 text-slate-300 normal-case tracking-normal">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 rounded-full px-4 py-2 text-slate-300 transition-colors hover:text-white outline-none">
                 {user.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 rounded-full px-4 py-2 text-slate-300 transition-colors hover:text-white"
+                <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="bg-slate-900 border-slate-700"
               >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </button>
-            </>
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white focus:text-white focus:bg-slate-800"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Link
               to="/login"
