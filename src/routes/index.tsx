@@ -11,7 +11,12 @@ import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/")({ component: EventDashboard });
+export const Route = createFileRoute("/")({
+  component: EventDashboard,
+  head: () => ({
+    meta: [{ title: "Dashboard | Targetless" }],
+  }),
+});
 
 type FilterType = "total" | "active" | "completed";
 

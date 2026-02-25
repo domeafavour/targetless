@@ -14,6 +14,9 @@ import { EventDetail } from "@/lib/event-store";
 
 export const Route = createFileRoute("/events/detail")({
   component: EventRecordsPage,
+  head: () => ({
+    meta: [{ title: "Event Details | Targetless" }],
+  }),
   validateSearch: (search: Record<string, unknown>): { id: string } => {
     return {
       id: (search.id as string) || "",

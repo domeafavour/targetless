@@ -10,6 +10,9 @@ import { eventsApi } from "@/lib/api/events";
 
 export const Route = createFileRoute("/events/new")({
   component: CreateEventPage,
+  head: () => ({
+    meta: [{ title: "Create Event | Targetless" }],
+  }),
 });
 
 function CreateEventPage() {
