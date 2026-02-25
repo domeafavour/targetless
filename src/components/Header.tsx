@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { CalendarCheck2, ChevronDown, LogOut } from "lucide-react";
+import { CalendarCheck2, ChevronDown, LogOut, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { authApi } from "../lib/api/auth";
 import { supabase } from "../lib/supabase";
@@ -18,6 +18,7 @@ const navLinks = [
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const signOutMutation = authApi.signOut.useMutation({
@@ -47,6 +48,11 @@ export default function Header() {
 
   const handleLogout = () => {
     signOutMutation.mutate();
+    setMobileMenuOpen(false);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -56,7 +62,9 @@ export default function Header() {
           <CalendarCheck2 className="h-6 w-6 text-cyan-400" />
           Event Tracker
         </Link>
-        <nav className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em]">
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em]">
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -73,7 +81,7 @@ export default function Header() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1 rounded-full px-4 py-2 text-slate-300 transition-colors hover:text-white outline-none">
-                {user.email}
+                <span className="max-w-37.5 truncate">{user.email}</span>
                 <ChevronDown className="h-4 w-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -101,7 +109,73 @@ export default function Header() {
             </Link>
           )}
         </nav>
+
+        {/* Mobile Menu Button */}
+        <button
+          type="button"
+          className="md:hidden p-2 text-slate-300 hover:text-white transition-colors"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+        >
+          {mobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
+        </button>
       </div>
+
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <nav className="md:hidden border-t border-white/10 bg-slate-950/95 backdrop-blur">
+          <div className="mx-auto max-w-5xl px-4 py-4 flex flex-col gap-2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="rounded-lg px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-300 transition-colors hover:text-white hover:bg-slate-800"
+                activeProps={{
+                  className:
+                    "rounded-lg bg-cyan-500 px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-900",
+                }}
+                activeOptions={{ exact: link.exact }}
+                onClick={closeMobileMenu}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="border-t border-white/10 pt-2 mt-2">
+              {user ? (
+                <>
+                  <div className="px-4 py-2 text-xs text-slate-500 truncate">
+                    {user.email}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-300 transition-colors hover:text-white hover:bg-slate-800"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="block rounded-lg px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-300 transition-colors hover:text-white hover:bg-slate-800"
+                  activeProps={{
+                    className:
+                      "block rounded-lg bg-cyan-500 px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-900",
+                  }}
+                  onClick={closeMobileMenu}
+                >
+                  Login
+                </Link>
+              )}
+            </div>
+          </div>
+        </nav>
+      )}
     </header>
   );
 }
