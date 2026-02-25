@@ -8,17 +8,24 @@ import {
   deleteEvent,
   EventDetail,
   EventRecord,
+  EventsFilter,
   EventWithCurrentRecord,
   getEvent,
+  getEventsStats,
   listEvents,
   type CompleteEventInput,
   type CompleteRecordInput,
   type CreateEventInput,
   type CreateRecordInput,
+  type EventsStats,
 } from "@/lib/event-store";
 import { supabase } from "../supabase";
 import { isLoggedIn } from "./auth";
 import { Database } from "./supabase.types";
+
+export type ListEventsParams = {
+  filter?: EventsFilter;
+};
 
 function transformEventRecord(
   e: Database["public"]["Tables"]["records"]["Row"],
@@ -44,12 +51,22 @@ async function getSessionUser() {
   return session.data.session.user;
 }
 
-async function fetchListApi() {
+async function fetchListApi(params?: ListEventsParams) {
   const user = await getSessionUser();
-  const { data } = await supabase
+  let query = supabase
     .from("events")
     .select("*,current_record:records!events_current_record_id_fkey(*)")
-    .eq("creator_id", user.id)
+    .eq("creator_id", user.id);
+
+  // Apply filter
+  if (params?.filter === "active") {
+    query = query.eq("completed", false);
+  } else if (params?.filter === "completed") {
+    query = query.eq("completed", true);
+  }
+  // "total" or undefined means no filter
+
+  const { data } = await query
     .order("created_at", { ascending: false })
     .throwOnError();
 
@@ -213,7 +230,10 @@ async function deleteEventApi(eventId: string | number) {
     .throwOnError();
 }
 
-async function apiOr<T extends () => Promise<any>>(api: T, local: T): Promise<Awaited<ReturnType<T>>> {
+async function apiOr<T extends () => Promise<any>>(
+  api: T,
+  local: T,
+): Promise<Awaited<ReturnType<T>>> {
   try {
     await isLoggedIn();
     return await api();
@@ -222,12 +242,34 @@ async function apiOr<T extends () => Promise<any>>(api: T, local: T): Promise<Aw
   }
 }
 
+async function fetchStatsApi(): Promise<EventsStats> {
+  const user = await getSessionUser();
+  const { data } = await supabase
+    .from("events")
+    .select("completed")
+    .eq("creator_id", user.id)
+    .throwOnError();
+
+  const total = data.length;
+  const completed = data.filter((e) => e.completed).length;
+  const active = total - completed;
+
+  return { total, active, completed };
+}
+
 export const eventsApi = router(["events"], {
   list: router.query({
+    fetcher: async (params?: ListEventsParams) =>
+      apiOr(
+        () => fetchListApi(params),
+        () => listEvents(params),
+      ),
+  }),
+  stats: router.query({
     fetcher: async () =>
       apiOr(
-        () => fetchListApi(),
-        () => listEvents(),
+        () => fetchStatsApi(),
+        () => getEventsStats(),
       ),
   }),
   detail: router.query({

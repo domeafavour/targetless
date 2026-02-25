@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
+import { EventsFilter } from "@/lib/event-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -18,22 +19,15 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-type FilterType = "total" | "active" | "completed";
-
 function EventDashboard() {
   const queryClient = useQueryClient();
-  const eventsQuery = eventsApi.list.useQuery();
-  const [filter, setFilter] = useState<FilterType>("total");
-
-  const events = eventsQuery.data ?? [];
-  const activeEvents = events.filter((event) => !event.completed).length;
-  const completedEvents = events.filter((event) => event.completed).length;
-
-  const filteredEvents = events.filter((event) => {
-    if (filter === "active") return !event.completed;
-    if (filter === "completed") return event.completed;
-    return true;
+  const [filter, setFilter] = useState<EventsFilter>("total");
+  const eventsQuery = eventsApi.list.useQuery({
+    variables: { filter },
   });
+  const statsQuery = eventsApi.stats.useQuery();
+
+  const filteredEvents = eventsQuery.data ?? [];
 
   return (
     <RouteView>
@@ -79,19 +73,19 @@ function EventDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard
             label="Total"
-            value={events.length}
+            value={statsQuery.data?.total ?? 0}
             active={filter === "total"}
             onClick={() => setFilter("total")}
           />
           <StatCard
             label="Active"
-            value={activeEvents}
+            value={statsQuery.data?.active ?? 0}
             active={filter === "active"}
             onClick={() => setFilter("active")}
           />
           <StatCard
             label="Completed"
-            value={completedEvents}
+            value={statsQuery.data?.completed ?? 0}
             active={filter === "completed"}
             onClick={() => setFilter("completed")}
           />
@@ -109,14 +103,17 @@ function EventDashboard() {
             Failed to load events. Please refresh and try again.
           </div>
         ) : filteredEvents.length === 0 ? (
-          <EmptyState filter={filter} totalEvents={events.length} />
+          <EmptyState
+            filter={filter}
+            totalEvents={statsQuery.data?.total ?? 0}
+          />
         ) : (
           <div className="space-y-4">
             {filteredEvents.map((event) => {
               return (
                 <article
                   key={event.id}
-                  className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/70 to-slate-900/40 p-6 shadow-lg shadow-black/30"
+                  className="rounded-2xl border border-white/10 bg-linear-to-br from-slate-900/70 to-slate-900/40 p-6 shadow-lg shadow-black/30"
                 >
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -205,7 +202,7 @@ function EmptyState({
   filter,
   totalEvents,
 }: {
-  filter: FilterType;
+  filter: EventsFilter;
   totalEvents: number;
 }) {
   if (totalEvents === 0) {
