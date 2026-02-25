@@ -44,6 +44,18 @@ export type CreateRecordInput = {
   count: number;
 };
 
+export type EventsFilter = "total" | "active" | "completed";
+
+export type ListEventsParams = {
+  filter?: EventsFilter;
+};
+
+export type EventsStats = {
+  total: number;
+  active: number;
+  completed: number;
+};
+
 type State = {
   events: EventEntity[];
   records: EventRecord[];
@@ -56,14 +68,32 @@ const DB_RECORDS_STORE = "records";
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
-export async function listEvents(): Promise<EventWithCurrentRecord[]> {
+export async function listEvents(params?: ListEventsParams): Promise<EventWithCurrentRecord[]> {
   const snapshot = await readState();
-  const orderedEvents = [...snapshot.events].sort(
+  let filteredEvents = [...snapshot.events];
+
+  // Apply filter
+  if (params?.filter === "active") {
+    filteredEvents = filteredEvents.filter((e) => !e.completed);
+  } else if (params?.filter === "completed") {
+    filteredEvents = filteredEvents.filter((e) => e.completed);
+  }
+  // "total" or undefined means no filter
+
+  const orderedEvents = filteredEvents.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
   return orderedEvents.map((event) =>
     attachCurrentRecord(event, snapshot.records),
   );
+}
+
+export async function getEventsStats(): Promise<EventsStats> {
+  const snapshot = await readState();
+  const total = snapshot.events.length;
+  const completed = snapshot.events.filter((e) => e.completed).length;
+  const active = total - completed;
+  return { total, active, completed };
 }
 
 export async function getEvent(eventId: string): Promise<EventDetail> {
