@@ -1,7 +1,8 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader2, Plus, RefreshCw, Target } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
 import { DashboardEmptyState } from "@/components/DashboardEmptyState";
 import { DashboardEventItem } from "@/components/DashboardEventItem";
@@ -39,15 +40,29 @@ export const Route = createFileRoute("/")({
   }),
 });
 
+function DashboardEvents({ filter }: { filter: EventsFilter }) {
+  const { data } = eventsApi.list.useSuspenseQuery({
+    variables: { filter },
+  });
+
+  return data.length === 0 ? (
+    <DashboardEmptyState filter={filter} />
+  ) : (
+    <div className="space-y-4">
+      {data.map((event) => (
+        <DashboardEventItem key={event.id} event={event} />
+      ))}
+    </div>
+  );
+}
+
 function EventDashboard() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useFilterState();
-  const eventsQuery = eventsApi.list.useQuery({
-    variables: { filter },
+  const isFetching = useIsFetching({
+    queryKey: eventsApi.list.getKey({ filter }),
   });
   const statsQuery = eventsApi.stats.useQuery();
-
-  const filteredEvents = eventsQuery.data ?? [];
 
   return (
     <RouteView>
@@ -77,13 +92,10 @@ function EventDashboard() {
                   queryKey: eventsApi.list.getKey(),
                 })
               }
-              disabled={eventsQuery.isFetching}
+              disabled={isFetching > 0}
             >
               <RefreshCw
-                className={cn(
-                  "w-4 h-4",
-                  eventsQuery.isFetching && "animate-spin",
-                )}
+                className={cn("w-4 h-4", isFetching > 0 && "animate-spin")}
               />
               Refresh
             </Button>
@@ -113,27 +125,24 @@ function EventDashboard() {
       </section>
 
       <section className="max-w-5xl mx-auto px-4 pb-16">
-        {eventsQuery.isLoading ? (
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-6">
-            <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />
-            <p className="text-sm text-slate-300">Loading events…</p>
-          </div>
-        ) : eventsQuery.isError ? (
-          <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-6 text-rose-100">
-            Failed to load events. Please refresh and try again.
-          </div>
-        ) : filteredEvents.length === 0 ? (
-          <DashboardEmptyState
-            filter={filter}
-            totalEvents={statsQuery.data?.total ?? 0}
-          />
-        ) : (
-          <div className="space-y-4">
-            {filteredEvents.map((event) => (
-              <DashboardEventItem key={event.id} event={event} />
-            ))}
-          </div>
-        )}
+        <ErrorBoundary
+          fallback={
+            <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-6 text-rose-100">
+              Failed to load events. Please refresh and try again.
+            </div>
+          }
+        >
+          <Suspense
+            fallback={
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-6">
+                <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />
+                <p className="text-sm text-slate-300">Loading events…</p>
+              </div>
+            }
+          >
+            <DashboardEvents filter={filter} />
+          </Suspense>
+        </ErrorBoundary>
       </section>
     </RouteView>
   );
