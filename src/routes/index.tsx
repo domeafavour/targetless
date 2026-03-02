@@ -21,7 +21,7 @@ export const Route = createFileRoute("/")({
 
 function EventDashboard() {
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<EventsFilter>("total");
+  const [filter, setFilter] = useState<EventsFilter>("active");
   const eventsQuery = eventsApi.list.useQuery({
     variables: { filter },
   });
@@ -72,12 +72,6 @@ function EventDashboard() {
 
         <div className="grid grid-cols-3 gap-4">
           <DashboardStatCard
-            label="Total"
-            value={statsQuery.data?.total ?? 0}
-            active={filter === "total"}
-            onClick={() => setFilter("total")}
-          />
-          <DashboardStatCard
             label="Active"
             value={statsQuery.data?.active ?? 0}
             active={filter === "active"}
@@ -88,6 +82,12 @@ function EventDashboard() {
             value={statsQuery.data?.completed ?? 0}
             active={filter === "completed"}
             onClick={() => setFilter("completed")}
+          />
+          <DashboardStatCard
+            label="Total"
+            value={statsQuery.data?.total ?? 0}
+            active={filter === "total"}
+            onClick={() => setFilter("total")}
           />
         </div>
       </section>
