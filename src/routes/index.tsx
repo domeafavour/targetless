@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader2, Plus, RefreshCw, Target } from "lucide-react";
 import { useState } from "react";
 
+import { DashboardEmptyState } from "@/components/DashboardEmptyState";
 import { DashboardEventItem } from "@/components/DashboardEventItem";
 import { Button } from "@/components/ui/Button";
 import { RouteView } from "@/components/ui/RouteView";
@@ -101,7 +102,7 @@ function EventDashboard() {
             Failed to load events. Please refresh and try again.
           </div>
         ) : filteredEvents.length === 0 ? (
-          <EmptyState
+          <DashboardEmptyState
             filter={filter}
             totalEvents={statsQuery.data?.total ?? 0}
           />
@@ -149,42 +150,5 @@ function StatCard({
       </p>
       <p className="text-3xl font-black">{value}</p>
     </button>
-  );
-}
-
-function EmptyState({
-  filter,
-  totalEvents,
-}: {
-  filter: EventsFilter;
-  totalEvents: number;
-}) {
-  if (totalEvents === 0) {
-    return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-white/20 bg-white/5 px-6 py-12 text-center">
-        <p className="text-lg text-slate-200">No events yet.</p>
-        <p className="text-sm text-slate-400">
-          Create your first event to start tracking progress over time.
-        </p>
-        <Button asChild>
-          <Link to="/events/new">
-            <Plus className="h-4 w-4" /> Create Event
-          </Link>
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-white/20 bg-white/5 px-6 py-12 text-center">
-      <p className="text-lg text-slate-200">
-        No {filter === "active" ? "active" : "completed"} events.
-      </p>
-      <p className="text-sm text-slate-400">
-        {filter === "active"
-          ? "All your events are completed."
-          : "No events have been completed yet."}
-      </p>
-    </div>
   );
 }
