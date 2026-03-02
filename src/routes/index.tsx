@@ -1,16 +1,36 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { BookOpen, Loader2, Plus, RefreshCw, Target } from "lucide-react";
-import { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Loader2, Plus, RefreshCw, Target } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import CompleteRecordButton from "@/components/CompleteRecordButton";
-import EventStatusPill from "@/components/EventStatusPill";
+import { DashboardEmptyState } from "@/components/DashboardEmptyState";
+import { DashboardEventItem } from "@/components/DashboardEventItem";
+import { DashboardStatCard } from "@/components/DashboardStatCard";
 import { Button } from "@/components/ui/Button";
 import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
-import { formatTimestamp } from "@/lib/date-utils";
 import { EventsFilter } from "@/lib/event-store";
 import { cn } from "@/lib/utils";
+
+const FILTER_STORAGE_KEY = "targetless-dashboard-filter";
+
+function getStoredFilter(): EventsFilter {
+  const stored = localStorage.getItem(FILTER_STORAGE_KEY);
+  if (stored && ["active", "completed", "total"].includes(stored)) {
+    return stored as EventsFilter;
+  }
+  return "active";
+}
+
+function useFilterState() {
+  const [filter, setFilter] = useState<EventsFilter>(getStoredFilter);
+
+  useEffect(() => {
+    localStorage.setItem(FILTER_STORAGE_KEY, filter);
+  }, [filter]);
+
+  return [filter, setFilter] as const;
+}
 
 export const Route = createFileRoute("/")({
   component: EventDashboard,
@@ -21,7 +41,7 @@ export const Route = createFileRoute("/")({
 
 function EventDashboard() {
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<EventsFilter>("total");
+  const [filter, setFilter] = useFilterState();
   const eventsQuery = eventsApi.list.useQuery({
     variables: { filter },
   });
@@ -70,24 +90,24 @@ function EventDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard
-            label="Total"
-            value={statsQuery.data?.total ?? 0}
-            active={filter === "total"}
-            onClick={() => setFilter("total")}
-          />
-          <StatCard
+        <div className="grid grid-cols-3 gap-4">
+          <DashboardStatCard
             label="Active"
             value={statsQuery.data?.active ?? 0}
             active={filter === "active"}
             onClick={() => setFilter("active")}
           />
-          <StatCard
+          <DashboardStatCard
             label="Completed"
             value={statsQuery.data?.completed ?? 0}
             active={filter === "completed"}
             onClick={() => setFilter("completed")}
+          />
+          <DashboardStatCard
+            label="Total"
+            value={statsQuery.data?.total ?? 0}
+            active={filter === "total"}
+            onClick={() => setFilter("total")}
           />
         </div>
       </section>
@@ -103,134 +123,18 @@ function EventDashboard() {
             Failed to load events. Please refresh and try again.
           </div>
         ) : filteredEvents.length === 0 ? (
-          <EmptyState
+          <DashboardEmptyState
             filter={filter}
             totalEvents={statsQuery.data?.total ?? 0}
           />
         ) : (
           <div className="space-y-4">
-            {filteredEvents.map((event) => {
-              return (
-                <article
-                  key={event.id}
-                  className="rounded-2xl border border-white/10 bg-linear-to-br from-slate-900/70 to-slate-900/40 p-6 shadow-lg shadow-black/30"
-                >
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <h2 className="text-2xl font-semibold">
-                          {event.title}
-                        </h2>
-                        <EventStatusPill completed={event.completed} />
-                      </div>
-                      <p className="mt-2 text-sm text-slate-400">
-                        Created at {formatTimestamp(event.createdAt)}
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-2 text-right">
-                      <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Current Count
-                      </span>
-                      <span className="text-3xl font-black">
-                        {event.currentRecord?.count ?? "—"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <Button asChild variant="outline">
-                      <Link to="/events/detail" search={{ id: event.id }}>
-                        <BookOpen className="h-4 w-4" /> View Records
-                      </Link>
-                    </Button>
-                    <CompleteRecordButton
-                      event={event}
-                      disabled={!event.currentRecord || event.completed}
-                      onSuccess={() =>
-                        queryClient.invalidateQueries({
-                          queryKey: eventsApi.list.getKey(),
-                        })
-                      }
-                    />
-                  </div>
-                </article>
-              );
-            })}
+            {filteredEvents.map((event) => (
+              <DashboardEventItem key={event.id} event={event} />
+            ))}
           </div>
         )}
       </section>
     </RouteView>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  active,
-  onClick,
-}: {
-  label: string;
-  value: number;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-2xl border px-6 py-4 text-left transition-all hover:border-cyan-400/50",
-        active
-          ? "border-cyan-400 bg-cyan-400/10 shadow-lg shadow-cyan-500/20"
-          : "border-white/10 bg-white/5",
-      )}
-    >
-      <p
-        className={cn(
-          "text-xs uppercase tracking-[0.3em]",
-          active ? "text-cyan-300" : "text-slate-400",
-        )}
-      >
-        {label}
-      </p>
-      <p className="text-3xl font-black">{value}</p>
-    </button>
-  );
-}
-
-function EmptyState({
-  filter,
-  totalEvents,
-}: {
-  filter: EventsFilter;
-  totalEvents: number;
-}) {
-  if (totalEvents === 0) {
-    return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-white/20 bg-white/5 px-6 py-12 text-center">
-        <p className="text-lg text-slate-200">No events yet.</p>
-        <p className="text-sm text-slate-400">
-          Create your first event to start tracking progress over time.
-        </p>
-        <Button asChild>
-          <Link to="/events/new">
-            <Plus className="h-4 w-4" /> Create Event
-          </Link>
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-white/20 bg-white/5 px-6 py-12 text-center">
-      <p className="text-lg text-slate-200">
-        No {filter === "active" ? "active" : "completed"} events.
-      </p>
-      <p className="text-sm text-slate-400">
-        {filter === "active"
-          ? "All your events are completed."
-          : "No events have been completed yet."}
-      </p>
-    </div>
   );
 }
