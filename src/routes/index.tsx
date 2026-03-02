@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { DashboardEmptyState } from "@/components/DashboardEmptyState";
 import { DashboardEventItem } from "@/components/DashboardEventItem";
+import { DashboardStatCard } from "@/components/DashboardStatCard";
 import { Button } from "@/components/ui/Button";
 import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
@@ -70,19 +71,19 @@ function EventDashboard() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard
+          <DashboardStatCard
             label="Total"
             value={statsQuery.data?.total ?? 0}
             active={filter === "total"}
             onClick={() => setFilter("total")}
           />
-          <StatCard
+          <DashboardStatCard
             label="Active"
             value={statsQuery.data?.active ?? 0}
             active={filter === "active"}
             onClick={() => setFilter("active")}
           />
-          <StatCard
+          <DashboardStatCard
             label="Completed"
             value={statsQuery.data?.completed ?? 0}
             active={filter === "completed"}
@@ -115,40 +116,5 @@ function EventDashboard() {
         )}
       </section>
     </RouteView>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  active,
-  onClick,
-}: {
-  label: string;
-  value: number;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-2xl border px-6 py-4 text-left transition-all hover:border-cyan-400/50",
-        active
-          ? "border-cyan-400 bg-cyan-400/10 shadow-lg shadow-cyan-500/20"
-          : "border-white/10 bg-white/5",
-      )}
-    >
-      <p
-        className={cn(
-          "text-xs uppercase tracking-[0.3em]",
-          active ? "text-cyan-300" : "text-slate-400",
-        )}
-      >
-        {label}
-      </p>
-      <p className="text-3xl font-black">{value}</p>
-    </button>
   );
 }
