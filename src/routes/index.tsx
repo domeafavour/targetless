@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader2, Plus, RefreshCw, Target } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { DashboardEmptyState } from "@/components/DashboardEmptyState";
 import { DashboardEventItem } from "@/components/DashboardEventItem";
@@ -12,6 +12,26 @@ import { eventsApi } from "@/lib/api/events";
 import { EventsFilter } from "@/lib/event-store";
 import { cn } from "@/lib/utils";
 
+const FILTER_STORAGE_KEY = "targetless-dashboard-filter";
+
+function getStoredFilter(): EventsFilter {
+  const stored = localStorage.getItem(FILTER_STORAGE_KEY);
+  if (stored && ["active", "completed", "total"].includes(stored)) {
+    return stored as EventsFilter;
+  }
+  return "active";
+}
+
+function useFilterState() {
+  const [filter, setFilter] = useState<EventsFilter>(getStoredFilter);
+
+  useEffect(() => {
+    localStorage.setItem(FILTER_STORAGE_KEY, filter);
+  }, [filter]);
+
+  return [filter, setFilter] as const;
+}
+
 export const Route = createFileRoute("/")({
   component: EventDashboard,
   head: () => ({
@@ -21,7 +41,7 @@ export const Route = createFileRoute("/")({
 
 function EventDashboard() {
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<EventsFilter>("active");
+  const [filter, setFilter] = useFilterState();
   const eventsQuery = eventsApi.list.useQuery({
     variables: { filter },
   });
