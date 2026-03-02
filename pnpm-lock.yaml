@@ -30,6 +30,7 @@ specifiers:
   radix-ui: ^1.4.3
   react: ^19.2.0
   react-dom: ^19.2.0
+  react-error-boundary: ^6.1.1
   react-query-kit: ^3.3.2
   streamdown: ^1.6.5
   tailwind-merge: ^2.6.0
@@ -64,6 +65,7 @@ dependencies:
   radix-ui: 1.4.3_4txyg5u4j6s6wu44xkkk2rp3oi
   react: 19.2.4
   react-dom: 19.2.4_react@19.2.4
+  react-error-boundary: 6.1.1_react@19.2.4
   react-query-kit: 3.3.2_dbdt6jp3ecdraznlf3zbmrztxe
   streamdown: 1.6.11_react@19.2.4
   tailwind-merge: 2.6.1
@@ -5808,6 +5810,14 @@ packages:
     dependencies:
       react: 19.2.4
       scheduler: 0.27.0
+
+  /react-error-boundary/6.1.1_react@19.2.4:
+    resolution: {integrity: sha512-BrYwPOdXi5mqkk5lw+Uvt0ThHx32rCt3BkukS4X23A2AIWDPSGX6iaWTc0y9TU/mHDA/6qOSGel+B2ERkOvD1w==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+    dependencies:
+      react: 19.2.4
+    dev: false
 
   /react-is/17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
