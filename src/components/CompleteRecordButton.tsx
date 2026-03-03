@@ -245,72 +245,82 @@ export default function CompleteRecordButton({
               )}
             </form.Field>
 
-            <form.Field
-              name="nextCount"
-              validators={{
-                onChangeListenTo: ["createNext"],
-                onChange: ({ value, fieldApi }) => {
-                  if (fieldApi.form.getFieldValue("createNext")) {
-                    if (!NEXT_COUNT_PATTERN.test(value)) {
-                      return "Enter a valid number, optionally prefixed with + or -";
-                    }
-                  }
-                },
-              }}
-            >
-              {(field) => (
-                <fieldset className="flex-1 flex flex-col gap-2">
-                  <div className="flex flex-row gap-4 items-center">
-                    <input
-                      value={field.state.value}
-                      name={field.name}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      disabled={mutation.isPending}
-                      placeholder="Please enter the next count (e.g., 10, +5, -3)"
-                      className={cn(
-                        "text-2xl font-bold flex-1 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none",
-                        "placeholder:text-lg",
+            <form.Subscribe selector={(state) => state.values.createNext}>
+              {(createNext) =>
+                createNext ? (
+                  <>
+                    <form.Field
+                      name="nextCount"
+                      validators={{
+                        onChangeListenTo: ["createNext"],
+                        onChange: ({ value, fieldApi }) => {
+                          if (fieldApi.form.getFieldValue("createNext")) {
+                            if (!NEXT_COUNT_PATTERN.test(value)) {
+                              return "Enter a valid number, optionally prefixed with + or -";
+                            }
+                          }
+                        },
+                      }}
+                    >
+                      {(field) => (
+                        <fieldset className="flex-1 flex flex-col gap-2">
+                          <div className="flex flex-row gap-4 items-center">
+                            <input
+                              value={field.state.value}
+                              name={field.name}
+                              onChange={(e) =>
+                                field.handleChange(e.target.value)
+                              }
+                              disabled={mutation.isPending}
+                              placeholder="Please enter the next count (e.g., 10, +5, -3)"
+                              className={cn(
+                                "text-2xl font-bold flex-1 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none",
+                                "placeholder:text-lg",
+                              )}
+                            />
+                            <strong className="text-cyan-300 shrink-0 font-semibold font-mono text-2xl">
+                              {getRealNextCount(
+                                event.currentRecord?.count ?? 0,
+                                field.state.value,
+                              )}
+                            </strong>
+                          </div>
+                          {!field.state.meta.isValid && (
+                            <small className="text-destructive" role="alert">
+                              {field.state.meta.errors.join(", ")}
+                            </small>
+                          )}
+                        </fieldset>
                       )}
-                    />
-                    <strong className="text-cyan-300 shrink-0 font-semibold font-mono text-2xl">
-                      {getRealNextCount(
-                        event.currentRecord?.count ?? 0,
-                        field.state.value,
-                      )}
-                    </strong>
-                  </div>
-                  {!field.state.meta.isValid && (
-                    <small className="text-destructive" role="alert">
-                      {field.state.meta.errors.join(", ")}
-                    </small>
-                  )}
-                </fieldset>
-              )}
-            </form.Field>
+                    </form.Field>
 
-            <div className="flex flex-row gap-4 items-center">
-              {quickOptions.map((opt) => (
-                <Button
-                  key={opt.value}
-                  size={"sm"}
-                  variant={"outline"}
-                  onClick={() => {
-                    if (opt.value === "current") {
-                      form.setFieldValue(
-                        "nextCount",
-                        getCurrentRecordCount(event) + "",
-                      );
-                    } else {
-                      form.setFieldValue("nextCount", opt.value);
-                    }
-                  }}
-                >
-                  {opt.value === "current"
-                    ? `current (${getCurrentRecordCount(event)})`
-                    : opt.label}
-                </Button>
-              ))}
-            </div>
+                    <div className="flex flex-row gap-4 items-center">
+                      {quickOptions.map((opt) => (
+                        <Button
+                          key={opt.value}
+                          size={"sm"}
+                          variant={"outline"}
+                          onClick={() => {
+                            if (opt.value === "current") {
+                              form.setFieldValue(
+                                "nextCount",
+                                getCurrentRecordCount(event) + "",
+                              );
+                            } else {
+                              form.setFieldValue("nextCount", opt.value);
+                            }
+                          }}
+                        >
+                          {opt.value === "current"
+                            ? `current (${getCurrentRecordCount(event)})`
+                            : opt.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </>
+                ) : null
+              }
+            </form.Subscribe>
 
             {mutation.error ? (
               <p className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
