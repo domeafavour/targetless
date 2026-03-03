@@ -40,6 +40,38 @@ function getCurrentRecordCount(
 }
 
 const NEXT_COUNT_PATTERN = /^([+-]?)(\d+)$/;
+const COMPLETE_RECORD_NEXT_COUNT_STORAGE_KEY_PREFIX =
+  "completeRecord.nextCount";
+
+function getCompleteRecordNextCountStorageKey(eventId: string): string {
+  return `${COMPLETE_RECORD_NEXT_COUNT_STORAGE_KEY_PREFIX}.${eventId}`;
+}
+
+function getDefaultNextCount(
+  event: EventWithCurrentRecord | EventDetail,
+): string {
+  const fallback = getCurrentRecordCount(event) + "";
+
+  try {
+    const stored = localStorage.getItem(
+      getCompleteRecordNextCountStorageKey(event.id),
+    );
+    return stored ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveEventNextCount(eventId: string, nextCount: string) {
+  try {
+    localStorage.setItem(
+      getCompleteRecordNextCountStorageKey(eventId),
+      nextCount,
+    );
+  } catch {
+    // Ignore storage errors
+  }
+}
 
 function getRealNextCount(
   currentCount: number,
@@ -78,33 +110,41 @@ export default function CompleteRecordButton({
 }: CompleteRecordButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const mutation = eventsApi.completeRecord.useMutation({
-    onSuccess: async (data, variables) => {
-      setIsDialogOpen(false);
-      if (onSuccess) {
-        await onSuccess(data, variables);
-      }
-    },
-  });
+  const mutation = eventsApi.completeRecord.useMutation({});
 
   const form = useForm({
     defaultValues: {
       createNext: true,
-      nextCount: getCurrentRecordCount(event) + "",
+      nextCount: getDefaultNextCount(event),
     } as { createNext: boolean; nextCount: string },
     onSubmit: (p) => {
       if (!event.currentRecord) {
         return;
       }
 
-      mutation.mutate({
-        eventId: event.id,
-        createNext: p.value.createNext,
-        nextCount: p.value.createNext
-          ? (getRealNextCount(event.currentRecord.count, p.value.nextCount) ??
-            undefined)
-          : undefined,
-      });
+      mutation.mutate(
+        {
+          eventId: event.id,
+          createNext: p.value.createNext,
+          nextCount: p.value.createNext
+            ? (getRealNextCount(event.currentRecord.count, p.value.nextCount) ??
+              undefined)
+            : undefined,
+        },
+        {
+          onSuccess: async (data, variables) => {
+            setIsDialogOpen(false);
+
+            if (p.value.nextCount) {
+              saveEventNextCount(event.id, p.value.nextCount);
+            }
+
+            if (onSuccess) {
+              await onSuccess(data, variables);
+            }
+          },
+        },
+      );
     },
   });
 
