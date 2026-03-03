@@ -34,8 +34,9 @@ type CompleteRecordButtonProps = {
 
 function getCurrentRecordCount(
   event: EventWithCurrentRecord | EventDetail,
+  defaultValue = 0,
 ): number {
-  return event.currentRecord?.count ?? 0;
+  return event.currentRecord?.count ?? defaultValue;
 }
 
 const NEXT_COUNT_PATTERN = /^([+-]?)(\d+)$/;
