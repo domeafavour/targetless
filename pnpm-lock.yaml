@@ -9,6 +9,7 @@ specifiers:
   '@tanstack/devtools-vite': ^0.3.11
   '@tanstack/react-ai-devtools': ^0.0.1
   '@tanstack/react-devtools': ^0.7.0
+  '@tanstack/react-form': ^1.28.3
   '@tanstack/react-query': ^5.66.5
   '@tanstack/react-query-devtools': ^5.84.2
   '@tanstack/react-router': ^1.132.0
@@ -51,6 +52,7 @@ dependencies:
   '@tailwindcss/vite': 4.2.1_vite@7.3.1
   '@tanstack/react-ai-devtools': 0.0.1_6wgszkqpisvo7fnxbvnlt4vx6i
   '@tanstack/react-devtools': 0.7.11_4txyg5u4j6s6wu44xkkk2rp3oi
+  '@tanstack/react-form': 1.28.3_czo5rks66zrouat4s3txw322di
   '@tanstack/react-query': 5.90.21_react@19.2.4
   '@tanstack/react-query-devtools': 5.91.3_tvpkppimr35tjpqqqfsm4qp5mu
   '@tanstack/react-router': 1.162.8_ju5i5k46jjvnblsfiwqzrn6cj4
@@ -2624,7 +2626,6 @@ packages:
   /@tanstack/devtools-event-client/0.4.0:
     resolution: {integrity: sha512-RPfGuk2bDZgcu9bAJodvO2lnZeHuz4/71HjZ0bGb/SPg8+lyTA+RLSKQvo7fSmPSi8/vcH3aKQ8EM9ywf1olaw==}
     engines: {node: '>=18'}
-    dev: true
 
   /@tanstack/devtools-ui/0.4.4:
     resolution: {integrity: sha512-5xHXFyX3nom0UaNfiOM92o6ziaHjGo3mcSGe2HD5Xs8dWRZNpdZ0Smd0B9ddEhy0oB+gXyMzZgUJb9DmrZV0Mg==}
@@ -2730,9 +2731,22 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@tanstack/form-core/1.28.3:
+    resolution: {integrity: sha512-DBhnu1d5VfACAYOAZJO8tsEUHjWczZMJY8v/YrtAJNWpwvL/3ogDuz8e6yUB2m/iVTNq6K8yrnVN2nrX0/BX/w==}
+    dependencies:
+      '@tanstack/devtools-event-client': 0.4.0
+      '@tanstack/pacer-lite': 0.1.1
+      '@tanstack/store': 0.8.1
+    dev: false
+
   /@tanstack/history/1.161.4:
     resolution: {integrity: sha512-Kp/WSt411ZWYvgXy6uiv5RmhHrz9cAml05AQPrtdAp7eUqvIDbMGPnML25OKbzR3RJ1q4wgENxDTvlGPa9+Mww==}
     engines: {node: '>=20.19'}
+    dev: false
+
+  /@tanstack/pacer-lite/0.1.1:
+    resolution: {integrity: sha512-y/xtNPNt/YeyoVxE/JCx+T7yjEzpezmbb+toK8DDD1P4m7Kzs5YR956+7OKexG3f8aXgC3rLZl7b1V+yNUSy5w==}
+    engines: {node: '>=18'}
     dev: false
 
   /@tanstack/query-core/5.90.20:
@@ -2779,6 +2793,23 @@ packages:
       - bufferutil
       - csstype
       - utf-8-validate
+    dev: false
+
+  /@tanstack/react-form/1.28.3_czo5rks66zrouat4s3txw322di:
+    resolution: {integrity: sha512-84yd0swZRcyC3Q46dYBH6bHf1tlIY1flchbdG3VwArg/wLVW5RdBenIrJhleHjk2OxXuF+9HoKQbHglJyWIXQA==}
+    peerDependencies:
+      '@tanstack/react-start': '*'
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@tanstack/react-start':
+        optional: true
+    dependencies:
+      '@tanstack/form-core': 1.28.3
+      '@tanstack/react-start': 1.162.8_ftiy72a2gl6ztuuiediylzitbi
+      '@tanstack/react-store': 0.8.1_ju5i5k46jjvnblsfiwqzrn6cj4
+      react: 19.2.4
+    transitivePeerDependencies:
+      - react-dom
     dev: false
 
   /@tanstack/react-query-devtools/5.91.3_tvpkppimr35tjpqqqfsm4qp5mu:
@@ -2916,6 +2947,18 @@ packages:
       - supports-color
       - vite-plugin-solid
       - webpack
+    dev: false
+
+  /@tanstack/react-store/0.8.1_ju5i5k46jjvnblsfiwqzrn6cj4:
+    resolution: {integrity: sha512-XItJt+rG8c5Wn/2L/bnxys85rBpm0BfMbhb4zmPVLXAKY9POrp1xd6IbU4PKoOI+jSEGc3vntPRfLGSgXfE2Ig==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    dependencies:
+      '@tanstack/store': 0.8.1
+      react: 19.2.4
+      react-dom: 19.2.4_react@19.2.4
+      use-sync-external-store: 1.6.0_react@19.2.4
     dev: false
 
   /@tanstack/react-store/0.9.1_ju5i5k46jjvnblsfiwqzrn6cj4:
@@ -3113,6 +3156,10 @@ packages:
     engines: {node: '>=22.12.0'}
     dependencies:
       '@tanstack/router-core': 1.162.6
+    dev: false
+
+  /@tanstack/store/0.8.1:
+    resolution: {integrity: sha512-PtOisLjUZPz5VyPRSCGjNOlwTvabdTBQ2K80DpVL1chGVr35WRxfeavAPdNq6pm/t7F8GhoR2qtmkkqtCEtHYw==}
     dev: false
 
   /@tanstack/store/0.9.1:
