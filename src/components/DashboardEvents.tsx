@@ -1,16 +1,16 @@
 import { eventsApi } from "@/lib/api/events";
 import {
-  useSortField,
-  useSortFilter,
-  useSortOrder,
+  useDashboardFilter,
+  useDashboardSortField,
+  useDashboardSortOrder,
 } from "@/lib/store/event-dashboard";
 import { DashboardEmptyState } from "./DashboardEmptyState";
 import { DashboardEventItem } from "./DashboardEventItem";
 
 export function DashboardEvents() {
-  const filter = useSortFilter();
-  const sortField = useSortField();
-  const sortOrder = useSortOrder();
+  const filter = useDashboardFilter();
+  const sortField = useDashboardSortField();
+  const sortOrder = useDashboardSortOrder();
   const { data } = eventsApi.list.useSuspenseQuery({
     variables: { filter, sortField, sortOrder },
   });

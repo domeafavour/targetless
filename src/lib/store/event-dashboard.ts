@@ -37,14 +37,14 @@ export const useEventDashboardStore = create<EventDashboardState>()(
   ),
 );
 
-export function useSortFilter() {
+export function useDashboardFilter() {
   return useEventDashboardStore((state) => state.filter);
 }
 
-export function useSortField() {
+export function useDashboardSortField() {
   return useEventDashboardStore((state) => state.sortField);
 }
 
-export function useSortOrder() {
+export function useDashboardSortOrder() {
   return useEventDashboardStore((state) => state.sortOrder);
 }
