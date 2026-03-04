@@ -4,13 +4,11 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { DashboardEvents } from "@/components/DashboardEvents";
+import { DashboardFilter } from "@/components/DashboardFilter";
 import { DashboardSorting } from "@/components/DashboardSorting";
-import { DashboardStatCard } from "@/components/DashboardStatCard";
 import { RefreshEventsButton } from "@/components/RefreshEventsButton";
 import { Button } from "@/components/ui/Button";
 import { RouteView } from "@/components/ui/RouteView";
-import { eventsApi } from "@/lib/api/events";
-import { useEventDashboardStore } from "@/lib/store/event-dashboard";
 
 export const Route = createFileRoute("/")({
   component: EventDashboard,
@@ -20,9 +18,6 @@ export const Route = createFileRoute("/")({
 });
 
 function EventDashboard() {
-  const { filter, setFilter } = useEventDashboardStore();
-  const statsQuery = eventsApi.stats.useQuery();
-
   return (
     <RouteView>
       <section className="max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
@@ -48,26 +43,7 @@ function EventDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          <DashboardStatCard
-            label="Active"
-            value={statsQuery.data?.active ?? 0}
-            active={filter === "active"}
-            onClick={() => setFilter("active")}
-          />
-          <DashboardStatCard
-            label="Completed"
-            value={statsQuery.data?.completed ?? 0}
-            active={filter === "completed"}
-            onClick={() => setFilter("completed")}
-          />
-          <DashboardStatCard
-            label="Total"
-            value={statsQuery.data?.total ?? 0}
-            active={filter === "total"}
-            onClick={() => setFilter("total")}
-          />
-        </div>
+        <DashboardFilter />
       </section>
 
       <section className="max-w-5xl mx-auto px-4 pb-16">
