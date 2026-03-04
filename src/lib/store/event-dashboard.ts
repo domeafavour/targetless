@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import type { EventsFilter, EventsSortField, EventsSortOrder } from "@/lib/event-store";
+import type {
+  EventsFilter,
+  EventsSortField,
+  EventsSortOrder,
+} from "@/lib/event-store";
 
 interface EventDashboardState {
   filter: EventsFilter;
@@ -32,3 +36,15 @@ export const useEventDashboardStore = create<EventDashboardState>()(
     },
   ),
 );
+
+export function useSortFilter() {
+  return useEventDashboardStore((state) => state.filter);
+}
+
+export function useSortField() {
+  return useEventDashboardStore((state) => state.sortField);
+}
+
+export function useSortOrder() {
+  return useEventDashboardStore((state) => state.sortOrder);
+}
