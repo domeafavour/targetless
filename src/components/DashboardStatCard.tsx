@@ -7,7 +7,7 @@ export function DashboardStatCard({
   onClick,
 }: {
   label: string;
-  value: number;
+  value?: number;
   active: boolean;
   onClick: () => void;
 }) {
@@ -30,7 +30,9 @@ export function DashboardStatCard({
       >
         {label}
       </p>
-      <p className="text-3xl font-black">{value}</p>
+      <p className="text-3xl font-black">
+        {typeof value === "number" ? value : "-"}
+      </p>
     </button>
   );
 }

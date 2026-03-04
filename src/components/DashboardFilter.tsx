@@ -20,19 +20,19 @@ export function DashboardFilter({ className }: Props) {
     <div className={cn("grid grid-cols-3 gap-4", className)}>
       <DashboardStatCard
         label="Active"
-        value={statsQuery.data?.active ?? 0}
+        value={statsQuery.data?.active}
         active={filter === "active"}
         onClick={() => setFilter("active")}
       />
       <DashboardStatCard
         label="Completed"
-        value={statsQuery.data?.completed ?? 0}
+        value={statsQuery.data?.completed}
         active={filter === "completed"}
         onClick={() => setFilter("completed")}
       />
       <DashboardStatCard
         label="Total"
-        value={statsQuery.data?.total ?? 0}
+        value={statsQuery.data?.total}
         active={filter === "total"}
         onClick={() => setFilter("total")}
       />
