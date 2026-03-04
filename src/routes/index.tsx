@@ -13,8 +13,7 @@ import {
 import { Suspense, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { DashboardEmptyState } from "@/components/DashboardEmptyState";
-import { DashboardEventItem } from "@/components/DashboardEventItem";
+import { DashboardEvents } from "@/components/DashboardEvents";
 import { DashboardStatCard } from "@/components/DashboardStatCard";
 import { Button } from "@/components/ui/Button";
 import {
@@ -101,30 +100,6 @@ const sortFieldOptions: { label: string; value: EventsSortField }[] = [
   { label: "Created Time", value: "createdAt" },
   { label: "Updated Time", value: "updatedAt" },
 ];
-
-function DashboardEvents({
-  filter,
-  sortField,
-  sortOrder,
-}: {
-  filter: EventsFilter;
-  sortField: EventsSortField;
-  sortOrder: EventsSortOrder;
-}) {
-  const { data } = eventsApi.list.useSuspenseQuery({
-    variables: { filter, sortField, sortOrder },
-  });
-
-  return data.length === 0 ? (
-    <DashboardEmptyState filter={filter} />
-  ) : (
-    <div className="space-y-4">
-      {data.map((event) => (
-        <DashboardEventItem key={event.id} event={event} />
-      ))}
-    </div>
-  );
-}
 
 function EventDashboard() {
   const queryClient = useQueryClient();
