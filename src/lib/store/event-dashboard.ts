@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { useShallow } from "zustand/shallow";
 
 import type {
   EventsFilter,
@@ -47,4 +48,15 @@ export function useDashboardSortField() {
 
 export function useDashboardSortOrder() {
   return useEventDashboardStore((state) => state.sortOrder);
+}
+
+export function useDashboardActions() {
+  return useEventDashboardStore(
+    useShallow((state) => ({
+      setFilter: state.setFilter,
+      setSortField: state.setSortField,
+      setSortOrder: state.setSortOrder,
+      toggleSortOrder: state.toggleSortOrder,
+    })),
+  );
 }
