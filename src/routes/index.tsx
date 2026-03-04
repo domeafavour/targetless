@@ -42,8 +42,14 @@ const sortFieldOptions: { label: string; value: EventsSortField }[] = [
 
 function EventDashboard() {
   const queryClient = useQueryClient();
-  const { filter, setFilter, sortField, setSortField, sortOrder, toggleSortOrder } =
-    useEventDashboardStore();
+  const {
+    filter,
+    setFilter,
+    sortField,
+    setSortField,
+    sortOrder,
+    toggleSortOrder,
+  } = useEventDashboardStore();
   const isFetching = useIsFetching({
     queryKey: eventsApi.list.getKey({ filter, sortField, sortOrder }),
   });
@@ -166,11 +172,7 @@ function EventDashboard() {
               </div>
             }
           >
-            <DashboardEvents
-              filter={filter}
-              sortField={sortField}
-              sortOrder={sortOrder}
-            />
+            <DashboardEvents />
           </Suspense>
         </ErrorBoundary>
       </section>
