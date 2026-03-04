@@ -10,7 +10,7 @@ import {
   RefreshCw,
   Target,
 } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { DashboardEvents } from "@/components/DashboardEvents";
@@ -24,70 +24,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
-import {
-  EventsFilter,
-  EventsSortField,
-  EventsSortOrder,
-} from "@/lib/event-store";
+import { EventsSortField } from "@/lib/event-store";
+import { useEventDashboardStore } from "@/lib/store/event-dashboard";
 import { cn } from "@/lib/utils";
-
-const FILTER_STORAGE_KEY = "targetless-dashboard-filter";
-const SORT_FIELD_STORAGE_KEY = "targetless-dashboard-sort-field";
-const SORT_ORDER_STORAGE_KEY = "targetless-dashboard-sort-order";
-
-function getStoredFilter(): EventsFilter {
-  const stored = localStorage.getItem(FILTER_STORAGE_KEY);
-  if (stored && ["active", "completed", "total"].includes(stored)) {
-    return stored as EventsFilter;
-  }
-  return "active";
-}
-
-function getStoredSortField(): EventsSortField {
-  const stored = localStorage.getItem(SORT_FIELD_STORAGE_KEY);
-  if (stored && ["createdAt", "updatedAt"].includes(stored)) {
-    return stored as EventsSortField;
-  }
-  return "createdAt";
-}
-
-function getStoredSortOrder(): EventsSortOrder {
-  const stored = localStorage.getItem(SORT_ORDER_STORAGE_KEY);
-  if (stored && ["asc", "desc"].includes(stored)) {
-    return stored as EventsSortOrder;
-  }
-  return "desc";
-}
-
-function useFilterState() {
-  const [filter, setFilter] = useState<EventsFilter>(getStoredFilter);
-
-  useEffect(() => {
-    localStorage.setItem(FILTER_STORAGE_KEY, filter);
-  }, [filter]);
-
-  return [filter, setFilter] as const;
-}
-
-function useSortState() {
-  const [sortField, setSortField] =
-    useState<EventsSortField>(getStoredSortField);
-  const [sortOrder, setSortOrder] =
-    useState<EventsSortOrder>(getStoredSortOrder);
-
-  useEffect(() => {
-    localStorage.setItem(SORT_FIELD_STORAGE_KEY, sortField);
-  }, [sortField]);
-
-  useEffect(() => {
-    localStorage.setItem(SORT_ORDER_STORAGE_KEY, sortOrder);
-  }, [sortOrder]);
-
-  const toggleSortOrder = () =>
-    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-
-  return { sortField, setSortField, sortOrder, toggleSortOrder } as const;
-}
 
 export const Route = createFileRoute("/")({
   component: EventDashboard,
@@ -103,9 +42,8 @@ const sortFieldOptions: { label: string; value: EventsSortField }[] = [
 
 function EventDashboard() {
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useFilterState();
-  const { sortField, setSortField, sortOrder, toggleSortOrder } =
-    useSortState();
+  const { filter, setFilter, sortField, setSortField, sortOrder, toggleSortOrder } =
+    useEventDashboardStore();
   const isFetching = useIsFetching({
     queryKey: eventsApi.list.getKey({ filter, sortField, sortOrder }),
   });
