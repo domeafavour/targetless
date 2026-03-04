@@ -46,8 +46,13 @@ export type CreateRecordInput = {
 
 export type EventsFilter = "total" | "active" | "completed";
 
+export type EventsSortField = "createdAt" | "updatedAt";
+export type EventsSortOrder = "asc" | "desc";
+
 export type ListEventsParams = {
   filter?: EventsFilter;
+  sortField?: EventsSortField;
+  sortOrder?: EventsSortOrder;
 };
 
 export type EventsStats = {
@@ -80,9 +85,13 @@ export async function listEvents(params?: ListEventsParams): Promise<EventWithCu
   }
   // "total" or undefined means no filter
 
-  const orderedEvents = filteredEvents.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  const sortField = params?.sortField ?? "createdAt";
+  const sortOrder = params?.sortOrder ?? "desc";
+  const orderedEvents = filteredEvents.sort((a, b) => {
+    const aVal = new Date(a[sortField] ?? a.createdAt).getTime();
+    const bVal = new Date(b[sortField] ?? b.createdAt).getTime();
+    return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+  });
   return orderedEvents.map((event) =>
     attachCurrentRecord(event, snapshot.records),
   );

@@ -43,6 +43,7 @@ specifiers:
   vitest: ^3.0.5
   web-vitals: ^5.1.0
   zod: ^4.1.11
+  zustand: ^5.0.11
 
 dependencies:
   '@radix-ui/react-alert-dialog': 1.1.15_4txyg5u4j6s6wu44xkkk2rp3oi
@@ -74,6 +75,7 @@ dependencies:
   tailwindcss: 4.2.1
   vite-tsconfig-paths: 5.1.4_jfwddti7ft2223c7ue7jxamrem
   zod: 4.3.6
+  zustand: 5.0.11_d2vw5qqqcfk7p7wqok4lqumjlu
 
 devDependencies:
   '@tanstack/devtools-vite': 0.3.12_vite@7.3.1
@@ -6923,6 +6925,28 @@ packages:
 
   /zod/4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+    dev: false
+
+  /zustand/5.0.11_d2vw5qqqcfk7p7wqok4lqumjlu:
+    resolution: {integrity: sha512-fdZY+dk7zn/vbWNCYmzZULHRrss0jx5pPFiOuMZ/5HJN6Yv3u+1Wswy/4MpZEkEGhtNH+pwxZB8OKgUBPzYAGg==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+    dependencies:
+      '@types/react': 19.2.14
+      react: 19.2.4
     dev: false
 
   /zwitch/2.0.4:

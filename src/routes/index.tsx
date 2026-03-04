@@ -1,37 +1,14 @@
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Loader2, Plus, RefreshCw, Target } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
+import { Loader2, Plus, Target } from "lucide-react";
+import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { DashboardEmptyState } from "@/components/DashboardEmptyState";
-import { DashboardEventItem } from "@/components/DashboardEventItem";
-import { DashboardStatCard } from "@/components/DashboardStatCard";
+import { DashboardEvents } from "@/components/DashboardEvents";
+import { DashboardFilter } from "@/components/DashboardFilter";
+import { DashboardSorting } from "@/components/DashboardSorting";
+import { RefreshEventsButton } from "@/components/RefreshEventsButton";
 import { Button } from "@/components/ui/Button";
 import { RouteView } from "@/components/ui/RouteView";
-import { eventsApi } from "@/lib/api/events";
-import { EventsFilter } from "@/lib/event-store";
-import { cn } from "@/lib/utils";
-
-const FILTER_STORAGE_KEY = "targetless-dashboard-filter";
-
-function getStoredFilter(): EventsFilter {
-  const stored = localStorage.getItem(FILTER_STORAGE_KEY);
-  if (stored && ["active", "completed", "total"].includes(stored)) {
-    return stored as EventsFilter;
-  }
-  return "active";
-}
-
-function useFilterState() {
-  const [filter, setFilter] = useState<EventsFilter>(getStoredFilter);
-
-  useEffect(() => {
-    localStorage.setItem(FILTER_STORAGE_KEY, filter);
-  }, [filter]);
-
-  return [filter, setFilter] as const;
-}
 
 export const Route = createFileRoute("/")({
   component: EventDashboard,
@@ -40,30 +17,7 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-function DashboardEvents({ filter }: { filter: EventsFilter }) {
-  const { data } = eventsApi.list.useSuspenseQuery({
-    variables: { filter },
-  });
-
-  return data.length === 0 ? (
-    <DashboardEmptyState filter={filter} />
-  ) : (
-    <div className="space-y-4">
-      {data.map((event) => (
-        <DashboardEventItem key={event.id} event={event} />
-      ))}
-    </div>
-  );
-}
-
 function EventDashboard() {
-  const queryClient = useQueryClient();
-  const [filter, setFilter] = useFilterState();
-  const isFetching = useIsFetching({
-    queryKey: eventsApi.list.getKey({ filter }),
-  });
-  const statsQuery = eventsApi.stats.useQuery();
-
   return (
     <RouteView>
       <section className="max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
@@ -78,50 +32,18 @@ function EventDashboard() {
             Track habits, workouts, lessons, and more. Mark the current record
             complete and instantly spin up the next one when you are ready.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 items-center">
             <Button asChild>
               <Link to="/events/new">
                 <Plus className="w-4 h-4" /> Create Event
               </Link>
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                queryClient.invalidateQueries({
-                  queryKey: eventsApi.list.getKey(),
-                })
-              }
-              disabled={isFetching > 0}
-            >
-              <RefreshCw
-                className={cn("w-4 h-4", isFetching > 0 && "animate-spin")}
-              />
-              Refresh
-            </Button>
+            <RefreshEventsButton />
+            <DashboardSorting />
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          <DashboardStatCard
-            label="Active"
-            value={statsQuery.data?.active ?? 0}
-            active={filter === "active"}
-            onClick={() => setFilter("active")}
-          />
-          <DashboardStatCard
-            label="Completed"
-            value={statsQuery.data?.completed ?? 0}
-            active={filter === "completed"}
-            onClick={() => setFilter("completed")}
-          />
-          <DashboardStatCard
-            label="Total"
-            value={statsQuery.data?.total ?? 0}
-            active={filter === "total"}
-            onClick={() => setFilter("total")}
-          />
-        </div>
+        <DashboardFilter />
       </section>
 
       <section className="max-w-5xl mx-auto px-4 pb-16">
@@ -140,7 +62,7 @@ function EventDashboard() {
               </div>
             }
           >
-            <DashboardEvents filter={filter} />
+            <DashboardEvents />
           </Suspense>
         </ErrorBoundary>
       </section>

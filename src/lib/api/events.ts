@@ -9,6 +9,8 @@ import {
   EventDetail,
   EventRecord,
   EventsFilter,
+  EventsSortField,
+  EventsSortOrder,
   EventWithCurrentRecord,
   getEvent,
   getEventsStats,
@@ -25,6 +27,8 @@ import { Database } from "./supabase.types";
 
 export type ListEventsParams = {
   filter?: EventsFilter;
+  sortField?: EventsSortField;
+  sortOrder?: EventsSortOrder;
 };
 
 function transformEventRecord(
@@ -66,8 +70,10 @@ async function fetchListApi(params?: ListEventsParams) {
   }
   // "total" or undefined means no filter
 
+  const dbSortField = params?.sortField === "updatedAt" ? "updated_at" : "created_at";
+  const ascending = params?.sortOrder === "asc";
   const { data } = await query
-    .order("created_at", { ascending: false })
+    .order(dbSortField, { ascending })
     .throwOnError();
 
   const list: EventWithCurrentRecord[] = data.map((e) => {
