@@ -1,6 +1,6 @@
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Loader2, Plus, RefreshCw, Target } from "lucide-react";
+import { ArrowDownUp, Loader2, Plus, RefreshCw, Target } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -10,10 +10,12 @@ import { DashboardStatCard } from "@/components/DashboardStatCard";
 import { Button } from "@/components/ui/Button";
 import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
-import { EventsFilter } from "@/lib/event-store";
+import { EventsFilter, EventsSortField, EventsSortOrder } from "@/lib/event-store";
 import { cn } from "@/lib/utils";
 
 const FILTER_STORAGE_KEY = "targetless-dashboard-filter";
+const SORT_FIELD_STORAGE_KEY = "targetless-dashboard-sort-field";
+const SORT_ORDER_STORAGE_KEY = "targetless-dashboard-sort-order";
 
 function getStoredFilter(): EventsFilter {
   const stored = localStorage.getItem(FILTER_STORAGE_KEY);
@@ -21,6 +23,22 @@ function getStoredFilter(): EventsFilter {
     return stored as EventsFilter;
   }
   return "active";
+}
+
+function getStoredSortField(): EventsSortField {
+  const stored = localStorage.getItem(SORT_FIELD_STORAGE_KEY);
+  if (stored && ["createdAt", "updatedAt"].includes(stored)) {
+    return stored as EventsSortField;
+  }
+  return "createdAt";
+}
+
+function getStoredSortOrder(): EventsSortOrder {
+  const stored = localStorage.getItem(SORT_ORDER_STORAGE_KEY);
+  if (stored && ["asc", "desc"].includes(stored)) {
+    return stored as EventsSortOrder;
+  }
+  return "desc";
 }
 
 function useFilterState() {
@@ -33,6 +51,23 @@ function useFilterState() {
   return [filter, setFilter] as const;
 }
 
+function useSortState() {
+  const [sortField, setSortField] = useState<EventsSortField>(getStoredSortField);
+  const [sortOrder, setSortOrder] = useState<EventsSortOrder>(getStoredSortOrder);
+
+  useEffect(() => {
+    localStorage.setItem(SORT_FIELD_STORAGE_KEY, sortField);
+  }, [sortField]);
+
+  useEffect(() => {
+    localStorage.setItem(SORT_ORDER_STORAGE_KEY, sortOrder);
+  }, [sortOrder]);
+
+  const toggleSortOrder = () => setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+
+  return { sortField, setSortField, sortOrder, toggleSortOrder } as const;
+}
+
 export const Route = createFileRoute("/")({
   component: EventDashboard,
   head: () => ({
@@ -40,9 +75,17 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-function DashboardEvents({ filter }: { filter: EventsFilter }) {
+function DashboardEvents({
+  filter,
+  sortField,
+  sortOrder,
+}: {
+  filter: EventsFilter;
+  sortField: EventsSortField;
+  sortOrder: EventsSortOrder;
+}) {
   const { data } = eventsApi.list.useSuspenseQuery({
-    variables: { filter },
+    variables: { filter, sortField, sortOrder },
   });
 
   return data.length === 0 ? (
@@ -59,8 +102,9 @@ function DashboardEvents({ filter }: { filter: EventsFilter }) {
 function EventDashboard() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useFilterState();
+  const { sortField, setSortField, sortOrder, toggleSortOrder } = useSortState();
   const isFetching = useIsFetching({
-    queryKey: eventsApi.list.getKey({ filter }),
+    queryKey: eventsApi.list.getKey({ filter, sortField, sortOrder }),
   });
   const statsQuery = eventsApi.stats.useQuery();
 
@@ -125,6 +169,28 @@ function EventDashboard() {
       </section>
 
       <section className="max-w-5xl mx-auto px-4 pb-16">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-sm text-slate-400">Sort by</span>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setSortField(sortField === "createdAt" ? "updatedAt" : "createdAt")
+            }
+          >
+            {sortField === "createdAt" ? "Created" : "Updated"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={toggleSortOrder}
+          >
+            <ArrowDownUp className="w-3.5 h-3.5" />
+            {sortOrder === "desc" ? "Newest" : "Oldest"}
+          </Button>
+        </div>
         <ErrorBoundary
           fallback={
             <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-6 text-rose-100">
@@ -140,7 +206,7 @@ function EventDashboard() {
               </div>
             }
           >
-            <DashboardEvents filter={filter} />
+            <DashboardEvents filter={filter} sortField={sortField} sortOrder={sortOrder} />
           </Suspense>
         </ErrorBoundary>
       </section>
