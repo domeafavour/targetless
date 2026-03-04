@@ -1,4 +1,3 @@
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDown,
@@ -7,7 +6,6 @@ import {
   ChevronDown,
   Loader2,
   Plus,
-  RefreshCw,
   Target,
 } from "lucide-react";
 import { Suspense } from "react";
@@ -15,6 +13,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 import { DashboardEvents } from "@/components/DashboardEvents";
 import { DashboardStatCard } from "@/components/DashboardStatCard";
+import { RefreshEventsButton } from "@/components/RefreshEventsButton";
 import { Button } from "@/components/ui/Button";
 import {
   DropdownMenu,
@@ -26,7 +25,6 @@ import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
 import { EventsSortField } from "@/lib/event-store";
 import { useEventDashboardStore } from "@/lib/store/event-dashboard";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   component: EventDashboard,
@@ -41,7 +39,6 @@ const sortFieldOptions: { label: string; value: EventsSortField }[] = [
 ];
 
 function EventDashboard() {
-  const queryClient = useQueryClient();
   const {
     filter,
     setFilter,
@@ -50,9 +47,6 @@ function EventDashboard() {
     sortOrder,
     toggleSortOrder,
   } = useEventDashboardStore();
-  const isFetching = useIsFetching({
-    queryKey: eventsApi.list.getKey({ filter, sortField, sortOrder }),
-  });
   const statsQuery = eventsApi.stats.useQuery();
 
   return (
@@ -75,21 +69,7 @@ function EventDashboard() {
                 <Plus className="w-4 h-4" /> Create Event
               </Link>
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                queryClient.invalidateQueries({
-                  queryKey: eventsApi.list.getKey(),
-                })
-              }
-              disabled={isFetching > 0}
-            >
-              <RefreshCw
-                className={cn("w-4 h-4", isFetching > 0 && "animate-spin")}
-              />
-              Refresh
-            </Button>
+            <RefreshEventsButton />
             <div className="flex items-center gap-2 md:ms-auto">
               <span className="text-sm text-slate-400">Sort by</span>
               <DropdownMenu>
