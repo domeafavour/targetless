@@ -241,8 +241,11 @@ async function apiOr<T extends () => Promise<any>>(
   local: T,
 ): Promise<Awaited<ReturnType<T>>> {
   try {
-    await isLoggedIn();
-    return await api();
+    const loggedIn = await isLoggedIn();
+    if (loggedIn) {
+      return await api();
+    }
+    return await local();
   } catch (error) {
     return await local();
   }

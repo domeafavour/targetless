@@ -376,9 +376,14 @@ function generateId() {
 }
 
 async function readState(): Promise<State> {
-  const persisted = await readPersistedCollections();
-  if (persisted) {
-    return persisted;
+  try {
+    const persisted = await readPersistedCollections();
+    if (persisted) {
+      return persisted;
+    }
+  } catch {
+    // IndexedDB may be unavailable (private browsing, restricted storage, etc.)
+    // Fall through to return empty state
   }
 
   return {
