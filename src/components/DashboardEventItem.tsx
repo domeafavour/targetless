@@ -23,7 +23,7 @@ export function DashboardEventItem({
             <EventStatusPill completed={event.completed} />
           </div>
           <p className="mt-2 text-sm text-slate-400">
-            Created at {formatTimestamp(event.createdAt)}
+            Updated {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}
           </p>
         </div>
         <div className="flex flex-col gap-2 w-full">
