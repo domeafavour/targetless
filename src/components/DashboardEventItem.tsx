@@ -24,7 +24,7 @@ export function DashboardEventItem({
           </div>
           <div className="mt-2 grid gap-1 text-sm text-slate-400">
             <p>Created at {formatTimestamp(event.createdAt)}</p>
-            <p>Updated {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}</p>
+            <p>Updated at {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}</p>
           </div>
         </div>
         <div className="flex flex-col gap-2 w-full">
