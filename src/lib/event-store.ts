@@ -5,6 +5,7 @@ export type EventRecord = {
   count: number;
   eventId: string;
   completed: boolean;
+  note?: string | null;
 };
 
 export type EventEntity = {
