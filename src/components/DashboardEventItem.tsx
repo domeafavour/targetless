@@ -1,11 +1,12 @@
 import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
-import { EventWithCurrentRecord, resolveEventTitle } from "@/lib/event-store";
+import { EventWithCurrentRecord } from "@/lib/event-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { BookOpen } from "lucide-react";
 import CompleteRecordButton from "./CompleteRecordButton";
 import EventStatusPill from "./EventStatusPill";
+import { EventTitle } from "./EventTitle";
 import { Button } from "./ui/Button";
 
 export function DashboardEventItem({
@@ -20,7 +21,10 @@ export function DashboardEventItem({
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-semibold">
-              {resolveEventTitle(event.title, event.currentRecord?.count)}
+              <EventTitle
+                title={event.title}
+                count={event.currentRecord?.count}
+              />
             </h2>
             <EventStatusPill completed={event.completed} />
           </div>

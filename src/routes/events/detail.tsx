@@ -7,11 +7,12 @@ import CompleteRecordButton from "@/components/CompleteRecordButton";
 import { DeleteEvent } from "@/components/DeleteEvent";
 import EditEventTitleButton from "@/components/EditEventTitleButton";
 import EventStatusPill from "@/components/EventStatusPill";
+import { EventTitle } from "@/components/EventTitle";
 import NewRecordButton from "@/components/NewRecordButton";
 import { RouteView } from "@/components/ui/RouteView";
 import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
-import { EventDetail, resolveEventTitle } from "@/lib/event-store";
+import { EventDetail } from "@/lib/event-store";
 
 export const Route = createFileRoute("/events/detail")({
   component: EventRecordsPage,
@@ -49,7 +50,10 @@ function EventHeader({ event }: { event: EventDetail }) {
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-4">
             <h1 className="text-4xl font-black">
-              {resolveEventTitle(event.title, event.currentRecord?.count)}
+              <EventTitle
+                title={event.title}
+                count={event.currentRecord?.count}
+              />
             </h1>
             <EventStatusPill completed={event.completed} />
           </div>
