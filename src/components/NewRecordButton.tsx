@@ -33,6 +33,7 @@ export default function NewRecordButton({
 }: NewRecordButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [count, setCount] = useState("0");
+  const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const mutation = eventsApi.createRecord.useMutation({
@@ -62,6 +63,7 @@ export default function NewRecordButton({
       return;
     }
     setCount("0");
+    setNote("");
     setError(null);
     setIsDialogOpen(true);
   };
@@ -83,6 +85,7 @@ export default function NewRecordButton({
     mutation.mutate({
       eventId: event.id,
       count: parsedCount,
+      note,
     });
   };
 
@@ -141,6 +144,18 @@ export default function NewRecordButton({
                 value={count}
                 onChange={(e) => setCount(e.target.value)}
                 disabled={mutation.isPending}
+                className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-base text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+              />
+            </label>
+
+            <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+              Note (optional)
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                disabled={mutation.isPending}
+                rows={4}
+                placeholder="Add a note for this record"
                 className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-base text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
               />
             </label>

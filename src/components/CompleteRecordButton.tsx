@@ -116,7 +116,8 @@ export default function CompleteRecordButton({
     defaultValues: {
       createNext: true,
       nextCount: getDefaultNextCount(event),
-    } as { createNext: boolean; nextCount: string },
+      note: "",
+    } as { createNext: boolean; nextCount: string; note: string },
     onSubmit: (p) => {
       if (!event.currentRecord) {
         return;
@@ -130,6 +131,7 @@ export default function CompleteRecordButton({
             ? (getRealNextCount(event.currentRecord.count, p.value.nextCount) ??
               undefined)
             : undefined,
+          note: p.value.note,
         },
         {
           onSuccess: async (data, variables) => {
@@ -229,6 +231,23 @@ export default function CompleteRecordButton({
           </DialogDescription>
 
           <div className="mt-4 flex flex-col gap-4">
+            <form.Field name="note">
+              {(field) => (
+                <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+                  Note (optional)
+                  <textarea
+                    value={field.state.value}
+                    name={field.name}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={mutation.isPending}
+                    rows={3}
+                    placeholder="Add a note for the completed record"
+                    className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-base normal-case tracking-normal text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+                  />
+                </label>
+              )}
+            </form.Field>
+
             <form.Field name="createNext">
               {(field) => (
                 <label className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
