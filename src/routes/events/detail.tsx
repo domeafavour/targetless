@@ -197,6 +197,7 @@ function EventRecordsPage() {
                     <div className="mt-4 grid gap-1 text-sm text-slate-400">
                       <p>Created at {formatTimestamp(record.createdAt)}</p>
                       <p>Updated at {record.updatedAt ? formatTimestamp(record.updatedAt) : "N/A"}</p>
+                      {record.note ? <p>Note: {record.note}</p> : null}
                     </div>
                   </li>
                 ))}
