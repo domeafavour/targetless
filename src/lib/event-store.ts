@@ -44,6 +44,11 @@ export type CreateRecordInput = {
   count: number;
 };
 
+export type UpdateEventTitleInput = {
+  eventId: string;
+  title: string;
+};
+
 export type EventsFilter = "total" | "active" | "completed";
 
 export type EventsSortField = "createdAt" | "updatedAt";
@@ -333,6 +338,50 @@ export async function completeRecord(
   return attachCurrentRecord(event, currentRecord ? [currentRecord] : []);
 }
 
+export async function updateEventTitle(
+  input: UpdateEventTitleInput,
+): Promise<EventWithCurrentRecord> {
+  const title = input.title.trim();
+  if (!title) {
+    throw new Error("Title is required");
+  }
+
+  const { event, currentRecord } = await runTransaction(
+    [DB_EVENTS_STORE, DB_RECORDS_STORE],
+    "readwrite",
+    async (stores) => {
+      const eventsStore = stores[DB_EVENTS_STORE];
+      const recordsStore = stores[DB_RECORDS_STORE];
+
+      const existingEvent =
+        (await requestToPromise<EventEntity | undefined>(
+          eventsStore.get(input.eventId),
+        )) ?? null;
+      if (!existingEvent) {
+        throw new Error("Event not found");
+      }
+
+      const now = new Date().toISOString();
+      const updatedEvent: EventEntity = {
+        ...existingEvent,
+        title,
+        updatedAt: now,
+      };
+      eventsStore.put(updatedEvent);
+
+      const record = existingEvent.currentRecordId
+        ? ((await requestToPromise<EventRecord | undefined>(
+            recordsStore.get(existingEvent.currentRecordId),
+          )) ?? null)
+        : null;
+
+      return { event: updatedEvent, currentRecord: record };
+    },
+  );
+
+  return attachCurrentRecord(event, currentRecord ? [currentRecord] : []);
+}
+
 export async function deleteEvent(eventId: string): Promise<void> {
   await runTransaction(
     [DB_EVENTS_STORE, DB_RECORDS_STORE],
@@ -353,6 +402,16 @@ export async function deleteEvent(eventId: string): Promise<void> {
       await deleteRecordsByEvent(recordsStore, eventId);
     },
   );
+}
+
+export function resolveEventTitle(
+  title: string,
+  count?: number | null,
+): string {
+  if (count == null) {
+    return title;
+  }
+  return title.replace(/@count/g, String(count));
 }
 
 function attachCurrentRecord(

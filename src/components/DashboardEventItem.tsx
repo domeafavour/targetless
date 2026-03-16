@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { BookOpen } from "lucide-react";
 import CompleteRecordButton from "./CompleteRecordButton";
 import EventStatusPill from "./EventStatusPill";
+import { EventTitle } from "./EventTitle";
 import { Button } from "./ui/Button";
 
 export function DashboardEventItem({
@@ -19,7 +20,12 @@ export function DashboardEventItem({
       <div className="flex flex-col gap-4 md:items-center md:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold">{event.title}</h2>
+            <h2 className="text-xl font-semibold">
+              <EventTitle
+                title={event.title}
+                count={event.currentRecord?.count}
+              />
+            </h2>
             <EventStatusPill completed={event.completed} />
           </div>
           <div className="mt-2 grid gap-1 text-sm text-slate-400">

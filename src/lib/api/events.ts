@@ -15,11 +15,13 @@ import {
   getEvent,
   getEventsStats,
   listEvents,
+  updateEventTitle,
   type CompleteEventInput,
   type CompleteRecordInput,
   type CreateEventInput,
   type CreateRecordInput,
   type EventsStats,
+  type UpdateEventTitleInput,
 } from "@/lib/event-store";
 import { supabase } from "../supabase";
 import { isLoggedIn } from "./auth";
@@ -226,6 +228,20 @@ async function completeRecordApi(input: CompleteRecordInput) {
   });
 }
 
+async function updateEventTitleApi(input: UpdateEventTitleInput) {
+  const user = await getSessionUser();
+  const title = input.title.trim();
+  if (!title) {
+    throw new Error("Title is required");
+  }
+  await supabase
+    .from("events")
+    .update({ title, updated_at: new Date().toISOString() })
+    .eq("id", +input.eventId)
+    .eq("creator_id", user.id)
+    .throwOnError();
+}
+
 async function deleteEventApi(eventId: string | number) {
   const user = await getSessionUser();
   await supabase
@@ -325,6 +341,14 @@ export const eventsApi = router(["events"], {
       return apiOr(
         () => deleteEventApi(eventId),
         () => deleteEvent(eventId),
+      );
+    },
+  }),
+  updateTitle: router.mutation({
+    mutationFn: async (input: UpdateEventTitleInput) => {
+      return apiOr(
+        () => updateEventTitleApi(input),
+        () => updateEventTitle(input) as any,
       );
     },
   }),
