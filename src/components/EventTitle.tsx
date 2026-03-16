@@ -1,3 +1,5 @@
+import React from "react";
+
 const COUNT_PLACEHOLDER = "@count";
 
 type EventTitleProps = {
@@ -15,12 +17,12 @@ export function EventTitle({ title, count }: EventTitleProps) {
   return (
     <>
       {parts.map((part, index) => (
-        <span key={index}>
+        <React.Fragment key={index}>
           {part}
           {index < parts.length - 1 && (
             <span className="font-mono text-cyan-300">{count}</span>
           )}
-        </span>
+        </React.Fragment>
       ))}
     </>
   );
