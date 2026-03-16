@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.4";
   };
-  graphql_public: {
-    Tables: {
-      [_ in never]: never;
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json;
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
   public: {
     Tables: {
       events: {
@@ -85,6 +60,7 @@ export type Database = {
           creator_id: string;
           event_id: number;
           id: number;
+          note: string | null;
           updated_at: string | null;
         };
         Insert: {
@@ -94,6 +70,7 @@ export type Database = {
           creator_id: string;
           event_id: number;
           id?: number;
+          note?: string | null;
           updated_at?: string | null;
         };
         Update: {
@@ -103,6 +80,7 @@ export type Database = {
           creator_id?: string;
           event_id?: number;
           id?: number;
+          note?: string | null;
           updated_at?: string | null;
         };
         Relationships: [
@@ -174,90 +152,6 @@ export type Database = {
           completed?: boolean;
           count?: number;
           created_at?: string;
-          id?: number;
-          story_id?: number;
-          updated_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "tasks_story_id_fkey";
-            columns: ["story_id"];
-            isOneToOne: false;
-            referencedRelation: "stories";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      [_ in never]: never;
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
-  stories: {
-    Tables: {
-      stories: {
-        Row: {
-          count: number;
-          created_at: string;
-          creator_id: string;
-          current_task_id: number | null;
-          id: number;
-          title: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          count: number;
-          created_at?: string;
-          creator_id: string;
-          current_task_id?: number | null;
-          id?: number;
-          title: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          count?: number;
-          created_at?: string;
-          creator_id?: string;
-          current_task_id?: number | null;
-          id?: number;
-          title?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [];
-      };
-      tasks: {
-        Row: {
-          completed: boolean;
-          count: number;
-          created_at: string;
-          creator_id: string;
-          id: number;
-          story_id: number;
-          updated_at: string | null;
-        };
-        Insert: {
-          completed?: boolean;
-          count: number;
-          created_at?: string;
-          creator_id: string;
-          id?: number;
-          story_id: number;
-          updated_at?: string | null;
-        };
-        Update: {
-          completed?: boolean;
-          count?: number;
-          created_at?: string;
-          creator_id?: string;
           id?: number;
           story_id?: number;
           updated_at?: string | null;
@@ -409,13 +303,7 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
-    Enums: {},
-  },
-  stories: {
     Enums: {},
   },
 } as const;
