@@ -38,11 +38,13 @@ export type CompleteRecordInput = {
   eventId: string;
   createNext: boolean;
   nextCount?: number;
+  note?: string;
 };
 
 export type CreateRecordInput = {
   eventId: string;
   count: number;
+  note?: string;
 };
 
 export type UpdateEventTitleInput = {
@@ -238,6 +240,8 @@ export async function createRecord(
         throw new Error("Count must be a non-negative number");
       }
 
+      const parsedNote = input.note?.trim() ?? "";
+
       const now = new Date().toISOString();
       const newRecord: EventRecord = {
         id: generateId(),
@@ -246,6 +250,7 @@ export async function createRecord(
         updatedAt: now,
         count: parsedCount,
         completed: false,
+        note: parsedNote || null,
       };
       recordsStore.put(newRecord);
 
@@ -297,10 +302,12 @@ export async function completeRecord(
       }
 
       const now = new Date().toISOString();
+      const parsedNote = input.note?.trim() ?? "";
       const completedRecord: EventRecord = {
         ...existingRecord,
         completed: true,
         updatedAt: now,
+        note: parsedNote || existingRecord.note || null,
       };
       recordsStore.put(completedRecord);
 

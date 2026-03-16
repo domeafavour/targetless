@@ -43,6 +43,7 @@ function transformEventRecord(
     updatedAt: e.updated_at,
     eventId: e.event_id + "",
     count: e.count ?? 0,
+    note: e.note,
   };
 }
 
@@ -166,11 +167,13 @@ async function createEventApi(input: CreateEventInput) {
 
 async function createEventRecordApi(input: CreateRecordInput) {
   const user = await getSessionUser();
+  const note = input.note?.trim() ?? "";
   const newRecord = await supabase
     .from("records")
     .insert({
       event_id: +input.eventId,
       count: input.count,
+      note: note || null,
       creator_id: user.id,
     })
     .eq("creator_id", user.id)
@@ -200,6 +203,7 @@ async function completeEventApi(input: CompleteEventInput) {
 
 async function completeRecordApi(input: CompleteRecordInput) {
   const user = await getSessionUser();
+  const note = input.note?.trim() ?? "";
   const event = await supabase
     .from("events")
     .select()
@@ -210,9 +214,16 @@ async function completeRecordApi(input: CompleteRecordInput) {
   if (!event.data.current_record_id) {
     throw new Error("No current record to complete");
   }
+  const recordUpdate: Database["public"]["Tables"]["records"]["Update"] = {
+    completed: true,
+  };
+  if (note) {
+    recordUpdate.note = note;
+  }
+
   await supabase
     .from("records")
-    .update({ completed: true })
+    .update(recordUpdate)
     .eq("creator_id", user.id)
     .eq("id", +event.data.current_record_id)
     .throwOnError();
