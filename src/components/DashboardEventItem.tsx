@@ -1,6 +1,6 @@
 import { eventsApi } from "@/lib/api/events";
 import { formatTimestamp } from "@/lib/date-utils";
-import { EventWithCurrentRecord } from "@/lib/event-store";
+import { EventWithCurrentRecord, resolveEventTitle } from "@/lib/event-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { BookOpen } from "lucide-react";
@@ -19,7 +19,9 @@ export function DashboardEventItem({
       <div className="flex flex-col gap-4 md:items-center md:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold">{event.title}</h2>
+            <h2 className="text-xl font-semibold">
+              {resolveEventTitle(event.title, event.currentRecord?.count)}
+            </h2>
             <EventStatusPill completed={event.completed} />
           </div>
           <div className="mt-2 grid gap-1 text-sm text-slate-400">
