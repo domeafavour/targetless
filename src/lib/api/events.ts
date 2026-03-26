@@ -168,6 +168,7 @@ async function createEventApi(input: CreateEventInput) {
 async function createEventRecordApi(input: CreateRecordInput) {
   const user = await getSessionUser();
   const note = input.note?.trim() ?? "";
+  const now = new Date().toISOString();
   const newRecord = await supabase
     .from("records")
     .insert({
@@ -175,6 +176,7 @@ async function createEventRecordApi(input: CreateRecordInput) {
       count: input.count,
       note: note || null,
       creator_id: user.id,
+      created_at: now,
     })
     .eq("creator_id", user.id)
     .select()
@@ -184,7 +186,7 @@ async function createEventRecordApi(input: CreateRecordInput) {
     .from("events")
     .update({
       current_record_id: newRecord.data.id,
-      updated_at: new Date().toISOString(),
+      updated_at: now,
     })
     .eq("creator_id", user.id)
     .eq("id", +input.eventId)
@@ -195,7 +197,7 @@ async function completeEventApi(input: CompleteEventInput) {
   const user = await getSessionUser();
   await supabase
     .from("events")
-    .update({ completed: true })
+    .update({ completed: true, updated_at: new Date().toISOString() })
     .eq("id", +input.eventId)
     .eq("creator_id", user.id)
     .throwOnError();
@@ -216,6 +218,7 @@ async function completeRecordApi(input: CompleteRecordInput) {
   }
   const recordUpdate: Database["public"]["Tables"]["records"]["Update"] = {
     completed: true,
+    updated_at: new Date().toISOString(),
   };
   if (note) {
     recordUpdate.note = note;
