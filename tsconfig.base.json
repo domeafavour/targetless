@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@targetless/domain": ["packages/domain/src"],
+      "@targetless/core": ["packages/core/src"],
+      "@targetless/adapters-web": ["packages/adapters-web/src"],
+      "@targetless/shared": ["packages/shared/src"]
+    },
+    "strict": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  }
+}
