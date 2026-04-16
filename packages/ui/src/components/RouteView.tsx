@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "./utils.ts";
+import { cn } from "../lib/utils";
 
 type Ref = React.ComponentRef<"div"> | null;
 

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@targetless/ui/components",
+    "utils": "@targetless/ui/lib/utils",
+    "hooks": "@targetless/ui/hooks",
+    "lib": "@targetless/ui/lib",
+    "ui": "@targetless/ui/components"
+  },
+  "registries": {}
+}
