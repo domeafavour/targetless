@@ -12,7 +12,7 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import AiDevtools from '../lib/ai-devtools'
 
-import appCss from '../styles.css?url'
+import appCss from '@targetless/ui/globals.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 
