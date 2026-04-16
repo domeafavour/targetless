@@ -1,15 +1,15 @@
 import type { User } from "@supabase/supabase-js";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { CalendarCheck2, ChevronDown, LogOut, Menu, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { authApi } from "../lib/auth";
-import { supabase } from "../lib/env";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@targetless/ui";
+} from "@targetless/ui/components/dropdown-menu";
+import { CalendarCheck2, ChevronDown, LogOut, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { authApi } from "../lib/auth";
+import { supabase } from "../lib/env";
 
 const navLinks = [
   { to: "/", label: "Events", exact: true },

@@ -5,7 +5,8 @@ import {
   useDashboardSortOrder,
 } from "@/lib/store/event-dashboard";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
-import { Button, cn } from "@targetless/ui";
+import { Button } from "@targetless/ui/components/Button";
+import { cn } from "@targetless/ui/lib/utils";
 import { RefreshCw } from "lucide-react";
 
 export function RefreshEventsButton() {

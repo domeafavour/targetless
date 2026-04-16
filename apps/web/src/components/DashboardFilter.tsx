@@ -3,7 +3,7 @@ import {
   useDashboardActions,
   useDashboardFilter,
 } from "@/lib/store/event-dashboard";
-import { cn } from "@targetless/ui";
+import { cn } from "@targetless/ui/lib/utils";
 import { DashboardStatCard } from "./DashboardStatCard";
 
 interface Props {

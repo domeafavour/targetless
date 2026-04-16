@@ -12,7 +12,7 @@ import NewRecordButton from "@/components/NewRecordButton";
 import { formatTimestamp } from "@/lib/date-utils";
 import { eventsApi } from "@/lib/query/events";
 import { EventDetail } from "@targetless/domain";
-import { RouteView } from "@targetless/ui";
+import { RouteView } from "@targetless/ui/components/RouteView";
 
 export const Route = createFileRoute("/events/detail")({
   component: EventRecordsPage,

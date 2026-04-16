@@ -1,4 +1,4 @@
-import { cn } from "@targetless/ui";
+import { cn } from "@targetless/ui/lib/utils";
 import { Loader2 } from "lucide-react";
 import { PropsWithChildren } from "react";
 

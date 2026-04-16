@@ -1,8 +1,6 @@
 import { eventsApi } from "@/lib/query/events";
 import { useQueryClient } from "@tanstack/react-query";
-import { Trash2 } from "lucide-react";
-import { ReactNode } from "react";
-import { LoadingOr } from "./LoadingOr";
+import { Button } from "@targetless/ui/components/Button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,8 +11,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@targetless/ui";
-import { Button } from "@targetless/ui";
+} from "@targetless/ui/components/alert-dialog";
+import { Trash2 } from "lucide-react";
+import { ReactNode } from "react";
+import { LoadingOr } from "./LoadingOr";
 
 interface Props {
   id: string;

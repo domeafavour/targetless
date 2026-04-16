@@ -6,14 +6,14 @@ import {
   type EventDetail,
   type EventWithCurrentRecord,
 } from "@targetless/domain";
+import { Button } from "@targetless/ui/components/Button";
 import {
-  Button,
-  cn,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "@targetless/ui";
+} from "@targetless/ui/components/Dialog";
+import { cn } from "@targetless/ui/lib/utils";
 import { LoadingOr } from "./LoadingOr";
 
 type NewRecordButtonProps = {

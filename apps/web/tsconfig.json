@@ -6,7 +6,8 @@
     "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@targetless/ui/*": ["../../packages/ui/src/*"]
     }
   }
 }

@@ -4,14 +4,14 @@ import {
   useDashboardSortOrder,
 } from "@/lib/store/event-dashboard";
 import { EventsSortField } from "@targetless/domain";
+import { Button } from "@targetless/ui/components/Button";
 import {
-  Button,
-  cn,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@targetless/ui";
+} from "@targetless/ui/components/dropdown-menu";
+import { cn } from "@targetless/ui/lib/utils";
 import { ArrowDown, ArrowUp, CheckIcon, ChevronDown } from "lucide-react";
 
 interface Props {

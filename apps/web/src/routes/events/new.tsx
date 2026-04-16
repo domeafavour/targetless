@@ -4,9 +4,9 @@ import { ArrowLeft, PlusCircle } from "lucide-react";
 import { useState } from "react";
 
 import { LoadingOr } from "@/components/LoadingOr";
-import { Button } from "@targetless/ui";
-import { RouteView } from "@targetless/ui";
 import { eventsApi } from "@/lib/query/events";
+import { Button } from "@targetless/ui/components/Button";
+import { RouteView } from "@targetless/ui/components/RouteView";
 
 export const Route = createFileRoute("/events/new")({
   component: CreateEventPage,

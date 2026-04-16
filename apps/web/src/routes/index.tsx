@@ -7,8 +7,8 @@ import { DashboardEvents } from "@/components/DashboardEvents";
 import { DashboardFilter } from "@/components/DashboardFilter";
 import { DashboardSorting } from "@/components/DashboardSorting";
 import { RefreshEventsButton } from "@/components/RefreshEventsButton";
-import { Button } from "@targetless/ui";
-import { RouteView } from "@targetless/ui";
+import { Button } from "@targetless/ui/components/Button";
+import { RouteView } from "@targetless/ui/components/RouteView";
 
 export const Route = createFileRoute("/")({
   component: EventDashboard,

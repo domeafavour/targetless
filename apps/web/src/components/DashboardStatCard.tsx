@@ -1,4 +1,4 @@
-import { cn } from "@targetless/ui";
+import { cn } from "@targetless/ui/lib/utils";
 
 export function DashboardStatCard({
   label,

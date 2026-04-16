@@ -1,13 +1,13 @@
-import { eventsApi } from "@/lib/query/events";
 import { formatTimestamp } from "@/lib/date-utils";
-import { EventWithCurrentRecord } from "@targetless/domain";
+import { eventsApi } from "@/lib/query/events";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { EventWithCurrentRecord } from "@targetless/domain";
+import { Button } from "@targetless/ui/components/Button";
 import { BookOpen } from "lucide-react";
 import CompleteRecordButton from "./CompleteRecordButton";
 import EventStatusPill from "./EventStatusPill";
 import { EventTitle } from "./EventTitle";
-import { Button } from "@targetless/ui";
 
 export function DashboardEventItem({
   event,
@@ -30,9 +30,14 @@ export function DashboardEventItem({
           </div>
           <div className="mt-2 grid gap-1 text-sm text-slate-400">
             <p>Created at {formatTimestamp(event.createdAt)}</p>
-            <p>Updated at {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}</p>
+            <p>
+              Updated at{" "}
+              {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}
+            </p>
             {event.currentRecord?.note ? (
-              <p className="wrap-break-word">Note: {event.currentRecord.note}</p>
+              <p className="wrap-break-word">
+                Note: {event.currentRecord.note}
+              </p>
             ) : null}
           </div>
         </div>
