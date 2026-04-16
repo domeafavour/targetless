@@ -9,5 +9,13 @@
   },
   "devDependencies": {
     "typescript": "^5.7.2"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "react",
+        "react-dom"
+      ]
+    }
   }
 }
