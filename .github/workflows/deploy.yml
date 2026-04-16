@@ -52,6 +52,7 @@ jobs:
         run: pnpm install
 
       - name: Check and generate .env file
+        working-directory: apps/web
         run: |
           if [ ! -f .env ]; then
             echo "Creating .env file from GitHub Actions variables..."
@@ -65,7 +66,7 @@ jobs:
           fi
 
       - name: Build
-        run: pnpm build:gh-pages
+        run: pnpm --filter @targetless/web build:gh-pages
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -73,7 +74,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist/client
+          path: ./apps/web/dist/client
 
   deploy:
     environment:
