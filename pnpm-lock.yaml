@@ -13,6 +13,7 @@ importers:
       '@supabase/supabase-js': ^2.95.3
       '@tailwindcss/vite': ^4.1.12
       '@tanstack/devtools-vite': ^0.3.10
+      '@tanstack/query-core': '>=5.90.0'
       '@tanstack/react-ai-devtools': ^0.2.4
       '@tanstack/react-devtools': ^0.8.0
       '@tanstack/react-form': ^1.23.6
@@ -22,6 +23,7 @@ importers:
       '@tanstack/react-router-devtools': ^1.131.35
       '@tanstack/react-router-ssr-query': ^1.131.35
       '@tanstack/react-start': ^1.132.0
+      '@tanstack/router-core': '>=1.162.6'
       '@targetless/data-access': workspace:*
       '@targetless/domain': workspace:*
       '@targetless/ui': workspace:*
@@ -30,9 +32,10 @@ importers:
       '@types/react-dom': ^19.1.9
       '@vitejs/plugin-react': ^5.0.1
       clsx: ^2.1.1
+      csstype: ^3.1.3
       lucide-react: ^0.511.0
-      react: ^19.1.1
-      react-dom: ^19.1.1
+      react: ^19.2.0
+      react-dom: ^19.2.0
       react-error-boundary: ^6.0.0
       react-query-kit: ^3.3.0
       tailwindcss: ^4.1.12
@@ -42,14 +45,14 @@ importers:
       zustand: ^5.0.11
     dependencies:
       '@supabase/supabase-js': 2.97.0
-      '@tanstack/react-ai-devtools': 0.2.23_d2vw5qqqcfk7p7wqok4lqumjlu
-      '@tanstack/react-devtools': 0.8.6_4txyg5u4j6s6wu44xkkk2rp3oi
+      '@tanstack/react-ai-devtools': 0.2.23_dnh4ucjlw7n2mob6hg3qqehsju
+      '@tanstack/react-devtools': 0.8.6_73fzaeonzd5m7znallx5grkcvq
       '@tanstack/react-form': 1.28.3_czo5rks66zrouat4s3txw322di
       '@tanstack/react-query': 5.90.21_react@19.2.4
       '@tanstack/react-query-devtools': 5.91.3_tvpkppimr35tjpqqqfsm4qp5mu
       '@tanstack/react-router': 1.162.8_ju5i5k46jjvnblsfiwqzrn6cj4
-      '@tanstack/react-router-devtools': 1.162.8_yzig33ruvioebmtue7snxav54u
-      '@tanstack/react-router-ssr-query': 1.162.8_4z34mqjaheb6qu422rnne4atsu
+      '@tanstack/react-router-devtools': 1.162.8_kbpqhmfh65z6gpn4xfzv6r5gha
+      '@tanstack/react-router-ssr-query': 1.162.8_5sfr7zftczg4qb5iskfw3lxaoq
       '@tanstack/react-start': 1.162.8_flj5t5plqx2dbynmiaqaay76oi
       '@targetless/data-access': link:../../packages/data-access
       '@targetless/domain': link:../../packages/domain
@@ -64,10 +67,13 @@ importers:
     devDependencies:
       '@tailwindcss/vite': 4.2.1_vite@7.3.2
       '@tanstack/devtools-vite': 0.3.12_vite@7.3.2
+      '@tanstack/query-core': 5.90.20
+      '@tanstack/router-core': 1.162.6
       '@types/node': 24.12.2
       '@types/react': 19.2.14
       '@types/react-dom': 19.2.3_@types+react@19.2.14
       '@vitejs/plugin-react': 5.1.4_vite@7.3.2
+      csstype: 3.2.3
       tailwindcss: 4.2.1
       tw-animate-css: 1.4.0
       vite: 7.3.2_@types+node@24.12.2
@@ -2187,14 +2193,14 @@ packages:
       vite: 7.3.2_@types+node@24.12.2
     dev: true
 
-  /@tanstack/ai-devtools-core/0.3.19_d2vw5qqqcfk7p7wqok4lqumjlu:
+  /@tanstack/ai-devtools-core/0.3.19_dnh4ucjlw7n2mob6hg3qqehsju:
     resolution: {integrity: sha512-u8Uv9XAq+4ZEF3o3H/6fSCYAkaSQJ6uPY6tj4UYM9j4Bd84c8k3Es4w+FLxsn5o6oBnMFztUmAfb2AFjDKy1WA==}
     dependencies:
       '@tanstack/ai': 0.10.2
       '@tanstack/ai-event-client': 0.2.2_@tanstack+ai@0.10.2
-      '@tanstack/devtools-ui': 0.5.1
+      '@tanstack/devtools-ui': 0.5.1_csstype@3.2.3
       '@tanstack/devtools-utils': 0.4.0_xv5cypsb37sov5zzj6wsfuoaxu
-      goober: 2.1.18
+      goober: 2.1.18_csstype@3.2.3
       solid-js: 1.9.11
     transitivePeerDependencies:
       - '@types/react'
@@ -2246,24 +2252,24 @@ packages:
     hasBin: true
     dev: false
 
-  /@tanstack/devtools-ui/0.4.4:
+  /@tanstack/devtools-ui/0.4.4_csstype@3.2.3:
     resolution: {integrity: sha512-5xHXFyX3nom0UaNfiOM92o6ziaHjGo3mcSGe2HD5Xs8dWRZNpdZ0Smd0B9ddEhy0oB+gXyMzZgUJb9DmrZV0Mg==}
     engines: {node: '>=18'}
     dependencies:
       clsx: 2.1.1
-      goober: 2.1.18
+      goober: 2.1.18_csstype@3.2.3
       solid-js: 1.9.11
     transitivePeerDependencies:
       - csstype
     dev: false
 
-  /@tanstack/devtools-ui/0.5.1:
+  /@tanstack/devtools-ui/0.5.1_csstype@3.2.3:
     resolution: {integrity: sha512-T9JjAdqMSnxsVO6AQykD5vhxPF4iFLKtbYxee/bU3OLlk446F5C1220GdCmhDSz7y4lx+m8AvIS0bq6zzvdDUA==}
     engines: {node: '>=18'}
     dependencies:
       clsx: 2.1.1
       dayjs: 1.11.19
-      goober: 2.1.18
+      goober: 2.1.18_csstype@3.2.3
       solid-js: 1.9.11
     transitivePeerDependencies:
       - csstype
@@ -2345,7 +2351,7 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@tanstack/devtools/0.10.0:
+  /@tanstack/devtools/0.10.0_csstype@3.2.3:
     resolution: {integrity: sha512-UVN6wMntMMfMXk3Ozn7Ytr+SNhhzICqzOqVxmd4P2Kw+WzLkkEtmrBOZICII64eEIOPpRWgs9EG8uWVPQBt4IA==}
     engines: {node: '>=18'}
     dependencies:
@@ -2354,9 +2360,9 @@ packages:
       '@solid-primitives/resize-observer': 2.1.5_solid-js@1.9.11
       '@tanstack/devtools-client': 0.0.5
       '@tanstack/devtools-event-bus': 0.3.3
-      '@tanstack/devtools-ui': 0.4.4
+      '@tanstack/devtools-ui': 0.4.4_csstype@3.2.3
       clsx: 2.1.1
-      goober: 2.1.18
+      goober: 2.1.18_csstype@3.2.3
       solid-js: 1.9.11
     transitivePeerDependencies:
       - bufferutil
@@ -2375,7 +2381,6 @@ packages:
   /@tanstack/history/1.161.4:
     resolution: {integrity: sha512-Kp/WSt411ZWYvgXy6uiv5RmhHrz9cAml05AQPrtdAp7eUqvIDbMGPnML25OKbzR3RJ1q4wgENxDTvlGPa9+Mww==}
     engines: {node: '>=20.19'}
-    dev: false
 
   /@tanstack/pacer-lite/0.1.1:
     resolution: {integrity: sha512-y/xtNPNt/YeyoVxE/JCx+T7yjEzpezmbb+toK8DDD1P4m7Kzs5YR956+7OKexG3f8aXgC3rLZl7b1V+yNUSy5w==}
@@ -2384,19 +2389,18 @@ packages:
 
   /@tanstack/query-core/5.90.20:
     resolution: {integrity: sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg==}
-    dev: false
 
   /@tanstack/query-devtools/5.93.0:
     resolution: {integrity: sha512-+kpsx1NQnOFTZsw6HAFCW3HkKg0+2cepGtAWXjiiSOJJ1CtQpt72EE2nyZb+AjAbLRPoeRmPJ8MtQd8r8gsPdg==}
     dev: false
 
-  /@tanstack/react-ai-devtools/0.2.23_d2vw5qqqcfk7p7wqok4lqumjlu:
+  /@tanstack/react-ai-devtools/0.2.23_dnh4ucjlw7n2mob6hg3qqehsju:
     resolution: {integrity: sha512-IyiXVw+2AK5uqPs+BzTe/vRZIkYy1EgZPZ2+j7ZuhfLZGhplG4cRyvhciT1Vb9MSyKmzM8srT0T0idllVrA7RA==}
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
     dependencies:
-      '@tanstack/ai-devtools-core': 0.3.19_d2vw5qqqcfk7p7wqok4lqumjlu
+      '@tanstack/ai-devtools-core': 0.3.19_dnh4ucjlw7n2mob6hg3qqehsju
       '@tanstack/devtools-utils': 0.4.0_d2vw5qqqcfk7p7wqok4lqumjlu
       '@types/react': 19.2.14
       react: 19.2.4
@@ -2407,7 +2411,7 @@ packages:
       - vue
     dev: false
 
-  /@tanstack/react-devtools/0.8.6_4txyg5u4j6s6wu44xkkk2rp3oi:
+  /@tanstack/react-devtools/0.8.6_73fzaeonzd5m7znallx5grkcvq:
     resolution: {integrity: sha512-NUvbOlldLDzeL2qMONfLs5Ahb1bmygqyKMqYlNRl/UwAVW+ugIUGgDlXOa+kGt+ksCHO6CUopwEE9973z5tITg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -2416,7 +2420,7 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
     dependencies:
-      '@tanstack/devtools': 0.10.0
+      '@tanstack/devtools': 0.10.0_csstype@3.2.3
       '@types/react': 19.2.14
       '@types/react-dom': 19.2.3_@types+react@19.2.14
       react: 19.2.4
@@ -2464,7 +2468,7 @@ packages:
       react: 19.2.4
     dev: false
 
-  /@tanstack/react-router-devtools/1.162.8_yzig33ruvioebmtue7snxav54u:
+  /@tanstack/react-router-devtools/1.162.8_kbpqhmfh65z6gpn4xfzv6r5gha:
     resolution: {integrity: sha512-dDohOU8eNbCukLQNcuocCTnvwSu8Z1XwbKvPc4U7KDYoUTUlJls48fXl5y/ENThK/nZEsA7i3oCy1BcX42OOlw==}
     engines: {node: '>=20.19'}
     peerDependencies:
@@ -2477,14 +2481,15 @@ packages:
         optional: true
     dependencies:
       '@tanstack/react-router': 1.162.8_ju5i5k46jjvnblsfiwqzrn6cj4
-      '@tanstack/router-devtools-core': 1.162.6
+      '@tanstack/router-core': 1.162.6
+      '@tanstack/router-devtools-core': 1.162.6_om27bb3rtl6cfb25tglzw7o6ky
       react: 19.2.4
       react-dom: 19.2.4_react@19.2.4
     transitivePeerDependencies:
       - csstype
     dev: false
 
-  /@tanstack/react-router-ssr-query/1.162.8_4z34mqjaheb6qu422rnne4atsu:
+  /@tanstack/react-router-ssr-query/1.162.8_5sfr7zftczg4qb5iskfw3lxaoq:
     resolution: {integrity: sha512-8L5s2BswB6Dt38fesYbak6fm2WyoKbRJ/6QvGx3fu+913DP2WX3DF5/Te2sNDCz98rRzvKwIUR8QRs78Wq0U7Q==}
     engines: {node: '>=20.19'}
     peerDependencies:
@@ -2494,9 +2499,10 @@ packages:
       react: '>=18.0.0 || >=19.0.0'
       react-dom: '>=18.0.0 || >=19.0.0'
     dependencies:
+      '@tanstack/query-core': 5.90.20
       '@tanstack/react-query': 5.90.21_react@19.2.4
       '@tanstack/react-router': 1.162.8_ju5i5k46jjvnblsfiwqzrn6cj4
-      '@tanstack/router-ssr-query-core': 1.162.6
+      '@tanstack/router-ssr-query-core': 1.162.6_zqnhitua5l32acdqovk5arqx7a
       react: 19.2.4
       react-dom: 19.2.4_react@19.2.4
     transitivePeerDependencies:
@@ -2616,9 +2622,8 @@ packages:
       seroval-plugins: 1.5.0_seroval@1.5.0
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
-    dev: false
 
-  /@tanstack/router-devtools-core/1.162.6:
+  /@tanstack/router-devtools-core/1.162.6_om27bb3rtl6cfb25tglzw7o6ky:
     resolution: {integrity: sha512-ni+9XmQOg9ale1e6FnhNrBymVVQAkzQ02SfAB6MgobXLp97MHiBk7d0k7DkoyVLk3tXRqmrCERWYRC8IGrcQmw==}
     engines: {node: '>=20.19'}
     peerDependencies:
@@ -2628,8 +2633,10 @@ packages:
       csstype:
         optional: true
     dependencies:
+      '@tanstack/router-core': 1.162.6
       clsx: 2.1.1
-      goober: 2.1.18
+      csstype: 3.2.3
+      goober: 2.1.18_csstype@3.2.3
       tiny-invariant: 1.3.3
     dev: false
 
@@ -2689,12 +2696,15 @@ packages:
       - supports-color
     dev: false
 
-  /@tanstack/router-ssr-query-core/1.162.6:
+  /@tanstack/router-ssr-query-core/1.162.6_zqnhitua5l32acdqovk5arqx7a:
     resolution: {integrity: sha512-kE1uENrVTubRCJybYUJrHR90Tzxh/tqKX8e6sVnccc694sNB4yNgAMsyxgqhWGUgOux7BZUj5dhoREjaU9XflA==}
     engines: {node: '>=20.19'}
     peerDependencies:
       '@tanstack/query-core': '>=5.90.0'
       '@tanstack/router-core': '>=1.127.0'
+    dependencies:
+      '@tanstack/query-core': 5.90.20
+      '@tanstack/router-core': 1.162.6
     dev: false
 
   /@tanstack/router-utils/1.161.4:
@@ -2796,7 +2806,6 @@ packages:
 
   /@tanstack/store/0.9.1:
     resolution: {integrity: sha512-+qcNkOy0N1qSGsP7omVCW0SDrXtaDcycPqBDE726yryiA5eTDFpjBReaYjghVJwNf1pcPMyzIwTGlYjCSQR0Fg==}
-    dev: false
 
   /@tanstack/virtual-file-routes/1.161.4:
     resolution: {integrity: sha512-42WoRePf8v690qG8yGRe/YOh+oHni9vUaUUfoqlS91U2scd3a5rkLtVsc6b7z60w3RogH0I00vdrC5AaeiZ18w==}
@@ -3026,7 +3035,6 @@ packages:
 
   /cookie-es/2.0.0:
     resolution: {integrity: sha512-RAj4E421UYRgqokKUmotqAwuplYw15qtdXfY+hGzgCJ/MBjCVZcSoHK/kH9kocfjRjcDME7IiDWR/1WX1TM2Pg==}
-    dev: false
 
   /css-select/5.2.2:
     resolution: {integrity: sha512-TizTzUddG/xYLA3NXodFM0fSbNizXjOKhqiQQwvhlspadZokn1KDy0NZFS0wuEubIYAV5/c1/lAr0TaaFXEXzw==}
@@ -3233,10 +3241,12 @@ packages:
     resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
     dev: true
 
-  /goober/2.1.18:
+  /goober/2.1.18_csstype@3.2.3:
     resolution: {integrity: sha512-2vFqsaDVIT9Gz7N6kAL++pLpp41l3PfDuusHcjnGLfR6+huZkl6ziX+zgVC3ZxpqWhzH6pyDdGrCeDhMIvwaxw==}
     peerDependencies:
       csstype: ^3.0.10
+    dependencies:
+      csstype: 3.2.3
     dev: false
 
   /graceful-fs/4.2.11:
@@ -3793,12 +3803,10 @@ packages:
       seroval: ^1.0
     dependencies:
       seroval: 1.5.0
-    dev: false
 
   /seroval/1.5.0:
     resolution: {integrity: sha512-OE4cvmJ1uSPrKorFIH9/w/Qwuvi/IMcGbv5RKgcJ/zjA/IohDLU6SVaxFN9FwajbP7nsX0dQqMDes1whk3y+yw==}
     engines: {node: '>=10'}
-    dev: false
 
   /shell-quote/1.8.3:
     resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
@@ -3848,11 +3856,9 @@ packages:
 
   /tiny-invariant/1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
-    dev: false
 
   /tiny-warning/1.0.3:
     resolution: {integrity: sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==}
-    dev: false
 
   /tinyglobby/0.2.15:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
