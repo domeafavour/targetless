@@ -1,0 +1,39 @@
+diff --git a/ios/Core/Views/SwiftUI/AutoSizingStack.swift b/ios/Core/Views/SwiftUI/AutoSizingStack.swift
+index 3c855b73f9c7640ba97773b63b1716be7af03412..2f703eebceb1931a15214872aa14dc6b02964a10 100644
+--- a/ios/Core/Views/SwiftUI/AutoSizingStack.swift
++++ b/ios/Core/Views/SwiftUI/AutoSizingStack.swift
+@@ -2,6 +2,14 @@
+ 
+ import SwiftUI
+ 
++private struct AutoSizingStackSizePreferenceKey: PreferenceKey {
++  static var defaultValue: CGSize = .zero
++
++  static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
++    value = nextValue()
++  }
++}
++
+ extension ExpoSwiftUI {
+   public struct AxisSet: OptionSet {
+     public init(rawValue: Int) {
+@@ -32,12 +40,17 @@ extension ExpoSwiftUI {
+           content.overlay {
+             content.fixedSize(horizontal: axis.contains(.horizontal), vertical: axis.contains(.vertical))
+               .hidden()
+-              .onGeometryChange(for: CGSize.self, of: { proxy in proxy.size }, action: { size in
++              .background(
++                GeometryReader { geometry in
++                  Color.clear.preference(key: AutoSizingStackSizePreferenceKey.self, value: geometry.size)
++                }
++              )
++              .onPreferenceChange(AutoSizingStackSizePreferenceKey.self) { size in
+                 var size = size
+                 size.width = axis.contains(.horizontal) ? size.width : ShadowNodeProxy.UNDEFINED_SIZE
+                 size.height = axis.contains(.vertical) ? size.height : ShadowNodeProxy.UNDEFINED_SIZE
+                 proxy.setViewSize?(size)
+-              })
++              }
+           }
+         } else {
+           content

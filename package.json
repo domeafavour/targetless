@@ -16,6 +16,9 @@
         "react",
         "react-dom"
       ]
+    },
+    "patchedDependencies": {
+      "expo-modules-core": "patches/expo-modules-core.patch"
     }
   }
 }
