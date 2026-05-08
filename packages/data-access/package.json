@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "gen-supabase-types": "npx supabase gen types typescript --project-id \"eygtbfwolvdrxigljnjq\" --schema public > src/supabase/supabase-types.ts"
+  },
   "exports": {
     ".": "./src/index.ts"
   },

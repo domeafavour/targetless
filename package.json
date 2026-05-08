@@ -5,6 +5,7 @@
     "dev": "pnpm --filter @targetless/web dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
+    "gen-supabase-types": "pnpm --filter @targetless/data-access gen-supabase-types",
     "build:gh-pages": "pnpm --filter @targetless/web build:gh-pages"
   },
   "devDependencies": {
