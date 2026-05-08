@@ -27,6 +27,19 @@ export function DashboardEventItem({
               />
             </h2>
             <EventStatusPill completed={event.completed} />
+            <div className="flex flex-row gap-1 items-center">
+              {event.tags?.map((tag) => (
+                <Button
+                  tabIndex={-1}
+                  size="sm"
+                  shape="pill"
+                  key={tag.id}
+                  className="normal-case py-1.5"
+                >
+                  {tag.title}
+                </Button>
+              ))}
+            </div>
           </div>
           <div className="mt-2 grid gap-1 text-sm text-slate-400">
             <p>Created at {formatTimestamp(event.createdAt)}</p>
@@ -34,13 +47,7 @@ export function DashboardEventItem({
               Updated at{" "}
               {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}
             </p>
-            <div className="flex flex-row gap-1 items-center">
-              {event.tags?.map((tag) => (
-                <Button tabIndex={-1} size="sm" shape="pill" key={tag.id}>
-                  {tag.title}
-                </Button>
-              ))}
-            </div>
+
             {event.currentRecord?.note ? (
               <p className="wrap-break-word">
                 Note: {event.currentRecord.note}

@@ -53,6 +53,7 @@ export function DashboardTags({ className }: Props) {
                 variant={selected ? "primary" : "outline"}
                 size="sm"
                 shape="pill"
+                className="normal-case"
                 onClick={() => toggleTag(tag.id)}
               >
                 {tag.title}
@@ -65,7 +66,6 @@ export function DashboardTags({ className }: Props) {
             type="button"
             variant="ghost"
             size="sm"
-            className="normal-case"
             onClick={() => setTags(undefined)}
           >
             Clear selected tags
