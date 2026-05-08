@@ -40,6 +40,12 @@ export const eventsApi = router(["events"], {
       return repository.getStats();
     },
   }),
+  getAllTags: router.query({
+    fetcher: async () => {
+      const repository = await resolveRepository();
+      return repository.getAllTags();
+    },
+  }),
   detail: router.query({
     fetcher: async ({ eventId }: { eventId: string }): Promise<EventDetail> => {
       const repository = await resolveRepository();

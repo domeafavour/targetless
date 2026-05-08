@@ -6,6 +6,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { DashboardEvents } from "@/components/DashboardEvents";
 import { DashboardFilter } from "@/components/DashboardFilter";
 import { DashboardSorting } from "@/components/DashboardSorting";
+import { DashboardTags } from "@/components/DashboardTags";
 import { RefreshEventsButton } from "@/components/RefreshEventsButton";
 import { Button } from "@targetless/ui/components/Button";
 import { RouteView } from "@targetless/ui/components/RouteView";
@@ -44,6 +45,7 @@ function EventDashboard() {
         </div>
 
         <DashboardFilter />
+        <DashboardTags />
       </section>
 
       <section className="max-w-5xl mx-auto px-4 pb-16">

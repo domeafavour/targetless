@@ -34,6 +34,13 @@ export function DashboardEventItem({
               Updated at{" "}
               {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}
             </p>
+            <div className="flex flex-row gap-1 items-center">
+              {event.tags?.map((tag) => (
+                <Button tabIndex={-1} size="sm" shape="pill" key={tag.id}>
+                  {tag.title}
+                </Button>
+              ))}
+            </div>
             {event.currentRecord?.note ? (
               <p className="wrap-break-word">
                 Note: {event.currentRecord.note}
