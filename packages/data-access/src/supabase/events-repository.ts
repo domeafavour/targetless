@@ -4,6 +4,7 @@ import type {
   CreateEventInput,
   CreateRecordInput,
   EventDetail,
+  EventTag,
   EventWithCurrentRecord,
   EventsStats,
   ListEventsParams,
@@ -11,20 +12,45 @@ import type {
 } from "@targetless/domain";
 import { normaliseNote } from "@targetless/domain";
 import type { EventsRepository } from "../repositories/events-repository.ts";
-import type { SupabaseClient } from "./client.ts";
 import { getSessionUser } from "./auth.ts";
+import type { SupabaseClient } from "./client.ts";
 import { mapEvent, mapRecord } from "./mappers.ts";
 import type { Database } from "./supabase-types.ts";
 
 export function createSupabaseEventsRepository(
   supabase: SupabaseClient,
 ): EventsRepository {
-  async function list(params?: ListEventsParams): Promise<EventWithCurrentRecord[]> {
+  async function list(
+    params?: ListEventsParams,
+  ): Promise<EventWithCurrentRecord[]> {
     const user = await getSessionUser(supabase);
-    let query = supabase
-      .from("events")
-      .select("*,current_record:records!events_current_record_id_fkey(*)")
-      .eq("creator_id", user.id);
+    let query: any;
+
+    if (params?.tags?.length) {
+      query = supabase
+        .from("events")
+        .select(
+          `*,
+          current_record:records!events_current_record_id_fkey(*),
+          tags:event_tags!inner(...tags!inner(*))
+          `,
+        )
+        .eq("creator_id", user.id)
+        .in(
+          "event_tags.tag_id",
+          params.tags.map((id) => +id),
+        );
+    } else {
+      query = supabase
+        .from("events")
+        .select(
+          `*,
+        current_record:records!events_current_record_id_fkey(*),
+        tags:event_tags(...tags(*))
+      `,
+        )
+        .eq("creator_id", user.id);
+    }
 
     if (params?.filter === "active") {
       query = query.eq("completed", false);
@@ -38,7 +64,6 @@ export function createSupabaseEventsRepository(
     const { data } = await query
       .order(dbSortField, { ascending })
       .throwOnError();
-
     return (data ?? []).map(mapEvent);
   }
 
@@ -79,7 +104,9 @@ export function createSupabaseEventsRepository(
     };
   }
 
-  async function create(input: CreateEventInput): Promise<EventWithCurrentRecord> {
+  async function create(
+    input: CreateEventInput,
+  ): Promise<EventWithCurrentRecord> {
     const user = await getSessionUser(supabase);
     const newEvent = await supabase
       .from("events")
@@ -90,7 +117,11 @@ export function createSupabaseEventsRepository(
 
     const initialRecord = await supabase
       .from("records")
-      .insert({ event_id: newEvent.data.id, creator_id: user.id, count: input.count })
+      .insert({
+        event_id: newEvent.data.id,
+        creator_id: user.id,
+        count: input.count,
+      })
       .select()
       .single()
       .throwOnError();
@@ -113,7 +144,9 @@ export function createSupabaseEventsRepository(
     };
   }
 
-  async function completeEvent(input: CompleteEventInput): Promise<EventWithCurrentRecord> {
+  async function completeEvent(
+    input: CompleteEventInput,
+  ): Promise<EventWithCurrentRecord> {
     const user = await getSessionUser(supabase);
     await supabase
       .from("events")
@@ -124,7 +157,9 @@ export function createSupabaseEventsRepository(
     return getById(input.eventId) as Promise<EventWithCurrentRecord>;
   }
 
-  async function completeRecord(input: CompleteRecordInput): Promise<EventWithCurrentRecord> {
+  async function completeRecord(
+    input: CompleteRecordInput,
+  ): Promise<EventWithCurrentRecord> {
     const user = await getSessionUser(supabase);
     const event = await supabase
       .from("events")
@@ -162,7 +197,9 @@ export function createSupabaseEventsRepository(
     return getById(input.eventId) as Promise<EventWithCurrentRecord>;
   }
 
-  async function createRecord(input: CreateRecordInput): Promise<EventWithCurrentRecord> {
+  async function createRecord(
+    input: CreateRecordInput,
+  ): Promise<EventWithCurrentRecord> {
     const user = await getSessionUser(supabase);
     const note = normaliseNote(input.note);
     const now = new Date().toISOString();
@@ -190,7 +227,9 @@ export function createSupabaseEventsRepository(
     return getById(input.eventId) as Promise<EventWithCurrentRecord>;
   }
 
-  async function updateTitle(input: UpdateEventTitleInput): Promise<EventWithCurrentRecord> {
+  async function updateTitle(
+    input: UpdateEventTitleInput,
+  ): Promise<EventWithCurrentRecord> {
     const user = await getSessionUser(supabase);
     const title = input.title.trim();
     if (!title) throw new Error("Title is required");
@@ -215,5 +254,38 @@ export function createSupabaseEventsRepository(
       .throwOnError();
   }
 
-  return { list, getStats, getById, create, completeEvent, completeRecord, createRecord, updateTitle, delete: deleteEvent };
+  async function getAllTags(): Promise<EventTag[]> {
+    const user = await getSessionUser(supabase);
+    const { data } = await supabase
+      .from("tags")
+      .select("id,title")
+      .eq("creator_id", user.id)
+      .throwOnError();
+    return data.map((i) => ({ id: i.id + "", title: i.title }));
+  }
+
+  async function getEventTags(eventId: string): Promise<EventTag[]> {
+    const user = await getSessionUser(supabase);
+    const { data } = await supabase
+      .from("event_tags")
+      .select("tag:tags(id,title)")
+      .eq("event_id", +eventId)
+      .eq("creator_id", user.id)
+      .throwOnError();
+    return data.map((i) => ({ id: i.tag.id + "", title: i.tag.title }));
+  }
+
+  return {
+    list,
+    getStats,
+    getById,
+    create,
+    completeEvent,
+    completeRecord,
+    createRecord,
+    updateTitle,
+    delete: deleteEvent,
+    getAllTags,
+    getEventTags,
+  };
 }

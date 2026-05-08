@@ -4,6 +4,7 @@ import type {
   CreateEventInput,
   CreateRecordInput,
   EventDetail,
+  EventTag,
   EventWithCurrentRecord,
   EventsStats,
   ListEventsParams,
@@ -18,6 +19,8 @@ export interface EventsRepository {
   list(params?: ListEventsParams): Promise<EventWithCurrentRecord[]>;
   getStats(): Promise<EventsStats>;
   getById(eventId: string): Promise<EventDetail>;
+  getAllTags(): Promise<EventTag[]>;
+  getEventTags(eventId: string): Promise<EventTag[]>;
   create(input: CreateEventInput): Promise<EventWithCurrentRecord>;
   completeEvent(input: CompleteEventInput): Promise<EventWithCurrentRecord>;
   completeRecord(input: CompleteRecordInput): Promise<EventWithCurrentRecord>;

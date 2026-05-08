@@ -1,9 +1,14 @@
-import type { EventEntity, EventRecord, EventWithCurrentRecord } from "@targetless/domain";
+import type {
+  EventEntity,
+  EventRecord,
+  EventWithCurrentRecord,
+} from "@targetless/domain";
 import { attachCurrentRecord } from "@targetless/domain";
 import type { Database } from "./supabase-types.ts";
 
 type DbEventRow = Database["public"]["Tables"]["events"]["Row"] & {
   current_record: Database["public"]["Tables"]["records"]["Row"] | null;
+  tags?: Database["public"]["Tables"]["tags"]["Row"][];
 };
 
 type DbRecordRow = Database["public"]["Tables"]["records"]["Row"];
