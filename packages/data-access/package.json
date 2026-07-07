@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "gen-supabase-types": "npx supabase gen types typescript --project-id \"eygtbfwolvdrxigljnjq\" --schema public > src/supabase/supabase-types.ts"
+    "gen-supabase-types": "npx supabase gen types typescript --project-id \"eygtbfwolvdrxigljnjq\" --schema public > src/supabase/supabase-types.ts",
+    "typecheck": "tsc --noEmit"
   },
   "exports": {
     ".": "./src/index.ts"

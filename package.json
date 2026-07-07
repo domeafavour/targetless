@@ -5,10 +5,15 @@
     "dev": "pnpm --filter @targetless/web dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
+    "typecheck": "pnpm -r --if-present typecheck",
     "gen-supabase-types": "pnpm --filter @targetless/data-access gen-supabase-types",
-    "build:gh-pages": "pnpm --filter @targetless/web build:gh-pages"
+    "build:gh-pages": "pnpm --filter @targetless/web build:gh-pages",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "format:check": "biome check ."
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.2",
     "typescript": "^5.7.2"
   },
   "pnpm": {
