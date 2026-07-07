@@ -1,0 +1,48 @@
+{
+  "permissions": {
+    "allow": [
+      "pnpm build",
+      "pnpm build:gh-pages",
+      "pnpm dev",
+      "pnpm gen-supabase-types",
+      "pnpm lint",
+      "pnpm format",
+      "pnpm test",
+      "pnpm typecheck",
+      "pnpm -r typecheck"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; pnpm biome check --write \"$f\" 2>/dev/null; } || true",
+            "timeout": 30,
+            "statusMessage": "Formatting with Biome..."
+          }
+        ]
+      }
+    ],
+    "pre-commit": [
+      {
+        "command": "pnpm typecheck",
+        "description": "Run TypeScript type checking before commit",
+        "matcher": {
+          "filePattern": "**/*.{ts,tsx}"
+        },
+        "runIn": "."
+      },
+      {
+        "command": "! grep -rn 'console\\.log' --include='*.ts' --include='*.tsx' apps/ packages/ | grep -v node_modules | grep -v routeTree.gen.ts",
+        "description": "Check for console.log in production code before commit",
+        "matcher": {
+          "filePattern": "**/*.{ts,tsx}"
+        },
+        "runIn": "."
+      }
+    ]
+  }
+}
