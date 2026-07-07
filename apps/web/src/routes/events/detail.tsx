@@ -45,19 +45,17 @@ function EventHeader({ event }: { event: EventDetail }) {
   const navigate = useNavigate({ from: "/events/detail" });
   const queryClient = useQueryClient();
   return (
-    <header className="rounded-xl border bg-card p-6">
-      <div className="flex flex-col items-start sm:flex-row sm:items-center gap-4">
-        <div className="flex-1">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-bold text-foreground font-display">
+    <header className="rounded-xl border bg-card">
+      {/* Top section: count + title + status */}
+      <div className="flex items-start justify-between gap-6 p-6 pb-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-xl font-semibold text-foreground">
               <EventTitle title={event.title} count={event.currentRecord?.count} />
             </h1>
             <EventStatusPill completed={event.completed} />
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Updated {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"} &middot;{" "}
-            {event.records.length} {event.records.length === 1 ? "record" : "records"}
-          </p>
+
           {event.tags && event.tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {event.tags.map((tag) => (
@@ -65,70 +63,86 @@ function EventHeader({ event }: { event: EventDetail }) {
               ))}
             </div>
           )}
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            Updated {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"} &middot;{" "}
+            {event.records.length} {event.records.length === 1 ? "record" : "records"}
+          </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {event.records.length > 0 &&
-            event.records.every((r) => r.completed) &&
-            !event.completed && (
-              <NewRecordButton
-                event={event}
-                onSuccess={async () => {
-                  await Promise.all([
-                    queryClient.invalidateQueries({
-                      queryKey: eventsApi.detail.getKey({
-                        eventId: event.id,
-                      }),
-                    }),
-                    queryClient.invalidateQueries({
-                      queryKey: eventsApi.list.getKey(),
-                    }),
-                  ]);
-                }}
-              />
-            )}
-          <EditEventTitleButton
-            event={event}
-            onSuccess={async () => {
-              await Promise.all([
-                queryClient.invalidateQueries({
-                  queryKey: eventsApi.detail.getKey({
-                    eventId: event.id,
-                  }),
-                }),
-                queryClient.invalidateQueries({
-                  queryKey: eventsApi.list.getKey(),
-                }),
-              ]);
-            }}
-          />
-          <CompleteEventButton
-            event={event}
-            disabled={event.completed}
-            onSuccess={async () => {
-              await Promise.all([
-                queryClient.invalidateQueries({
-                  queryKey: eventsApi.detail.getKey({
-                    eventId: event.id,
-                  }),
-                }),
-                queryClient.invalidateQueries({
-                  queryKey: eventsApi.list.getKey(),
-                }),
-              ]);
-            }}
-          />
-          <DeleteEvent
-            id={event.id}
-            title={event.title}
-            onSuccess={() => {
-              queryClient.removeQueries({
-                queryKey: eventsApi.detail.getKey({ eventId: event.id }),
-              });
-              navigate({ to: "/" });
-            }}
-          />
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <span className="font-display text-4xl font-bold tracking-tight text-primary">
+            {event.currentRecord?.count ?? "—"}
+          </span>
+          <span className="text-xs text-muted-foreground">current count</span>
         </div>
+      </div>
+
+      {/* Divider */}
+      <div className="mx-6 h-px bg-border" />
+
+      {/* Bottom section: actions */}
+      <div className="flex flex-wrap items-center gap-2 px-6 py-3">
+        {event.records.length > 0 &&
+          event.records.every((r) => r.completed) &&
+          !event.completed && (
+            <NewRecordButton
+              event={event}
+              onSuccess={async () => {
+                await Promise.all([
+                  queryClient.invalidateQueries({
+                    queryKey: eventsApi.detail.getKey({
+                      eventId: event.id,
+                    }),
+                  }),
+                  queryClient.invalidateQueries({
+                    queryKey: eventsApi.list.getKey(),
+                  }),
+                ]);
+              }}
+            />
+          )}
+        <CompleteEventButton
+          event={event}
+          disabled={event.completed}
+          onSuccess={async () => {
+            await Promise.all([
+              queryClient.invalidateQueries({
+                queryKey: eventsApi.detail.getKey({
+                  eventId: event.id,
+                }),
+              }),
+              queryClient.invalidateQueries({
+                queryKey: eventsApi.list.getKey(),
+              }),
+            ]);
+          }}
+        />
+        <EditEventTitleButton
+          event={event}
+          onSuccess={async () => {
+            await Promise.all([
+              queryClient.invalidateQueries({
+                queryKey: eventsApi.detail.getKey({
+                  eventId: event.id,
+                }),
+              }),
+              queryClient.invalidateQueries({
+                queryKey: eventsApi.list.getKey(),
+              }),
+            ]);
+          }}
+        />
+        <DeleteEvent
+          id={event.id}
+          title={event.title}
+          onSuccess={() => {
+            queryClient.removeQueries({
+              queryKey: eventsApi.detail.getKey({ eventId: event.id }),
+            });
+            navigate({ to: "/" });
+          }}
+        />
       </div>
     </header>
   );
