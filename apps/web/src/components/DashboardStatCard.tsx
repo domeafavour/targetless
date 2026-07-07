@@ -16,21 +16,14 @@ export function DashboardStatCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-2xl border px-6 py-4 text-left transition-all hover:border-cyan-400/50",
-        active
-          ? "border-cyan-400 bg-cyan-400/10 shadow-lg shadow-cyan-500/20"
-          : "border-white/10 bg-white/5",
+        "rounded-xl border px-5 py-3 text-left transition-all",
+        active ? "border-primary bg-primary/10" : "border bg-card hover:border-primary/30",
       )}
     >
-      <p
-        className={cn(
-          "text-xs uppercase tracking-[0.3em]",
-          active ? "text-cyan-300" : "text-slate-400",
-        )}
-      >
+      <p className={cn("text-xs font-medium", active ? "text-primary" : "text-muted-foreground")}>
         {label}
       </p>
-      <p className="text-3xl font-black">
+      <p className="mt-0.5 text-2xl font-bold tracking-tight text-foreground">
         {typeof value === "number" ? value : "-"}
       </p>
     </button>

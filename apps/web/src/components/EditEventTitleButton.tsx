@@ -118,12 +118,12 @@ export default function EditEventTitleButton({
         <DialogContent className="space-y-0">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
+              <p className="text-xs uppercase tracking-[0.4em] text-primary">
                 Edit Title
               </p>
               <DialogTitle>Rename event</DialogTitle>
               <DialogDescription>
-                Use <code className="font-mono text-cyan-300">@count</code> in
+                Use <code className="font-mono text-primary">@count</code> in
                 the title to display the current count value.
               </DialogDescription>
             </div>
@@ -138,7 +138,7 @@ export default function EditEventTitleButton({
           </div>
 
           <div className="mt-6 space-y-4">
-            <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+            <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
               Title
               <input
                 type="text"
@@ -150,12 +150,12 @@ export default function EditEventTitleButton({
                     handleSave();
                   }
                 }}
-                className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-base text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+                className="rounded-2xl border border bg-card px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
               />
             </label>
 
             {error ? (
-              <p className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              <p className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {error}
               </p>
             ) : null}

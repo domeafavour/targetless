@@ -1,11 +1,8 @@
-import { eventsApi } from "@/lib/query/events";
-import {
-  useDashboardActions,
-  useDashboardTags,
-} from "@/lib/store/event-dashboard";
 import type { EventTag } from "@targetless/domain";
 import { Button } from "@targetless/ui/components/Button";
 import { cn } from "@targetless/ui/lib/utils";
+import { eventsApi } from "@/lib/query/events";
+import { useDashboardActions, useDashboardTags } from "@/lib/store/event-dashboard";
 
 interface Props {
   className?: string;
@@ -62,12 +59,7 @@ export function DashboardTags({ className }: Props) {
           })
         )}
         {selectedTags.length > 0 ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setTags(undefined)}
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={() => setTags(undefined)}>
             Clear selected tags
           </Button>
         ) : null}

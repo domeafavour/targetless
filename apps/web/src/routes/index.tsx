@@ -1,15 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Loader2, Plus, Target } from "lucide-react";
+import { Button } from "@targetless/ui/components/Button";
+import { RouteView } from "@targetless/ui/components/RouteView";
+import { Loader2, Plus } from "lucide-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-
 import { DashboardEvents } from "@/components/DashboardEvents";
 import { DashboardFilter } from "@/components/DashboardFilter";
 import { DashboardSorting } from "@/components/DashboardSorting";
 import { DashboardTags } from "@/components/DashboardTags";
 import { RefreshEventsButton } from "@/components/RefreshEventsButton";
-import { Button } from "@targetless/ui/components/Button";
-import { RouteView } from "@targetless/ui/components/RouteView";
 
 export const Route = createFileRoute("/")({
   component: EventDashboard,
@@ -21,22 +20,15 @@ export const Route = createFileRoute("/")({
 function EventDashboard() {
   return (
     <RouteView>
-      <section className="max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
-        <div className="flex flex-col gap-3">
-          <p className="flex items-center gap-2 text-cyan-300 text-sm uppercase tracking-[0.2em]">
-            <Target className="w-4 h-4" /> Event Tracker
-          </p>
-          <h1 className="text-4xl md:text-5xl font-black">
-            Stay on top of every recurring commitment
-          </h1>
-          <p className="text-slate-300 max-w-2xl">
-            Track habits, workouts, lessons, and more. Mark the current record
-            complete and instantly spin up the next one when you are ready.
-          </p>
-          <div className="flex flex-wrap gap-3 items-center">
-            <Button asChild>
+      <section className="mx-auto max-w-5xl px-4 pt-8 pb-16 flex flex-col gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <DashboardFilter />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild size="sm">
               <Link to="/events/new">
-                <Plus className="w-4 h-4" /> Create Event
+                <Plus className="h-3.5 w-3.5" /> New Event
               </Link>
             </Button>
             <RefreshEventsButton />
@@ -44,23 +36,20 @@ function EventDashboard() {
           </div>
         </div>
 
-        <DashboardFilter />
         <DashboardTags />
-      </section>
 
-      <section className="max-w-5xl mx-auto px-4 pb-16">
         <ErrorBoundary
           fallback={
-            <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-6 text-rose-100">
+            <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-6 text-sm text-destructive">
               Failed to load events. Please refresh and try again.
             </div>
           }
         >
           <Suspense
             fallback={
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-6">
-                <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />
-                <p className="text-sm text-slate-300">Loading events…</p>
+              <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-6">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Loading events…</p>
               </div>
             }
           >

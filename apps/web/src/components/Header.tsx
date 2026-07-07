@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@targetless/ui/components/dropdown-menu";
-import { CalendarCheck2, ChevronDown, LogOut, Menu, X } from "lucide-react";
+import { ChevronDown, LogOut, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { authApi } from "../lib/auth";
 import { supabase } from "../lib/env";
@@ -29,12 +29,10 @@ export default function Header() {
   });
 
   useEffect(() => {
-    // Get initial user
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -56,22 +54,24 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 text-white">
-        <Link to="/" className="flex items-center gap-3 text-lg font-semibold">
-          <CalendarCheck2 className="h-6 w-6 text-cyan-400" />
-          Event Tracker
+    <header className="sticky top-0 z-50 border-b border bg-background/80 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+        <Link to="/" className="flex items-center gap-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
+            T
+          </span>
+          <span className="text-sm font-medium text-foreground">Targetless</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em]">
+        {/* Desktop navigation */}
+        <nav className="hidden md:flex items-center gap-1 text-sm">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-full px-4 py-2 text-slate-300 transition-colors hover:text-white"
+              className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
               activeProps={{
-                className: "rounded-full bg-cyan-500 px-4 py-2 text-slate-900",
+                className: "rounded-md px-3 py-1.5 bg-primary/10 text-primary font-medium",
               }}
               activeOptions={{ exact: link.exact }}
             >
@@ -80,19 +80,16 @@ export default function Header() {
           ))}
           {user ? (
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 rounded-full px-4 py-2 text-slate-300 transition-colors hover:text-white outline-none">
-                <span className="max-w-37.5 truncate">{user.email}</span>
-                <ChevronDown className="h-4 w-4" />
+              <DropdownMenuTrigger className="ml-2 flex items-center gap-1 rounded-md px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground outline-none">
+                <span className="max-w-30 truncate">{user.email}</span>
+                <ChevronDown className="h-3 w-3" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-slate-900 border-slate-700"
-              >
+              <DropdownMenuContent align="end" className="bg-card border text-foreground">
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white focus:text-white focus:bg-slate-800"
+                  className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer hover:text-foreground focus:text-foreground focus:bg-secondary"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-3.5 w-3.5" />
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -100,9 +97,9 @@ export default function Header() {
           ) : (
             <Link
               to="/login"
-              className="rounded-full px-4 py-2 text-slate-300 transition-colors hover:text-white"
+              className="ml-2 rounded-md px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
               activeProps={{
-                className: "rounded-full bg-cyan-500 px-4 py-2 text-slate-900",
+                className: "ml-2 rounded-md px-3 py-1.5 bg-primary/10 text-primary font-medium",
               }}
             >
               Login
@@ -110,33 +107,28 @@ export default function Header() {
           )}
         </nav>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile menu button */}
         <button
           type="button"
-          className="md:hidden p-2 text-slate-300 hover:text-white transition-colors"
+          className="md:hidden p-1.5 text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
         >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
+          {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile navigation */}
       {mobileMenuOpen && (
-        <nav className="md:hidden border-t border-white/10 bg-slate-950/95 backdrop-blur">
-          <div className="mx-auto max-w-5xl px-4 py-4 flex flex-col gap-2">
+        <nav className="md:hidden border-t border bg-background/95 backdrop-blur-sm">
+          <div className="mx-auto max-w-5xl px-4 py-3 flex flex-col gap-0.5">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="rounded-lg px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-300 transition-colors hover:text-white hover:bg-slate-800"
+                className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary"
                 activeProps={{
-                  className:
-                    "rounded-lg bg-cyan-500 px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-900",
+                  className: "rounded-md px-3 py-2 text-sm bg-primary/10 text-primary font-medium",
                 }}
                 activeOptions={{ exact: link.exact }}
                 onClick={closeMobileMenu}
@@ -144,28 +136,28 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <div className="border-t border-white/10 pt-2 mt-2">
+            <div className="mt-2 pt-2 border-t border">
               {user ? (
                 <>
-                  <div className="px-4 py-2 text-xs text-slate-500 truncate">
+                  <div className="px-3 py-1.5 text-xs text-muted-foreground truncate">
                     {user.email}
                   </div>
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-300 transition-colors hover:text-white hover:bg-slate-800"
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary"
                   >
-                    <LogOut className="h-4 w-4" />
+                    <LogOut className="h-3.5 w-3.5" />
                     Logout
                   </button>
                 </>
               ) : (
                 <Link
                   to="/login"
-                  className="block rounded-lg px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-300 transition-colors hover:text-white hover:bg-slate-800"
+                  className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary"
                   activeProps={{
                     className:
-                      "block rounded-lg bg-cyan-500 px-4 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-900",
+                      "block rounded-md px-3 py-2 text-sm bg-primary/10 text-primary font-medium",
                   }}
                   onClick={closeMobileMenu}
                 >

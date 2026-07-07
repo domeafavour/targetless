@@ -1,12 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, PlusCircle } from "lucide-react";
-import { useState } from "react";
-
-import { LoadingOr } from "@/components/LoadingOr";
-import { eventsApi } from "@/lib/query/events";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@targetless/ui/components/Button";
 import { RouteView } from "@targetless/ui/components/RouteView";
+import { ArrowLeft, PlusCircle } from "lucide-react";
+import { useState } from "react";
+import { LoadingOr } from "@/components/LoadingOr";
+import { eventsApi } from "@/lib/query/events";
 
 export const Route = createFileRoute("/events/new")({
   component: CreateEventPage,
@@ -54,43 +53,36 @@ function CreateEventPage() {
 
   return (
     <RouteView>
-      <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-12">
+      <div className="mx-auto flex max-w-lg flex-col gap-6 px-4 py-10">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 hover:text-cyan-100"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to events
+          Back
         </Link>
 
-        <header className="space-y-3">
-          <p className="text-sm uppercase tracking-[0.4em] text-cyan-300">
-            New Event
-          </p>
-          <h1 className="text-4xl font-black">Create an event</h1>
-          <p className="text-slate-300">
-            Provide the event name and the current count to open its first
-            record.
+        <header className="space-y-1.5">
+          <h1 className="text-2xl font-bold text-foreground">Create an event</h1>
+          <p className="text-sm text-muted-foreground">
+            Name it and set the starting count for the first record.
           </p>
         </header>
 
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/30"
-        >
-          <div className="flex flex-col gap-6">
-            <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+        <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-6">
+          <div className="flex flex-col gap-5">
+            <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
               Title
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Morning Run"
-                className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-base text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+                className="rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+            <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
               Initial Count
               <input
                 type="number"
@@ -99,23 +91,17 @@ function CreateEventPage() {
                 inputMode="numeric"
                 value={count}
                 onChange={(e) => setCount(e.target.value)}
-                className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-base text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+                className="rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </label>
 
             {error && (
-              <p className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
                 {error}
               </p>
             )}
 
-            <Button
-              type="submit"
-              shape="soft"
-              size="lg"
-              disabled={mutation.isPending}
-              fullWidth
-            >
+            <Button type="submit" shape="soft" size="lg" disabled={mutation.isPending} fullWidth>
               <LoadingOr loading={mutation.isPending}>
                 <PlusCircle className="h-4 w-4" />
               </LoadingOr>

@@ -20,7 +20,7 @@ export function EventTitle({ title, count }: EventTitleProps) {
         <React.Fragment key={index}>
           {part}
           {index < parts.length - 1 && (
-            <span className="font-mono text-cyan-300">{count}</span>
+            <span className="font-mono text-primary">{count}</span>
           )}
         </React.Fragment>
       ))}

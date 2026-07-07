@@ -105,7 +105,7 @@ export default function CompleteEventButton({
         <DialogContent className="space-y-0">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
+              <p className="text-xs uppercase tracking-[0.4em] text-primary">
                 Complete Event
               </p>
               <DialogTitle>{event.title}</DialogTitle>

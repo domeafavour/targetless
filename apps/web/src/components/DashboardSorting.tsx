@@ -32,7 +32,7 @@ export function DashboardSorting({ className }: Props) {
 
   return (
     <div className={cn("flex items-center gap-2 md:ms-auto", className)}>
-      <span className="text-sm text-slate-400">Sort by</span>
+      <span className="text-sm text-muted-foreground">Sort by</span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button type="button" variant="outline" size="sm">
