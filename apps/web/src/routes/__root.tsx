@@ -6,6 +6,8 @@ import appCss from "@targetless/ui/globals.css?url";
 import Header from "../components/Header";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
+const IS_DEV = import.meta.env.DEV;
+
 interface MyRouterContext {
   queryClient: QueryClient;
 }
@@ -58,7 +60,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         type: "module",
         children: `
-          if ('serviceWorker' in navigator) {
+          if ('serviceWorker' in navigator && !${IS_DEV}) {
             window.addEventListener('load', () => {
               // Use relative path - Vite will handle base URL injection
               const swPath = './sw.js';
