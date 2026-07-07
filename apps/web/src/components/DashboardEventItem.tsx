@@ -8,6 +8,7 @@ import { eventsApi } from "@/lib/query/events";
 import CompleteRecordButton from "./CompleteRecordButton";
 import EventStatusPill from "./EventStatusPill";
 import { EventTitle } from "./EventTitle";
+import { TagChip } from "./TagChip";
 
 export function DashboardEventItem({ event }: { event: EventWithCurrentRecord }) {
   const queryClient = useQueryClient();
@@ -27,9 +28,7 @@ export function DashboardEventItem({ event }: { event: EventWithCurrentRecord })
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             <span>Updated {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"}</span>
             {event.tags?.map((tag) => (
-              <span key={tag.id} className="rounded-full bg-primary/10 px-2 py-0.5 text-primary/80">
-                {tag.title}
-              </span>
+              <TagChip key={tag.id} label={tag.title} variant="badge" />
             ))}
           </div>
 

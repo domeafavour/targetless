@@ -10,6 +10,7 @@ import EditEventTitleButton from "@/components/EditEventTitleButton";
 import EventStatusPill from "@/components/EventStatusPill";
 import { EventTitle } from "@/components/EventTitle";
 import NewRecordButton from "@/components/NewRecordButton";
+import { TagChip } from "@/components/TagChip";
 import { formatTimestamp } from "@/lib/date-utils";
 import { eventsApi } from "@/lib/query/events";
 
@@ -57,6 +58,13 @@ function EventHeader({ event }: { event: EventDetail }) {
             Updated {event.updatedAt ? formatTimestamp(event.updatedAt) : "N/A"} &middot;{" "}
             {event.records.length} {event.records.length === 1 ? "record" : "records"}
           </p>
+          {event.tags && event.tags.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {event.tags.map((tag) => (
+                <TagChip key={tag.id} label={tag.title} variant="badge" />
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2">
