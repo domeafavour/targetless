@@ -14,6 +14,42 @@ export type Database = {
   };
   public: {
     Tables: {
+      event_tags: {
+        Row: {
+          created_at: string;
+          creator_id: string | null;
+          event_id: number;
+          tag_id: number;
+        };
+        Insert: {
+          created_at?: string;
+          creator_id?: string | null;
+          event_id: number;
+          tag_id: number;
+        };
+        Update: {
+          created_at?: string;
+          creator_id?: string | null;
+          event_id?: number;
+          tag_id?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_tags_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_tags_tag_id_fkey";
+            columns: ["tag_id"];
+            isOneToOne: false;
+            referencedRelation: "tags";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       events: {
         Row: {
           completed: boolean | null;
@@ -130,6 +166,30 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      tags: {
+        Row: {
+          created_at: string;
+          creator_id: string;
+          id: number;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          creator_id: string;
+          id?: number;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          creator_id?: string;
+          id?: number;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
       };
       tasks: {
         Row: {

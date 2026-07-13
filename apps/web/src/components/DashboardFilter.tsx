@@ -1,9 +1,6 @@
-import { eventsApi } from "@/lib/query/events";
-import {
-  useDashboardActions,
-  useDashboardFilter,
-} from "@/lib/store/event-dashboard";
 import { cn } from "@targetless/ui/lib/utils";
+import { eventsApi } from "@/lib/query/events";
+import { useDashboardActions, useDashboardFilter } from "@/lib/store/event-dashboard";
 import { DashboardStatCard } from "./DashboardStatCard";
 
 interface Props {
@@ -17,7 +14,7 @@ export function DashboardFilter({ className }: Props) {
   const { setFilter } = useDashboardActions();
   const statsQuery = eventsApi.stats.useQuery();
   return (
-    <div className={cn("grid grid-cols-3 gap-4", className)}>
+    <div className={cn("flex gap-3", className)}>
       <DashboardStatCard
         label="Active"
         value={statsQuery.data?.active}

@@ -1,21 +1,21 @@
-import { CheckCircle2, CircleDashed } from 'lucide-react'
+import { CheckCircle2, CircleDashed } from "lucide-react";
 
 type EventStatusPillProps = {
-  completed: boolean
-}
+  completed: boolean;
+};
 
 export default function EventStatusPill({ completed }: EventStatusPillProps) {
   if (completed) {
     return (
-      <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-200">
-        <CheckCircle2 className="h-3.5 w-3.5" /> Completed
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-chart-2/20 px-2.5 py-0.5 text-xs font-medium text-chart-2">
+        <CheckCircle2 className="h-3 w-3" /> Done
       </span>
-    )
+    );
   }
 
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-200">
-      <CircleDashed className="h-3.5 w-3.5" /> Active
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary">
+      <CircleDashed className="h-3 w-3" /> Active
     </span>
-  )
+  );
 }

@@ -10,11 +10,13 @@ import type {
 
 interface EventDashboardState {
   filter: EventsFilter;
+  tags?: string[]; // filter by tag IDs
   sortField: EventsSortField;
   sortOrder: EventsSortOrder;
   setFilter: (filter: EventsFilter) => void;
   setSortField: (sortField: EventsSortField) => void;
   setSortOrder: (sortOrder: EventsSortOrder) => void;
+  setTags: (tags?: string[]) => void;
   toggleSortOrder: () => void;
 }
 
@@ -27,6 +29,7 @@ export const useEventDashboardStore = create<EventDashboardState>()(
       setFilter: (filter) => set({ filter }),
       setSortField: (sortField) => set({ sortField }),
       setSortOrder: (sortOrder) => set({ sortOrder }),
+      setTags: (tags) => set({ tags }),
       toggleSortOrder: () =>
         set((state) => ({
           sortOrder: state.sortOrder === "asc" ? "desc" : "asc",
@@ -50,6 +53,10 @@ export function useDashboardSortOrder() {
   return useEventDashboardStore((state) => state.sortOrder);
 }
 
+export function useDashboardTags() {
+  return useEventDashboardStore((state) => state.tags);
+}
+
 export function useDashboardActions() {
   return useEventDashboardStore(
     useShallow((state) => ({
@@ -57,6 +64,7 @@ export function useDashboardActions() {
       setSortField: state.setSortField,
       setSortOrder: state.setSortOrder,
       toggleSortOrder: state.toggleSortOrder,
+      setTags: state.setTags,
     })),
   );
 }

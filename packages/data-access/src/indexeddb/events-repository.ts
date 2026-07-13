@@ -1,33 +1,34 @@
 import type {
-  EventWithCurrentRecord,
-  EventDetail,
-  EventsStats,
-  ListEventsParams,
-  CreateEventInput,
   CompleteEventInput,
-  CreateRecordInput,
   CompleteRecordInput,
-  UpdateEventTitleInput,
+  CreateEventInput,
+  CreateRecordInput,
+  EventDetail,
   EventEntity,
   EventRecord,
+  EventsStats,
+  EventTag,
+  EventWithCurrentRecord,
+  ListEventsParams,
+  UpdateEventTitleInput,
 } from "@targetless/domain";
 import {
   attachCurrentRecord,
   filterEvents,
-  sortEvents,
-  validateTitle,
-  validateCount,
   normaliseNote,
+  sortEvents,
+  validateCount,
+  validateTitle,
 } from "@targetless/domain";
 import type { EventsRepository } from "../repositories/events-repository.ts";
 import {
   DB_EVENTS_STORE,
   DB_RECORDS_STORE,
-  readState,
-  runTransaction,
-  requestToPromise,
   deleteRecordsByEvent,
   generateId,
+  readState,
+  requestToPromise,
+  runTransaction,
 } from "./db.ts";
 
 export function createIndexedDbEventsRepository(): EventsRepository {
@@ -59,10 +60,7 @@ export function createIndexedDbEventsRepository(): EventsRepository {
       }
       const records = snapshot.records
         .filter((record) => record.eventId === eventId)
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       return {
         ...attachCurrentRecord(event, snapshot.records),
         records,
@@ -93,30 +91,23 @@ export function createIndexedDbEventsRepository(): EventsRepository {
         completed: false,
       };
 
-      await runTransaction(
-        [DB_EVENTS_STORE, DB_RECORDS_STORE],
-        "readwrite",
-        (stores) => {
-          stores[DB_EVENTS_STORE].put(event);
-          stores[DB_RECORDS_STORE].put(record);
-        },
-      );
+      await runTransaction([DB_EVENTS_STORE, DB_RECORDS_STORE], "readwrite", (stores) => {
+        stores[DB_EVENTS_STORE].put(event);
+        stores[DB_RECORDS_STORE].put(record);
+      });
 
       return attachCurrentRecord(event, [record]);
     },
 
-    async completeEvent(
-      input: CompleteEventInput,
-    ): Promise<EventWithCurrentRecord> {
+    async completeEvent(input: CompleteEventInput): Promise<EventWithCurrentRecord> {
       const event = await runTransaction(
         [DB_EVENTS_STORE, DB_RECORDS_STORE],
         "readwrite",
         async (stores) => {
           const eventsStore = stores[DB_EVENTS_STORE];
           const existingEvent =
-            (await requestToPromise<EventEntity | undefined>(
-              eventsStore.get(input.eventId),
-            )) ?? null;
+            (await requestToPromise<EventEntity | undefined>(eventsStore.get(input.eventId))) ??
+            null;
           if (!existingEvent) throw new Error("Event not found");
           const now = new Date().toISOString();
           const updatedEvent: EventEntity = {
@@ -131,9 +122,7 @@ export function createIndexedDbEventsRepository(): EventsRepository {
       return attachCurrentRecord(event, []);
     },
 
-    async completeRecord(
-      input: CompleteRecordInput,
-    ): Promise<EventWithCurrentRecord> {
+    async completeRecord(input: CompleteRecordInput): Promise<EventWithCurrentRecord> {
       const { event, currentRecord } = await runTransaction(
         [DB_EVENTS_STORE, DB_RECORDS_STORE],
         "readwrite",
@@ -142,9 +131,8 @@ export function createIndexedDbEventsRepository(): EventsRepository {
           const recordsStore = stores[DB_RECORDS_STORE];
 
           const existingEvent =
-            (await requestToPromise<EventEntity | undefined>(
-              eventsStore.get(input.eventId),
-            )) ?? null;
+            (await requestToPromise<EventEntity | undefined>(eventsStore.get(input.eventId))) ??
+            null;
           if (!existingEvent) throw new Error("Event not found");
           if (!existingEvent.currentRecordId)
             throw new Error("There is no active record to complete");
@@ -153,8 +141,7 @@ export function createIndexedDbEventsRepository(): EventsRepository {
             (await requestToPromise<EventRecord | undefined>(
               recordsStore.get(existingEvent.currentRecordId),
             )) ?? null;
-          if (!existingRecord)
-            throw new Error("Current record could not be located");
+          if (!existingRecord) throw new Error("Current record could not be located");
 
           const now = new Date().toISOString();
           const note = normaliseNote(input.note) ?? existingRecord.note ?? null;
@@ -169,9 +156,7 @@ export function createIndexedDbEventsRepository(): EventsRepository {
           let nextCurrentRecordId: string | null = null;
           let nextRecord: EventRecord | null = null;
           if (input.createNext) {
-            const nextCount = Number.isFinite(input.nextCount)
-              ? Number(input.nextCount)
-              : 0;
+            const nextCount = Number.isFinite(input.nextCount) ? Number(input.nextCount) : 0;
             nextRecord = {
               id: generateId(),
               eventId: existingEvent.id,
@@ -196,9 +181,7 @@ export function createIndexedDbEventsRepository(): EventsRepository {
       return attachCurrentRecord(event, currentRecord ? [currentRecord] : []);
     },
 
-    async createRecord(
-      input: CreateRecordInput,
-    ): Promise<EventWithCurrentRecord> {
+    async createRecord(input: CreateRecordInput): Promise<EventWithCurrentRecord> {
       const count = validateCount(input.count);
       const note = normaliseNote(input.note);
 
@@ -210,12 +193,10 @@ export function createIndexedDbEventsRepository(): EventsRepository {
           const recordsStore = stores[DB_RECORDS_STORE];
 
           const existingEvent =
-            (await requestToPromise<EventEntity | undefined>(
-              eventsStore.get(input.eventId),
-            )) ?? null;
+            (await requestToPromise<EventEntity | undefined>(eventsStore.get(input.eventId))) ??
+            null;
           if (!existingEvent) throw new Error("Event not found");
-          if (existingEvent.currentRecordId)
-            throw new Error("There is already an active record");
+          if (existingEvent.currentRecordId) throw new Error("There is already an active record");
 
           const now = new Date().toISOString();
           const newRecord: EventRecord = {
@@ -241,9 +222,7 @@ export function createIndexedDbEventsRepository(): EventsRepository {
       return attachCurrentRecord(event, [record]);
     },
 
-    async updateTitle(
-      input: UpdateEventTitleInput,
-    ): Promise<EventWithCurrentRecord> {
+    async updateTitle(input: UpdateEventTitleInput): Promise<EventWithCurrentRecord> {
       const title = validateTitle(input.title);
 
       const { event, currentRecord } = await runTransaction(
@@ -254,9 +233,8 @@ export function createIndexedDbEventsRepository(): EventsRepository {
           const recordsStore = stores[DB_RECORDS_STORE];
 
           const existingEvent =
-            (await requestToPromise<EventEntity | undefined>(
-              eventsStore.get(input.eventId),
-            )) ?? null;
+            (await requestToPromise<EventEntity | undefined>(eventsStore.get(input.eventId))) ??
+            null;
           if (!existingEvent) throw new Error("Event not found");
 
           const now = new Date().toISOString();
@@ -279,24 +257,35 @@ export function createIndexedDbEventsRepository(): EventsRepository {
       return attachCurrentRecord(event, currentRecord ? [currentRecord] : []);
     },
 
+    async getAllTags(): Promise<EventTag[]> {
+      const snapshot = await readState();
+      const tagMap = new Map<string, string>();
+      for (const event of snapshot.events) {
+        for (const tag of event.tags ?? []) {
+          tagMap.set(tag.id, tag.title);
+        }
+      }
+      return Array.from(tagMap.entries()).map(([id, title]) => ({ id, title }));
+    },
+
+    async getEventTags(eventId: string): Promise<EventTag[]> {
+      const snapshot = await readState();
+      const event = snapshot.events.find((e) => e.id === eventId);
+      return event?.tags ?? [];
+    },
+
     async delete(eventId: string): Promise<void> {
-      await runTransaction(
-        [DB_EVENTS_STORE, DB_RECORDS_STORE],
-        "readwrite",
-        async (stores) => {
-          const eventsStore = stores[DB_EVENTS_STORE];
-          const recordsStore = stores[DB_RECORDS_STORE];
+      await runTransaction([DB_EVENTS_STORE, DB_RECORDS_STORE], "readwrite", async (stores) => {
+        const eventsStore = stores[DB_EVENTS_STORE];
+        const recordsStore = stores[DB_RECORDS_STORE];
 
-          const existingEvent =
-            (await requestToPromise<EventEntity | undefined>(
-              eventsStore.get(eventId),
-            )) ?? null;
-          if (!existingEvent) throw new Error("Event not found");
+        const existingEvent =
+          (await requestToPromise<EventEntity | undefined>(eventsStore.get(eventId))) ?? null;
+        if (!existingEvent) throw new Error("Event not found");
 
-          eventsStore.delete(eventId);
-          await deleteRecordsByEvent(recordsStore, eventId);
-        },
-      );
+        eventsStore.delete(eventId);
+        await deleteRecordsByEvent(recordsStore, eventId);
+      });
     },
   };
 }

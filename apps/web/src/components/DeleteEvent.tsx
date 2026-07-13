@@ -51,7 +51,7 @@ export function DeleteEvent({ children, id, title, onSuccess }: Props) {
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
+          <p className="text-xs uppercase tracking-[0.4em] text-primary">
             Delete Event
           </p>
           <AlertDialogTitle>Remove "{title}"?</AlertDialogTitle>

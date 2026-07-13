@@ -1,9 +1,14 @@
-import type { EventEntity, EventRecord, EventWithCurrentRecord } from "@targetless/domain";
+import type {
+  EventEntity,
+  EventRecord,
+  EventWithCurrentRecord,
+} from "@targetless/domain";
 import { attachCurrentRecord } from "@targetless/domain";
 import type { Database } from "./supabase-types.ts";
 
 type DbEventRow = Database["public"]["Tables"]["events"]["Row"] & {
   current_record: Database["public"]["Tables"]["records"]["Row"] | null;
+  tags?: Database["public"]["Tables"]["tags"]["Row"][];
 };
 
 type DbRecordRow = Database["public"]["Tables"]["records"]["Row"];
@@ -28,6 +33,7 @@ export function mapEvent(row: DbEventRow): EventWithCurrentRecord {
     updatedAt: row.updated_at,
     title: row.title ?? "",
     currentRecordId: row.current_record_id ? row.current_record_id + "" : null,
+    tags: row.tags?.map((tag) => ({ id: tag.id + "", title: tag.title })),
   };
   const records = row.current_record ? [mapRecord(row.current_record)] : [];
   return attachCurrentRecord(entity, records);

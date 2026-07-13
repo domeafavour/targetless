@@ -210,7 +210,7 @@ export default function CompleteRecordButton({
         <DialogContent className="space-y-0 gap-3">
           <DialogHeader className="flex flex-row items-start justify-between gap-4">
             <div className="space-y-3">
-              <DialogTitle className="text-cyan-300">
+              <DialogTitle className="text-primary">
                 Complete Record
               </DialogTitle>
             </div>
@@ -233,7 +233,7 @@ export default function CompleteRecordButton({
           <div className="mt-4 flex flex-col gap-4">
             <form.Field name="note">
               {(field) => (
-                <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+                <label className="flex flex-col gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                   Note (optional)
                   <textarea
                     value={field.state.value}
@@ -242,7 +242,7 @@ export default function CompleteRecordButton({
                     disabled={mutation.isPending}
                     rows={3}
                     placeholder="Add a note for the completed record"
-                    className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-base normal-case tracking-normal text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+                    className="rounded-2xl border border bg-card px-4 py-3 text-base normal-case tracking-normal text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                   />
                 </label>
               )}
@@ -250,13 +250,13 @@ export default function CompleteRecordButton({
 
             <form.Field name="createNext">
               {(field) => (
-                <label className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
+                <label className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                   <input
                     type="checkbox"
                     name={field.name}
                     checked={field.state.value}
                     onChange={(e) => field.handleChange(e.target.checked)}
-                    className="h-4 w-4 rounded border border-white/30 bg-transparent"
+                    className="h-4 w-4 rounded border border bg-transparent"
                     disabled={mutation.isPending}
                   />
                   <span className="whitespace-nowrap">Create next record</span>
@@ -293,11 +293,11 @@ export default function CompleteRecordButton({
                               disabled={mutation.isPending}
                               placeholder="Please enter the next count (e.g., 10, +5, -3)"
                               className={cn(
-                                "text-2xl font-bold flex-1 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none",
+                                "text-2xl font-bold flex-1 rounded-2xl border border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none",
                                 "placeholder:text-lg",
                               )}
                             />
-                            <strong className="text-cyan-300 shrink-0 font-semibold font-mono text-2xl">
+                            <strong className="text-primary shrink-0 font-semibold font-mono text-2xl">
                               {getRealNextCount(
                                 event.currentRecord?.count ?? 0,
                                 field.state.value,
@@ -342,7 +342,7 @@ export default function CompleteRecordButton({
             </form.Subscribe>
 
             {mutation.error ? (
-              <p className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              <p className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {mutation.error.message}
               </p>
             ) : null}

@@ -9,6 +9,13 @@ const isGithubPages = process.env.GITHUB_PAGES === "true";
 
 const config = defineConfig({
   base: isGithubPages ? "/targetless/" : "/",
+  optimizeDeps: {
+    include: [
+      '@tanstack/react-router-devtools',
+      '@tanstack/react-devtools',
+      '@tanstack/router-devtools-core',
+    ],
+  },
   plugins: [
     devtools(),
     // this is the plugin that enables path aliases

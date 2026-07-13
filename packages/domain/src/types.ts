@@ -1,3 +1,8 @@
+export type EventTag = {
+  id: string;
+  title: string;
+};
+
 export type EventRecord = {
   id: string;
   createdAt: string;
@@ -15,6 +20,7 @@ export type EventEntity = {
   title: string;
   currentRecordId: string | null;
   completed: boolean;
+  tags?: EventTag[];
 };
 
 export type EventWithCurrentRecord = EventEntity & {
@@ -59,6 +65,7 @@ export type EventsSortOrder = "asc" | "desc";
 
 export type ListEventsParams = {
   filter?: EventsFilter;
+  tags?: string[]; // filter by tag IDs
   sortField?: EventsSortField;
   sortOrder?: EventsSortOrder;
 };
